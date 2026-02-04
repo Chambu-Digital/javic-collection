@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Banner API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Banner API Test</h1>
+    
+    <button onclick="listBanners()">List All Banners</button>
+    <button onclick="testBannerById()">Test Banner by ID</button>
+    <button onclick="deleteBanner()">Delete Banner</button>
+    
+    <div id="results"></div>
+
+    <script>
+        let currentBannerId = null;
+
+        async function listBanners() {
+            const resultsDiv = document.getElementById('results');
+            try {
+                const response = await fetch('/api/admin/banners');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="result">
+                            <h3>All Banners:</h3>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                    
+                    // Store the first banner ID for testing
+                    if (data.length > 0) {
+                        currentBannerId = data[0]._id;
+                        console.log('Current banner ID:', currentBannerId);
+                    }
+                } else {
+                    resultsDiv.innerHTML = `<div class="result">Error: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result">Network Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testBannerById() {
+            if (!currentBannerId) {
+                alert('Please list banners first to get an ID');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            try {
+                const response = await fetch(`/api/admin/banners/${currentBannerId}`);
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">
+                        <h3>Banner by ID (${currentBannerId}):</h3>
+                        <p>Status: ${response.status}</p>
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result">Network Error: ${error.message}</div>`;
+            }
+        }
+
+        async function deleteBanner() {
+            if (!currentBannerId) {
+                alert('Please list banners first to get an ID');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete banner ${currentBannerId}?`)) {
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            try {
+                const response = await fetch(`/api/admin/banners/${currentBannerId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="result">
+                        <h3>Delete Banner Result:</h3>
+                        <p>Status: ${response.status}</p>
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+                
+                if (response.ok) {
+                    currentBannerId = null;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result">Network Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-load banners on page load
+        window.onload = listBanners;
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Electrical plug body -->
+  <path d="M8 12C8 10.8954 8.89543 10 10 10H22C23.1046 10 24 10.8954 24 12V18C24 19.1046 23.1046 20 22 20H10C8.89543 20 8 19.1046 8 18V12Z" fill="#2D3748"/>
+  
+  <!-- Plug prongs -->
+  <rect x="12" y="6" width="2" height="6" rx="1" fill="#A0AEC0"/>
+  <rect x="18" y="6" width="2" height="6" rx="1" fill="#A0AEC0"/>
+  
+  <!-- Lightning bolt -->
+  <path d="M17 13L15 16H16.5L15 19L17 16H15.5L17 13Z" fill="#F6AD55"/>
+  
+  <!-- Cable -->
+  <path d="M16 20C16 20 12 22 8 26C6 28 6 30 8 30C10 30 12 28 14 26C18 22 22 20 22 20" stroke="#718096" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

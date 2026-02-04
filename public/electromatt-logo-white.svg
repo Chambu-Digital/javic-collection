@@ -1,0 +1,18 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="30" cy="30" r="25" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  
+  <!-- Lightning Bolt -->
+  <path d="M20 15 L35 15 L28 30 L40 30 L25 45 L32 30 L20 30 Z" fill="#FFFFFF" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/>
+  
+  <!-- Electrical Plug Prongs -->
+  <rect x="22" y="35" width="3" height="8" rx="1.5" fill="#FFFFFF"/>
+  <rect x="35" y="35" width="3" height="8" rx="1.5" fill="#FFFFFF"/>
+  
+  <!-- Power Cable -->
+  <path d="M30 43 Q35 48 40 45 Q45 42 50 45" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Company Name -->
+  <text x="65" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">ELECTROMATT</text>
+  <text x="65" y="40" font-family="Arial, sans-serif" font-size="8" fill="rgba(255,255,255,0.7)">ELECTRONICS STORE</text>
+</svg>
