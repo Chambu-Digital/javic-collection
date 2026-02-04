@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ensureDBConnection } from '@/lib/db-utils'
+import connectDB from '@/lib/mongodb'
 import Category from '@/models/Category'
 
 export async function GET(request: NextRequest) {
   try {
-    await ensureDBConnection()
+    await connectDB()
     
     const { searchParams } = new URL(request.url)
     const includeInactive = searchParams.get('includeInactive') === 'true'

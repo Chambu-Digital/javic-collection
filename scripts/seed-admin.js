@@ -213,13 +213,11 @@ async function seedAdmin() {
 
   } catch (error) {
     console.error('Error seeding admin:', error)
-    process.exit(1)
   } finally {
-    await closeDB()
+    await mongoose.disconnect()
+    console.log('Disconnected from MongoDB')
   }
 }
 
-// Run the script if this file is executed directly
-if (require.main === module) {
-  seedAdmin()
-}
+// Run the seeding
+seedAdmin()
