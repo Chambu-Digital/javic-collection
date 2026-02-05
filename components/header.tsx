@@ -110,7 +110,7 @@ export default function Header() {
             <div className="relative min-w-max">
               <img 
                 src="/electromatt-logo-compact.svg" 
-                alt="Electromatt Logo" 
+                alt="Javic Collection Logo" 
                 className="h-8 w-auto lg:h-10 transition-transform duration-200 hover:scale-105 max-w-none"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -121,7 +121,7 @@ export default function Header() {
               <div className="hidden flex items-center gap-2">
                 <Zap className="w-8 h-8 lg:w-10 lg:h-10 text-primary" />
                 <h1 className="text-lg lg:text-3xl font-black text-primary uppercase tracking-wide">
-                  ELECTROMATT
+                  JAVIC COLLECTION
                 </h1>
               </div>
             </div>

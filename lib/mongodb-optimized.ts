@@ -18,10 +18,6 @@ const MONGODB_OPTIONS = {
   serverSelectionTimeoutMS: 5000, // How long to try selecting a server
   socketTimeoutMS: 45000, // How long a send or receive on a socket can take
   
-  // Buffering Settings
-  bufferCommands: false,  // Disable mongoose buffering
-  bufferMaxEntries: 0,    // Disable mongoose buffering
-  
   // Retry Settings
   retryWrites: true,      // Enable retryable writes
   retryReads: true,       // Enable retryable reads
@@ -29,18 +25,14 @@ const MONGODB_OPTIONS = {
   // Heartbeat Settings
   heartbeatFrequencyMS: 10000, // How often to check server status
   
-  // Compression
-  compressors: ['zlib'],  // Enable compression to reduce bandwidth
-  
   // Connection Management
   connectTimeoutMS: 10000, // How long to wait for initial connection
-  family: 4,              // Use IPv4, skip trying IPv6
 }
 
-let cached = global.mongoose
+let cached = (globalThis as any).mongoose
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null }
+  cached = (globalThis as any).mongoose = { conn: null, promise: null }
 }
 
 /**

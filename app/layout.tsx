@@ -12,7 +12,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'ELECTROMATT - Premium Electronics & Appliances',
+  title: 'JAVIC COLLECTION - Premium Electronics & Appliances',
   description: 'Your trusted electronics store for fridges, microwaves, TVs, smartphones, and all electronic appliances. Quality products with excellent service.',
   generator: 'v0.app',
   verification: {

@@ -38,7 +38,7 @@ export default async function BlogPage() {
   const featuredContent = [
     {
       id: 1,
-      title: "Smart Home Revolution with Electromatt",
+      title: "Smart Home Revolution with Javic Collection",
       excerpt: "Discover the latest smart home devices that are changing how we live.",
       category: "Smart Home",
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600",

@@ -17,7 +17,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [imageUploading, setImageUploading] = useState(false)
   const [categories, setCategories] = useState<ICategory[]>([])
   const [product, setProduct] = useState<IProduct | null>(null)
-  const [newBenefit, setNewBenefit] = useState('')
   const [newTag, setNewTag] = useState('')
   const [formData, setFormData] = useState({
     name: '',
@@ -31,9 +30,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     stockQuantity: 0,
     images: [] as string[],
     variants: [] as IVariant[],
-    ingredients: '',
-    usage: '',
-    benefits: [] as string[],
     tags: [] as string[],
     isFeatured: false,
     isFlashDeal: false,
@@ -75,9 +71,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           stockQuantity: data.stockQuantity || 0,
           images: data.images || [],
           variants: data.variants || [],
-          ingredients: data.ingredients || '',
-          usage: data.usage || '',
-          benefits: data.benefits || [],
           tags: data.tags || [],
           isFeatured: data.isFeatured || false,
           isFlashDeal: data.isFlashDeal || false,

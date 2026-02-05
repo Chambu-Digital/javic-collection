@@ -14,7 +14,7 @@ export default function Footer() {
             <div className="flex items-center gap-3 mb-4">
               <img 
                 src="/electromatt-icon-only.svg" 
-                alt="Electromatt Logo" 
+                alt="Javic Collection Logo" 
                 className="w-10 h-10 transition-transform duration-200 hover:scale-105"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -25,7 +25,7 @@ export default function Footer() {
               <div className="hidden">
                 <Zap className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="text-xl font-black uppercase tracking-wide">ELECTROMATT</h2>
+              <h2 className="text-xl font-black uppercase tracking-wide">JAVIC COLLECTION</h2>
             </div>
             <p className="text-base opacity-90 leading-relaxed max-w-sm">
               Kenya's trusted electronics retailer. Quality appliances, competitive prices, exceptional service.
@@ -70,7 +70,7 @@ export default function Footer() {
               </a>
               
               <a 
-                href="mailto:sales@electromatt.co.ke" 
+                href="mailto:sales@javiccollection.co.ke" 
                 className="flex items-center gap-3 text-sm hover:text-primary transition-colors duration-200 group"
               >
                 <div className="bg-primary-foreground/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
@@ -78,7 +78,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <div className="font-medium">Email Us</div>
-                  <div className="text-xs opacity-75">sales@electromatt.co.ke</div>
+                  <div className="text-xs opacity-75">sales@javiccollection.co.ke</div>
                 </div>
               </a>
               
@@ -154,7 +154,7 @@ export default function Footer() {
         <div className="border-t border-primary-foreground/20 pt-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
             <span className="text-sm">
-              &copy; 2026 <span className="font-bold uppercase tracking-wide">ELECTROMATT</span>. All rights reserved.
+              &copy; 2026 <span className="font-bold uppercase tracking-wide">JAVIC COLLECTION</span>. All rights reserved.
             </span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-xs opacity-70">

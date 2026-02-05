@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       comment: comment.trim(),
       images: [],
       customerName: customerName || 'Anonymous Customer',
-      customerEmail: 'demo@electromatt.co.ke',
+      customerEmail: 'demo@javiccollection.co.ke',
       isVerifiedPurchase: false, // Demo reviews are not verified purchases
       status: 'approved' // Auto-approve demo reviews for immediate visibility
     })

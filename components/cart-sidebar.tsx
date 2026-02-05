@@ -65,7 +65,7 @@ export default function CartSidebar({ children }: CartSidebarProps) {
         '+254713065412', // Placeholder - customer will provide real phone
         orderItems,
         { county: 'Nairobi', area: 'CBD' }, // Default location
-        'whatsapp@electromatt.co.ke' // Default email
+        'whatsapp@javiccollection.co.ke' // Default email
       )
       
       // Close cart sidebar

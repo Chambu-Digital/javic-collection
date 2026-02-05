@@ -58,7 +58,7 @@ const featuredTestimonials = [
     _id: '4',
     rating: 5,
     title: 'Outstanding Experience',
-    comment: 'From browsing to delivery, everything was smooth. Great team at Electromatt!',
+    comment: 'From browsing to delivery, everything was smooth. Great team at Javic Collection!',
     createdAt: '2024-01-05',
     productId: { _id: '4', name: 'iPhone 15', images: [] },
     userId: { _id: '4', firstName: 'David', lastName: 'Ochieng' }
@@ -232,7 +232,7 @@ export default function TestimonialsPage() {
               Share Your Experience
             </h2>
             <p className="text-muted-foreground mb-6">
-              Purchased from Electromatt? We'd love to hear your feedback!
+              Purchased from Javic Collection? We'd love to hear your feedback!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3">

@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 
 export interface IVariant {
   id: string
-  type: 'size' | 'scent' | 'color' | 'strength' | 'custom'
-  value: string
+  color: string
+  availableSizes: string[]
   price: number
   oldPrice?: number
   wholesalePrice?: number
@@ -58,15 +58,15 @@ const VariantSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  type: {
+  color: {
     type: String,
     required: true,
-    enum: ['size', 'scent', 'color', 'strength', 'custom']
+    trim: true
   },
-  value: {
+  availableSizes: [{
     type: String,
-    required: true
-  },
+    trim: true
+  }],
   price: {
     type: Number,
     required: true,

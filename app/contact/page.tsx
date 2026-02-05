@@ -32,7 +32,7 @@ export default function ContactPage() {
   }
 
   const handleWhatsAppClick = () => {
-    const message = `Hello ELECTROMATT Store!
+    const message = `Hello JAVIC COLLECTION Store!
 
 I am interested in getting in touch with your store. Please let me know how I can get more information about your products and services.
 
@@ -61,8 +61,8 @@ Thank you!`
     {
       icon: Mail,
       title: 'Email Us',
-      details: 'info@electromatt.co.ke',
-      link: 'mailto:info@electromatt.co.ke',
+      details: 'info@javiccollection.co.ke',
+      link: 'mailto:info@javiccollection.co.ke',
       color: 'text-purple-600'
     },
     {
@@ -291,7 +291,7 @@ Thank you!`
         
         {/* Tooltip */}
         <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          Chat with ELECTROMATT
+          Chat with JAVIC COLLECTION
           <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
         </div>
       </div>

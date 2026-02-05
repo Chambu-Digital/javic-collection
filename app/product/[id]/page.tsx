@@ -20,6 +20,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const resolvedParams = use(params)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<IVariant | null>(null)
+  const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [allImages, setAllImages] = useState<string[]>([])
   const [isFavorite, setIsFavorite] = useState(false)
@@ -74,8 +75,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   }, [product])
 
   // Handle variant selection and update image
-  const handleVariantChange = (variant: IVariant | null) => {
+  const handleVariantChange = (variant: IVariant | null, size?: string) => {
     setSelectedVariant(variant)
+    if (size) {
+      setSelectedSize(size)
+    }
     
     if (variant && variant.image) {
       // Find the index of the variant's image in the combined image array
@@ -139,7 +143,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     // Get current price and image based on variant selection or product defaults
     const currentPrice = selectedVariant ? selectedVariant.price : getProductDisplayPrice(product).price
     const currentImage = selectedVariant ? selectedVariant.image : getProductDisplayImage(product)
-    const variantName = selectedVariant ? selectedVariant.value : undefined
+    const variantName = selectedVariant ? `${selectedVariant.color}${selectedSize ? ` - ${selectedSize}` : ''}` : undefined
     
     // Create cart item with wholesale pricing data
     const cartItem = {
@@ -150,8 +154,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       wholesaleThreshold: selectedVariant?.wholesaleThreshold || product.wholesaleThreshold,
       image: currentImage,
       quantity: quantity,
-      selectedSize: selectedVariant?.type === 'size' ? selectedVariant.value : undefined,
-      selectedScent: selectedVariant?.type === 'scent' ? selectedVariant.value : undefined,
+      selectedColor: selectedVariant?.color,
+      selectedSize: selectedSize || undefined,
       variantId: selectedVariant?.id,
     }
     
