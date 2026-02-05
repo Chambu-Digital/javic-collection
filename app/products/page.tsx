@@ -145,7 +145,7 @@ export default function ProductsPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-3">All Products</h1>
             <p className="text-primary-foreground/90">
-              Discover our complete range of electronics and appliances
+              Discover our complete range of inner wear, sleepwear, and intimate apparel
             </p>
           </div>
         </div>

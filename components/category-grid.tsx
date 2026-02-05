@@ -88,7 +88,7 @@ export default function CategoryGrid() {
             Shop by Category
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover our wide range of electronics and appliances
+            Discover our wide range of inner wear, sleepwear, and intimate apparel
           </p>
         </div>
 

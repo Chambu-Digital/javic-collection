@@ -12,8 +12,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'JAVIC COLLECTION - Premium Electronics & Appliances',
-  description: 'Your trusted electronics store for fridges, microwaves, TVs, smartphones, and all electronic appliances. Quality products with excellent service.',
+  title: 'JAVIC COLLECTION - Premium Inner Wear & Sleepwear | +254 706 512 984',
+  description: 'Kenya\'s trusted clothing store specializing in quality inner wear, sleepwear, pajamas, and intimate apparel. Premium fabrics, comfortable fits, affordable prices. Call +254 706 512 984.',
   generator: 'v0.app',
   verification: {
     google: 'KO8RUPFOnU-K9AlHfBWRRcuYQG6jIrs9yihNFWfJ-yY',

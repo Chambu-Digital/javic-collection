@@ -30,7 +30,7 @@ export default function Footer() {
               <h2 className="text-xl font-black uppercase tracking-wide">JAVIC COLLECTION</h2>
             </div>
             <p className="text-base opacity-90 leading-relaxed max-w-sm">
-              Kenya's trusted electronics retailer. Quality appliances, competitive prices, exceptional service.
+              Kenya's trusted clothing retailer specializing in inner wear and sleepwear. Quality fabrics, comfortable fits, exceptional service. Call +254 706 512 984.
             </p>
             <div className="flex items-center gap-3 text-sm opacity-80 bg-primary-foreground/5 px-4 py-3 rounded-lg">
               <Clock className="w-5 h-5 text-primary" />

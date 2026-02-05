@@ -47,10 +47,10 @@ export default function ReviewStatsSection() {
     {
       id: 2,
       rating: 5,
-      title: "Best Electronics Store in Town",
-      comment: "ELECTROMATT has the best prices and genuine products. I've bought my TV, microwave, and blender from them. Their after-sales service is excellent, and they always follow up to ensure everything is working well.",
+      title: "Best Clothing Store for Inner Wear",
+      comment: "JAVIC COLLECTION has the best quality inner wear and sleepwear. I've bought pajamas, undergarments, and nightwear from them. The fabrics are so comfortable and the fit is perfect. Their customer service is excellent!",
       customerName: "John K.",
-      productName: "LG Smart TV 55 inch",
+      productName: "Cotton Pajama Set",
       date: "1 month ago",
       verified: true,
       location: "Mombasa"
@@ -69,10 +69,10 @@ export default function ReviewStatsSection() {
     {
       id: 4,
       rating: 5,
-      title: "Professional Installation Service",
-      comment: "Not only do they sell quality appliances, but their installation service is top-notch. The technicians were professional, clean, and explained everything clearly. My new washing machine works perfectly!",
+      title: "Professional Fitting Service",
+      comment: "Not only do they sell quality clothing, but their fitting consultation service is top-notch. The staff were professional, helpful, and explained sizing clearly. My new sleepwear fits perfectly!",
       customerName: "David O.",
-      productName: "LG Front Load Washing Machine",
+      productName: "Silk Nightgown Set",
       date: "1 week ago",
       verified: true,
       location: "Eldoret"

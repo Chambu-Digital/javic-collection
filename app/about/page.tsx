@@ -12,7 +12,7 @@ export default function AboutPage() {
     {
       icon: Zap,
       title: 'Latest Technology',
-      description: 'We offer cutting-edge electronics and appliances with the latest features and innovations.',
+      description: 'We offer premium quality inner wear and sleepwear with the finest fabrics and latest comfort innovations.',
     },
     {
       icon: Shield,
@@ -55,7 +55,7 @@ export default function AboutPage() {
               About <span className="font-black uppercase tracking-wide">ELECTROMATT</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-6 max-w-3xl mx-auto">
-              Kenya's premier electronics retailer since 2018. From home appliances to smart devices, we bring you the latest technology with exceptional service and unbeatable prices.
+              Kenya's premier clothing retailer specializing in quality inner wear and sleepwear. From comfortable pajamas to premium intimate apparel, we offer the finest fabrics with exceptional comfort and style at unbeatable prices. Call +254 706 512 984.
             </p>
           </div>
         </section>

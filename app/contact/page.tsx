@@ -245,7 +245,7 @@ Thank you!`
                         Installation Service?
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Professional installation available for all major appliances.
+                        Professional fitting consultation available for all intimate apparel.
                       </p>
                     </div>
                     <div>
@@ -265,7 +265,7 @@ Thank you!`
                     Ready to Shop?
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Browse our latest electronics and appliances
+                    Browse our latest inner wear and sleepwear collections
                   </p>
                   <Link href="/products">
                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2">

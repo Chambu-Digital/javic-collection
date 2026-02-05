@@ -180,7 +180,7 @@ export default function Header() {
                 <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search electronics..."
+                  placeholder="Search inner wear, sleepwear..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
@@ -297,7 +297,7 @@ export default function Header() {
                   <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   <input
                     type="text"
-                    placeholder="Search electronics..."
+                    placeholder="Search inner wear, sleepwear..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}

@@ -8,9 +8,9 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Our Blog | Electronics Reviews, Tips & Tech News',
-  description: 'Stay updated with the latest electronics reviews, buying guides, tech tips, and product comparisons. Your trusted source for electronics knowledge.',
-  keywords: 'electronics blog, product reviews, tech news, buying guides, electronics tips, appliance reviews'
+  title: 'Our Blog | Fashion Tips, Inner Wear Guide & Style News',
+  description: 'Stay updated with the latest fashion tips, inner wear guides, sleepwear trends, and style advice. Your trusted source for clothing and fashion knowledge.',
+  keywords: 'fashion blog, inner wear guide, sleepwear tips, clothing advice, fashion trends, intimate apparel reviews'
 }
 
 async function fetchBlogPosts() {

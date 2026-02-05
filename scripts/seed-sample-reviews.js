@@ -37,7 +37,7 @@ const sampleReviews = [
   {
     rating: 5,
     title: "Excellent quality and fast delivery!",
-    comment: "I'm very impressed with this product. The quality is outstanding and it arrived much faster than expected. Highly recommend ELECTROMATT for electronics shopping!",
+    comment: "I'm very impressed with this product. The quality is outstanding and it arrived much faster than expected. Highly recommend JAVIC COLLECTION for inner wear shopping!",
     customerName: "Sarah M."
   },
   {
@@ -73,7 +73,7 @@ const sampleReviews = [
   {
     rating: 5,
     title: "Highly recommended!",
-    comment: "Amazing product quality and excellent customer service. ELECTROMATT has become my go-to store for electronics. Fast shipping and great prices!",
+    comment: "Amazing product quality and excellent customer service. JAVIC COLLECTION has become my go-to store for inner wear and sleepwear. Fast shipping and great prices!",
     customerName: "Linda T."
   },
   {
