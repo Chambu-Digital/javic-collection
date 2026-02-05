@@ -25,11 +25,11 @@ export const metadata: Metadata = {
         type: 'image/svg+xml',
       },
       {
-        url: '/electromatt-icon-only.svg',
-        type: 'image/svg+xml',
+        url: '/javiclogo.png',
+        type: 'image/png',
       },
     ],
-    apple: '/electromatt-icon-only.svg',
+    apple: '/javiclogo.png',
     shortcut: '/favicon.svg',
   },
 }

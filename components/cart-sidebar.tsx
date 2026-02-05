@@ -62,7 +62,7 @@ export default function CartSidebar({ children }: CartSidebarProps) {
       // Send WhatsApp order with automatic recording
       await sendWhatsAppOrder(
         'Customer', // Default name - customer will provide real name in WhatsApp
-        '+254713065412', // Placeholder - customer will provide real phone
+        '+254706512984', // Placeholder - customer will provide real phone
         orderItems,
         { county: 'Nairobi', area: 'CBD' }, // Default location
         'whatsapp@javiccollection.co.ke' // Default email

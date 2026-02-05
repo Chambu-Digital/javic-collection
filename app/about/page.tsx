@@ -82,7 +82,7 @@ export default function AboutPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-card-foreground mb-3">Location & Contact</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Phone: +254 713 065 412</p>
+                    <p>Phone: +254 706 512 984</p>
                     <p>Email: sales@electromatt.co.ke</p>
                   </div>
                 </div>

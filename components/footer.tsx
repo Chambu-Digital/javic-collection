@@ -12,18 +12,20 @@ export default function Footer() {
           {/* Brand & Description */}
           <div className="md:col-span-1 space-y-6">
             <div className="flex items-center gap-3 mb-4">
-              <img 
-                src="/electromatt-icon-only.svg" 
-                alt="Javic Collection Logo" 
-                className="w-10 h-10 transition-transform duration-200 hover:scale-105"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-              <div className="hidden">
-                <Zap className="w-10 h-10 text-primary" />
+              <div className="w-10 h-10 rounded-full border-2 border-yellow-400 bg-gradient-to-br from-yellow-300 to-yellow-500 shadow-lg overflow-hidden flex items-center justify-center">
+                <img 
+                  src="/javiclogo.png" 
+                  alt="Javic Collection Logo" 
+                  className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden">
+                  <Zap className="w-10 h-10 text-primary" />
+                </div>
               </div>
               <h2 className="text-xl font-black uppercase tracking-wide">JAVIC COLLECTION</h2>
             </div>
@@ -44,7 +46,7 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4 text-primary">Contact Us</h3>
             <div className="space-y-4">
               <a 
-                href="tel:+254713065412" 
+                href="tel:+254706512984" 
                 className="flex items-center gap-3 text-sm hover:text-primary transition-colors duration-200 group"
               >
                 <div className="bg-primary-foreground/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
@@ -52,12 +54,12 @@ export default function Footer() {
                 </div>
                 <div>
                   <div className="font-medium">Call Us</div>
-                  <div className="text-xs opacity-75">+254 713 065 412</div>
+                  <div className="text-xs opacity-75">+254 706 512 984</div>
                 </div>
               </a>
               
               <a 
-                href="https://wa.me/254713065412" 
+                href="https://wa.me/254706512984" 
                 className="flex items-center gap-3 text-sm hover:text-green-400 transition-colors duration-200 group"
               >
                 <div className="bg-green-600/20 p-2 rounded-lg group-hover:bg-green-600/30 transition-colors">

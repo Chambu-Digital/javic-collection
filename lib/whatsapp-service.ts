@@ -69,7 +69,7 @@ Thank you!`
 
 export const sendWhatsAppMessage = (
   message: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254713065412'
+  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
 ) => {
   const encodedMessage = encodeURIComponent(message)
   const whatsappLink = `https://wa.me/${businessPhone}?text=${encodedMessage}`
@@ -90,7 +90,7 @@ export const sendWhatsAppOrder = async (
   }>,
   shippingAddress?: { county: string; area: string },
   customerEmail?: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254713065412'
+  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
 ) => {
   // Generate the WhatsApp message
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -171,7 +171,7 @@ Order Reference: ${data.order.orderNumber}`
 }
 
 export const openWhatsAppChat = (
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254713065412'
+  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
 ) => {
   const whatsappLink = `https://wa.me/${businessPhone}`
   window.open(whatsappLink, '_blank')
@@ -182,9 +182,9 @@ export const BUSINESS_PROFILE = {
   name: 'ELECTROMATT Store',
   description: 'Kenya\'s trusted electronics retailer since 2018. Quality appliances, competitive prices, exceptional service.',
   address: 'Agro House, Moi Avenue, 1st Floor Rm 35, Nairobi, Kenya',
-  phone: '+254 713 065 412',
+  phone: '+254 706 512 984',
   email: 'info@electromatt.co.ke',
   website: 'https://electromatt.co.ke',
   businessHours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-5PM, Sun: 10AM-4PM',
-  logo: '/electromatt-icon-only.svg'
+  logo: '/javiclogo.png'
 }

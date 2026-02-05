@@ -39,7 +39,7 @@ I am interested in getting in touch with your store. Please let me know how I ca
 Thank you!`
     
     const encodedMessage = encodeURIComponent(message)
-    const whatsappLink = `https://wa.me/254713065412?text=${encodedMessage}`
+    const whatsappLink = `https://wa.me/254706512984?text=${encodedMessage}`
     window.open(whatsappLink, '_blank')
   }
 
@@ -47,15 +47,15 @@ Thank you!`
     {
       icon: Phone,
       title: 'Call Us',
-      details: '+254 713 065 412',
-      link: 'tel:+254713065412',
+      details: '+254 706 512 984',
+      link: 'tel:+254706512984',
       color: 'text-blue-600'
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
-      details: '+254 713 065 412',
-      link: 'https://wa.me/254713065412',
+      details: '+254 706 512 984',
+      link: 'https://wa.me/254706512984',
       color: 'text-green-600'
     },
     {

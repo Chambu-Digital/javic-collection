@@ -92,11 +92,11 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center py-2">
             <a 
-              href="tel:+254713065412" 
+              href="tel:+254706512984" 
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
             >
               <Phone className="w-4 h-4" />
-              <span className="font-medium">+254 713 065 412</span>
+              <span className="font-medium">+254 706 512 984</span>
             </a>
           </div>
         </div>
@@ -107,22 +107,23 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 flex-shrink-0 min-w-0">
-            <div className="relative min-w-max">
-              <img 
-                src="/electromatt-logo-compact.svg" 
-                alt="Javic Collection Logo" 
-                className="h-8 w-auto lg:h-10 transition-transform duration-200 hover:scale-105 max-w-none"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-              <div className="hidden flex items-center gap-2">
-                <Zap className="w-8 h-8 lg:w-10 lg:h-10 text-primary" />
-                <h1 className="text-lg lg:text-3xl font-black text-primary uppercase tracking-wide">
-                  JAVIC COLLECTION
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full border-2 border-yellow-400 bg-gradient-to-br from-yellow-300 to-yellow-500 shadow-lg overflow-hidden flex items-center justify-center">
+                  <img 
+                    src="/javiclogo.png" 
+                    alt="Javic Collection Logo" 
+                    className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-start">
+                <h1 className="text-lg lg:text-2xl font-black uppercase tracking-wide leading-tight bg-gradient-to-r from-primary via-primary/80 to-primary bg-[length:200%_100%] animate-pulse bg-clip-text text-transparent">
+                  JAVIC
                 </h1>
+                <h2 className="text-xs lg:text-sm font-medium text-muted-foreground capitalize tracking-wider leading-tight">
+                  Collection
+                </h2>
               </div>
             </div>
           </Link>

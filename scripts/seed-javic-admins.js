@@ -163,7 +163,7 @@ async function seedJavicAdmins() {
         lastName: 'Admin',
         email: 'admin@javic.com',
         password: 'admin123',
-        phone: '+254713065412',
+        phone: '+254706512984',
         role: 'admin'
       },
       {
@@ -171,7 +171,7 @@ async function seedJavicAdmins() {
         lastName: 'SuperAdmin',
         email: 'superadmin@javic.com',
         password: 'superadmin123',
-        phone: '+254713065412',
+        phone: '+254706512984',
         role: 'super_admin'
       }
     ]

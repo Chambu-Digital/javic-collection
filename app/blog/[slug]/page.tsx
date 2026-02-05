@@ -259,7 +259,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Call to Action */}
         <div className="mt-8 bg-primary/5 rounded-2xl p-8 text-center">
           <img 
-            src="/electromatt-icon-only.svg" 
+            src="/javiclogo.png" 
             alt="Javic Collection Logo" 
             className="w-12 h-12 mx-auto mb-4"
           />

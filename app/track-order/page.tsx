@@ -235,9 +235,9 @@ export default function TrackOrderPage() {
               <div className="text-sm text-gray-500">
                 <p>Need help? Contact us:</p>
                 <div className="flex items-center justify-center gap-4 mt-2">
-                  <a href="tel:+254713065412" className="flex items-center gap-1 hover:text-primary">
+                  <a href="tel:+254706512984" className="flex items-center gap-1 hover:text-primary">
                     <Phone className="w-4 h-4" />
-                    +254 713 065 412
+                    +254 706 512 984
                   </a>
                   <a href="mailto:support@javiccollection.co.ke" className="flex items-center gap-1 hover:text-primary">
                     <Mail className="w-4 h-4" />
