@@ -1,0 +1,29 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <circle cx="90" cy="90" r="90" fill="url(#gradient)"/>
+  
+  <!-- Letter J and C stylized - larger for Apple icon -->
+  <g transform="translate(35, 40)">
+    <!-- J -->
+    <path d="M20 10 L20 55 Q20 70 10 70" stroke="white" stroke-width="9" stroke-linecap="round" fill="none"/>
+    
+    <!-- C -->
+    <path d="M85 25 Q65 25 65 50 Q65 75 85 75" stroke="white" stroke-width="9" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- Decorative dots -->
+  <circle cx="90" cy="140" r="4" fill="white" opacity="0.8"/>
+  <circle cx="78" cy="140" r="4" fill="white" opacity="0.6"/>
+  <circle cx="102" cy="140" r="4" fill="white" opacity="0.6"/>
+  
+  <!-- Small text -->
+  <text x="90" y="155" font-family="serif" font-size="14" font-weight="300" fill="white" text-anchor="middle" opacity="0.9">COLLECTION</text>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF0066;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF4D94;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Create the order
     const order = new Order({
       userId: guestUserId,
-      customerEmail: customerEmail || 'whatsapp@electromatt.co.ke',
+      customerEmail: customerEmail || 'whatsapp@javiccollection.co.ke',
       customerPhone: customerPhone,
       items: processedItems,
       subtotal,

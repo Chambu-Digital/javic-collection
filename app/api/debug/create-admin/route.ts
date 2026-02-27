@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     // Check if admin already exists
     const existingAdmin = await User.findOne({ 
       $or: [
-        { email: 'admin@electromatt.co.ke' },
+        { email: 'admin@javiccollection.co.ke' },
         { role: 'super_admin' }
       ]
     })
@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
     
     // Create new admin user
     const adminUser = new User({
-      firstName: 'Electromatt',
+      firstName: 'Javic',
       lastName: 'Admin',
-      email: 'admin@electromatt.co.ke',
+      email: 'admin@javiccollection.co.ke',
       password: 'admin123',
       phone: '+254706512984',
       role: 'super_admin',
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         isApproved: adminUser.isApproved
       },
       credentials: {
-        email: 'admin@electromatt.co.ke',
+        email: 'admin@javiccollection.co.ke',
         password: 'admin123'
       }
     }, { status: 201 })

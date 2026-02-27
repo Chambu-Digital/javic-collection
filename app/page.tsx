@@ -1,8 +1,5 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { ShoppingCart, User, Search, Zap, ChevronLeft, ChevronRight, Star } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import HeroSlider from '@/components/hero-slider'
 import CategoryGrid from '@/components/category-grid'
 import FlashDealsSection from '@/components/flash-deals'
@@ -17,16 +14,19 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       
-      <main className="flex-1 space-y-12 md:space-y-16">
+      <main className="flex-1">
+        {/* Hero Section */}
         <HeroSlider />
         
-        <div className="space-y-8 md:space-y-12">
+        {/* Main Content Sections */}
+        <div className="space-y-16 md:space-y-20 py-12 md:py-16">
           <CategoryGrid />
           <FlashDealsSection />
           <AllProductsSection />
         </div>
         
-        <div className="space-y-8 md:space-y-12 bg-gray-50/50">
+        {/* Blog & Reviews Section with subtle background */}
+        <div className="space-y-16 md:space-y-20 py-16 md:py-20 bg-muted/30">
           <BlogSection />
           <ReviewStatsSection />
         </div>

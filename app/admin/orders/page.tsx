@@ -150,7 +150,7 @@ export default function AdminOrdersPage() {
 
   const isWhatsAppOrder = (order: Order) => {
     return (
-      order.customerEmail === 'whatsapp@electromatt.co.ke' ||
+      order.customerEmail === 'whatsapp@javiccollection.co.ke' ||
       order.adminNotes?.includes('WhatsApp Order') ||
       order.customerNotes?.includes('Order placed via WhatsApp')
     )

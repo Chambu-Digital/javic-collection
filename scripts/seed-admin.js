@@ -157,7 +157,7 @@ async function seedAdmin() {
     await connectDB()
 
     // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: 'admin@electromatt.co.ke' })
+    const existingAdmin = await User.findOne({ email: 'admin@javiccollection.co.ke' })
     
     if (existingAdmin) {
       console.log('Admin user already exists!')
@@ -178,9 +178,9 @@ async function seedAdmin() {
       console.log('Creating admin user...')
       
       const adminUser = new User({
-        firstName: 'Electromatt',
+        firstName: 'Javic',
         lastName: 'Admin',
-        email: 'admin@electromatt.co.ke',
+        email: 'admin@javiccollection.co.ke',
         password: 'admin123', // Will be hashed by the pre-save hook
         phone: '+254706512984',
         role: 'super_admin',

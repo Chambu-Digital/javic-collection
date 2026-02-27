@@ -1,17 +1,17 @@
-# Electromatt website
+# JAVIC COLLECTION Website
 
 
 ## Overview
 
-Electromatt is a modern, responsive website built to showcase electrical products and services, providing customers with an easy way to explore offerings, learn about the brand, and get in touch.
+JAVIC COLLECTION is a modern, responsive e-commerce website built to showcase premium lingerie, sleepwear, innerwear, and sportswear, providing customers with an elegant shopping experience.
 
-This project focuses on clean UI, performance, and scalability, making it suitable for both business presentation and future expansion (e-commerce, dashboards, integrations).
+This project focuses on luxury UI design, performance, and scalability, making it suitable for fashion retail and future expansion.
 
 ## Deployment
 
-**Live Website
+**Live Website:**
 
-**https://www.electromatt.co.ke/**
+**https://www.javiccollection.co.ke/**
 
 
 ## Features

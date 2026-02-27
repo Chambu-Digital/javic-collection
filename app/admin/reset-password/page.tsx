@@ -88,9 +88,8 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-primary">
-              <Leaf className="w-8 h-8" />
-              Electromatt
+            <Link href="/" className="inline-flex items-center gap-2 text-2xl font-display font-bold gradient-text">
+              JAVIC COLLECTION
             </Link>
             <p className="text-muted-foreground mt-2">Admin Portal</p>
           </div>
@@ -131,9 +130,8 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-primary">
-            <Leaf className="w-8 h-8" />
-            Electromatt
+          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-display font-bold gradient-text">
+            JAVIC COLLECTION
           </Link>
           <p className="text-muted-foreground mt-2">Admin Portal</p>
         </div>

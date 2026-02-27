@@ -113,7 +113,7 @@ export default function AccountLayout({
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-lg font-bold text-primary">Electromatt</span>
+              <span className="text-lg font-display font-bold gradient-text">JAVIC COLLECTION</span>
             </Link>
 
             {/* Mobile menu button */}

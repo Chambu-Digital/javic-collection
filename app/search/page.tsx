@@ -115,9 +115,9 @@ export default function SearchPage() {
       <div className="bg-primary text-primary-foreground">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-3">Search Results</h1>
+            <h1 className="text-3xl font-display font-bold mb-3">Search Results</h1>
             <p className="text-primary-foreground/90">
-              Find the perfect electronics for your needs
+              Find the perfect lingerie, sleepwear, and innerwear for your style
             </p>
           </div>
         </div>

@@ -17,7 +17,7 @@ export const generateOrderMessage = (
     .map((item) => `${item.name} (Qty: ${item.quantity}) - KSH ${item.price.toFixed(2)}`)
     .join('\n')
 
-  return `Hello ELECTROMATT Store!
+  return `Hello JAVIC COLLECTION!
 
 I would like to place an order:
 
@@ -39,7 +39,7 @@ export const generateInquiryMessage = (
   name: string,
   inquiry: string
 ): string => {
-  return `Hello ELECTROMATT Store!
+  return `Hello JAVIC COLLECTION!
 
 I have an inquiry:
 
@@ -55,7 +55,7 @@ export const generateSupportMessage = (
   orderNumber: string,
   issue: string
 ): string => {
-  return `Hello ELECTROMATT Store!
+  return `Hello JAVIC COLLECTION!
 
 I need help with my order:
 
@@ -101,7 +101,7 @@ export const sendWhatsAppOrder = async (
     .map((item) => `${item.name} (Qty: ${item.quantity}) - KSH ${item.price.toLocaleString()}`)
     .join('\n')
 
-  const message = `Hello ELECTROMATT Store!
+  const message = `Hello JAVIC COLLECTION!
 
 I would like to place an order:
 
@@ -179,12 +179,12 @@ export const openWhatsAppChat = (
 
 // Business profile information for WhatsApp
 export const BUSINESS_PROFILE = {
-  name: 'ELECTROMATT Store',
-  description: 'Kenya\'s trusted electronics retailer since 2018. Quality appliances, competitive prices, exceptional service.',
-  address: 'Agro House, Moi Avenue, 1st Floor Rm 35, Nairobi, Kenya',
+  name: 'JAVIC COLLECTION',
+  description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, exceptional service.',
+  address: 'Taveta Lane, Nairobi, Kenya',
   phone: '+254 706 512 984',
-  email: 'info@electromatt.co.ke',
-  website: 'https://electromatt.co.ke',
-  businessHours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-5PM, Sun: 10AM-4PM',
-  logo: '/javiclogo.png'
+  email: 'sales@javiccollection.co.ke',
+  website: 'https://javiccollection.co.ke',
+  businessHours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-5PM',
+  logo: '/javic-logo1.png'
 }

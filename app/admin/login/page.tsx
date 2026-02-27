@@ -79,8 +79,8 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-primary">
-            Electromatt
+          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-display font-bold gradient-text">
+            JAVIC COLLECTION
           </Link>
           <p className="text-muted-foreground mt-2">Admin Portal</p>
         </div>
@@ -111,7 +111,7 @@ export default function AdminLoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@electromatt.com"
+                    placeholder="admin@javiccollection.co.ke"
                     className="pl-10"
                     {...register('email')}
                   />
@@ -163,7 +163,6 @@ export default function AdminLoginPage() {
                   </>
                 ) : (
                   <>
-                    <Shield className="mr-2 h-4 w-4" />
                     Sign In to Admin
                   </>
                 )}

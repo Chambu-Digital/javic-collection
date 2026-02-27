@@ -102,7 +102,7 @@ async function exportCSV(dateFilter: any) {
     return new NextResponse(csvContent, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="electromatt-orders-${new Date().toISOString().split('T')[0]}.csv"`
+        'Content-Disposition': `attachment; filename="javic-collection-orders-${new Date().toISOString().split('T')[0]}.csv"`
       }
     })
     
