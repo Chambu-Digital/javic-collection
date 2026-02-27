@@ -1,143 +1,200 @@
-import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, User, Tag, ArrowLeft, Share2, Zap } from 'lucide-react'
-import { IBlogPost } from '@/models/BlogPost'
-import { IProduct } from '@/models/Product'
-import { Button } from '@/components/ui/button'
-import { getProductDisplayPrice, getProductDisplayImage } from '@/lib/product-utils'
-import { getBlogPostBySlug, getRelatedBlogPosts } from '@/lib/blog-service'
+import { Calendar, ArrowLeft, Tag } from 'lucide-react'
 import Breadcrumb from '@/components/breadcrumb'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 
-interface BlogPostPageProps {
-  params: Promise<{ slug: string }>
-}
+export default function BlogPostPage() {
+  const params = useParams()
+  const slug = params.slug as string
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getBlogPostBySlug(slug)
-  
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-      description: 'The requested blog post could not be found.'
-    }
-  }
-
-  return {
-    title: `${post.title} | JAVIC COLLECTION Blog`,
-    description: post.metaDescription || post.excerpt,
-    keywords: post.metaKeywords || post.tags.join(', '),
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      images: post.featuredImage ? [post.featuredImage] : [],
-      type: 'article',
-      publishedTime: post.publishedAt?.toString(),
-      authors: post.author ? [post.author] : undefined,
-      tags: post.tags
-    }
-  }
-}
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
-  
-  // Featured blog content for Javic Collection (fallback when no database posts)
-  const featuredBlogContent: { [key: string]: any } = {
-    'smart-home-revolution': {
-      title: "Smart Home Revolution: Transform Your Living Space with Javic Collection",
-      subtitle: "Discover the future of home automation and intelligent living",
+  // Blog post data matching the main blog page
+  const blogPosts: Record<string, any> = {
+    'strappy-bikini-collection': {
+      title: "Bold & Vibrant: Strappy Bikini Sets",
+      category: "Swimwear",
+      date: "Feb 25, 2025",
+      image: "/pppp.jpeg",
       content: `
-        <h2>The Smart Home Revolution is Here</h2>
-        <p>Smart home technology has evolved from a luxury to a necessity in modern living. At Javic Collection, we're at the forefront of this revolution, offering cutting-edge smart devices that transform your house into an intelligent, efficient, and secure home.</p>
+        <h2>Make a Statement This Summer</h2>
+        <p>Our strappy bikini collection is designed for the confident woman who isn't afraid to stand out. Featuring bold neon green and vibrant red options, these pieces combine eye-catching colors with intricate strap detailing.</p>
         
-        <h3>Essential Smart Home Devices</h3>
-        <p><strong>Smart Lighting Systems:</strong> Control your home's ambiance with voice commands or smartphone apps. Our smart bulbs and switches offer energy savings of up to 80% compared to traditional lighting.</p>
-        
-        <p><strong>Smart Thermostats:</strong> Optimize your home's temperature automatically, learning your preferences and schedule to reduce energy costs by up to 23%.</p>
-        
-        <p><strong>Smart Security Systems:</strong> Monitor your home 24/7 with HD cameras, smart doorbells, and motion sensors that send real-time alerts to your phone.</p>
-        
-        <h3>Benefits of Smart Home Technology</h3>
+        <h3>Key Features</h3>
         <ul>
-          <li><strong>Energy Efficiency:</strong> Smart devices can reduce your electricity bills by 10-25%</li>
-          <li><strong>Enhanced Security:</strong> Real-time monitoring and automated alerts</li>
-          <li><strong>Convenience:</strong> Control everything from your smartphone</li>
-          <li><strong>Increased Property Value:</strong> Smart homes sell for 5% more on average</li>
+          <li>Premium quality stretch fabric for perfect fit</li>
+          <li>Adjustable straps for customized comfort</li>
+          <li>Bold color options: Neon Green and Vibrant Red</li>
+          <li>Unique strappy design for a fashion-forward look</li>
+          <li>Quick-dry material perfect for beach and pool</li>
         </ul>
-        
-        <h3>Getting Started with Smart Home</h3>
-        <p>Start small with smart plugs and bulbs, then gradually add more devices. Our experts at Javic Collection can help you design a smart home system that fits your budget and lifestyle.</p>
-        
-        <p>Visit our showroom to experience smart home technology firsthand and discover how Javic Collection can transform your living space into a modern, intelligent home.</p>
-      `,
-      featuredImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
-      categories: ["Smart Home", "Technology"],
-      tags: ["smart home", "automation", "IoT", "energy efficiency"],
-      author: "Javic Collection Tech Team",
-      publishedAt: new Date("2025-01-20")
+
+        <h3>Styling Tips</h3>
+        <p>Pair these statement pieces with high-waisted shorts or a flowing beach cover-up. The bold colors look stunning against sun-kissed skin and complement a variety of skin tones.</p>
+
+        <h3>Care Instructions</h3>
+        <p>Hand wash in cold water and lay flat to dry. Avoid direct sunlight when drying to maintain the vibrant colors. Rinse immediately after swimming in chlorinated or salt water.</p>
+      `
     },
-    'kitchen-electronics-guide': {
-      title: "Kitchen Electronics Buying Guide: Essential Appliances for Modern Cooking",
-      subtitle: "Your complete guide to choosing the perfect kitchen appliances",
+    'black-lace-lingerie': {
+      title: "Elegant Black Lace Lingerie",
+      category: "Lingerie",
+      date: "Feb 22, 2025",
+      image: "/black_lingeries.jpeg",
       content: `
-        <h2>Transform Your Kitchen with Modern Electronics</h2>
-        <p>The kitchen is the heart of every home, and having the right electronics can make cooking more enjoyable, efficient, and healthy. At Javic Collection, we offer a comprehensive range of kitchen appliances to suit every cooking style and budget.</p>
+        <h2>Timeless Elegance in Black Lace</h2>
+        <p>Discover the allure of our exquisite black lace lingerie collection. Crafted with delicate floral lace patterns and intricate strap details, these pieces are designed to make you feel confident and beautiful.</p>
         
-        <h3>Must-Have Kitchen Electronics</h3>
-        <p><strong>Microwave Ovens:</strong> From basic reheating to advanced convection cooking, choose from our range of LG, Samsung, and other premium brands. Consider size, power, and features like grill and convection modes.</p>
-        
-        <p><strong>Blenders & Food Processors:</strong> Perfect for smoothies, soups, and meal prep. Look for powerful motors (1000W+) and multiple speed settings for versatility.</p>
-        
-        <p><strong>Coffee Makers:</strong> Start your day right with our selection of drip coffee makers, espresso machines, and French presses. Consider programmable features for convenience.</p>
-        
-        <h3>Choosing the Right Appliances</h3>
-        <p><strong>Consider Your Space:</strong> Measure your counter and storage space before purchasing. Compact designs work well for smaller kitchens.</p>
-        
-        <p><strong>Energy Efficiency:</strong> Look for Energy Star ratings to save on electricity bills. Our energy-efficient models can reduce power consumption by up to 40%.</p>
-        
-        <p><strong>Brand Reliability:</strong> We stock trusted brands like LG, Samsung, Philips, and Kenwood, all backed by comprehensive warranties.</p>
-        
-        <h3>Maintenance Tips</h3>
+        <h3>Collection Highlights</h3>
         <ul>
-          <li>Clean appliances regularly to maintain performance</li>
-          <li>Use manufacturer-recommended cleaning products</li>
-          <li>Schedule professional servicing annually</li>
-          <li>Replace filters and parts as recommended</li>
+          <li>Delicate floral lace with scalloped edges</li>
+          <li>Adjustable strappy details for a perfect fit</li>
+          <li>Soft, breathable fabric for all-day comfort</li>
+          <li>Available in multiple sizes for every body type</li>
+          <li>Matching sets for a coordinated look</li>
         </ul>
+
+        <h3>Why Choose Black Lace?</h3>
+        <p>Black lace is a timeless classic that never goes out of style. It's versatile, elegant, and perfect for any occasion - whether you're looking for everyday comfort or something special for a romantic evening.</p>
+
+        <h3>Fit & Sizing</h3>
+        <p>Our black lace collection runs true to size. For the best fit, we recommend measuring your bust, waist, and hips and comparing with our size chart. If you're between sizes, we suggest sizing up for comfort.</p>
+      `
+    },
+    'heart-print-sleepwear': {
+      title: "Cozy Sleepwear: Hearts & Comfort",
+      category: "Sleepwear",
+      date: "Feb 20, 2025",
+      image: "/innerwear.jpeg",
+      content: `
+        <h2>Sweet Dreams in Style</h2>
+        <p>Our adorable heart-print sleepwear collection combines comfort with playful style. Perfect for lounging at home or getting a good night's sleep, these pieces are made from soft, breathable fabrics.</p>
         
-        <p>Visit Javic Collection today to see our full range of kitchen electronics and get expert advice on choosing the perfect appliances for your culinary needs.</p>
-      `,
-      featuredImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
-      categories: ["Kitchen Electronics", "Buying Guide"],
-      tags: ["kitchen appliances", "microwave", "blender", "buying guide"],
-      author: "Javic Collection Kitchen Experts",
-      publishedAt: new Date("2025-01-18")
+        <h3>What's Included</h3>
+        <ul>
+          <li>Comfortable black cami top with button details</li>
+          <li>Matching heart-print shorts for warm nights</li>
+          <li>Coordinating heart-print pants for cooler evenings</li>
+          <li>Soft, lightweight fabric that feels great on skin</li>
+          <li>Elastic waistband with drawstring for adjustable fit</li>
+        </ul>
+
+        <h3>Perfect for Lounging</h3>
+        <p>This versatile set isn't just for sleeping - it's perfect for lazy Sunday mornings, movie nights, or relaxing at home. The cute heart print adds a touch of fun to your downtime wardrobe.</p>
+
+        <h3>Fabric & Care</h3>
+        <p>Made from a soft cotton blend that's gentle on skin and easy to care for. Machine washable in cold water. Tumble dry on low heat or hang to dry for best results.</p>
+      `
+    },
+    'stylish-sportswear': {
+      title: "Active & Stylish Sportswear",
+      category: "Sportswear",
+      date: "Feb 18, 2025",
+      image: "/sportwear.jpeg",
+      content: `
+        <h2>Performance Meets Style</h2>
+        <p>Our sportswear collection is designed for the active woman who refuses to compromise on style. Whether you're hitting the gym, going for a run, or practicing yoga, these pieces provide the support and comfort you need.</p>
+        
+        <h3>Collection Features</h3>
+        <ul>
+          <li>Moisture-wicking fabric keeps you dry and comfortable</li>
+          <li>Four-way stretch for unrestricted movement</li>
+          <li>Supportive sports bras with adjustable straps</li>
+          <li>High-waisted leggings with compression fit</li>
+          <li>Breathable mesh panels for ventilation</li>
+        </ul>
+
+        <h3>Designed for Movement</h3>
+        <p>Every piece in our sportswear collection is engineered for performance. The fabrics move with you, providing support where you need it while allowing complete freedom of movement.</p>
+
+        <h3>Style & Function</h3>
+        <p>Look great while you work out! Our sportswear features modern designs and flattering cuts that transition seamlessly from the gym to casual outings.</p>
+      `
+    },
+    'perfect-fit-guide': {
+      title: "Finding Your Perfect Fit",
+      category: "Fitting Guide",
+      date: "Feb 15, 2025",
+      image: "/black_lingeries.jpeg",
+      content: `
+        <h2>The Ultimate Fitting Guide</h2>
+        <p>Finding the perfect fit is essential for comfort and confidence. This comprehensive guide will help you measure yourself accurately and choose the right size for all your intimate apparel needs.</p>
+        
+        <h3>How to Measure</h3>
+        <ul>
+          <li><strong>Bust:</strong> Measure around the fullest part of your bust</li>
+          <li><strong>Underbust:</strong> Measure directly under your bust</li>
+          <li><strong>Waist:</strong> Measure at the narrowest part of your waist</li>
+          <li><strong>Hips:</strong> Measure around the fullest part of your hips</li>
+        </ul>
+
+        <h3>Finding Your Bra Size</h3>
+        <p>Subtract your underbust measurement from your bust measurement. The difference determines your cup size: 1 inch = A cup, 2 inches = B cup, 3 inches = C cup, and so on.</p>
+
+        <h3>Signs of a Good Fit</h3>
+        <p>A well-fitting bra should sit flat against your ribcage, with the band parallel to the ground. The cups should fully contain your breasts without spillage or gaping. Straps should stay in place without digging into your shoulders.</p>
+
+        <h3>When to Get Refitted</h3>
+        <p>We recommend getting measured every 6-12 months, as your body can change due to weight fluctuations, pregnancy, or aging. If your bras feel uncomfortable, it's time for a new fitting!</p>
+      `
+    },
+    'summer-collection': {
+      title: "Summer Collection: Light & Breathable",
+      category: "Seasonal",
+      date: "Feb 12, 2025",
+      image: "/innerwear.jpeg",
+      content: `
+        <h2>Stay Cool This Summer</h2>
+        <p>Kenya's warm climate calls for lightweight, breathable fabrics that keep you comfortable all day long. Our summer collection features carefully selected materials designed for hot weather.</p>
+        
+        <h3>Summer Essentials</h3>
+        <ul>
+          <li>Lightweight cotton and cotton-blend fabrics</li>
+          <li>Moisture-wicking properties to keep you dry</li>
+          <li>Breathable mesh panels for air circulation</li>
+          <li>Light colors that reflect heat</li>
+          <li>Seamless designs to prevent chafing</li>
+        </ul>
+
+        <h3>Fabric Technology</h3>
+        <p>Our summer pieces use advanced fabric technology that wicks moisture away from your skin, allowing it to evaporate quickly. This keeps you feeling fresh and comfortable even in the hottest weather.</p>
+
+        <h3>Color Choices</h3>
+        <p>Light colors like white, pastels, and soft neutrals are perfect for summer as they reflect rather than absorb heat. Our collection features a beautiful range of summer-appropriate shades.</p>
+
+        <h3>Care Tips for Summer Wear</h3>
+        <p>Wash frequently in cool water to remove sweat and bacteria. Hang dry in a shaded area to prevent fabric damage from direct sunlight. Avoid fabric softeners which can reduce moisture-wicking properties.</p>
+      `
     }
-  };
-  
-  let post = await getBlogPostBySlug(slug)
-  
-  // If no post found in database, check featured content
-  if (!post && featuredBlogContent[slug]) {
-    post = {
-      _id: slug,
-      slug: slug,
-      ...featuredBlogContent[slug],
-      excerpt: featuredBlogContent[slug].content.substring(0, 200) + "...",
-      createdAt: featuredBlogContent[slug].publishedAt,
-      relatedProducts: []
-    } as IBlogPost
-  }
-  
-  if (!post) {
-    notFound()
   }
 
-  const relatedPosts = await getRelatedBlogPosts(slug, post.categories)
+  const post = blogPosts[slug]
+
+  if (!post) {
+    return (
+      <>
+        <style>{blogPostStyles}</style>
+        <div className="post-root">
+          <Header />
+          <main className="post-main">
+            <div className="post-container">
+              <div className="post-not-found">
+                <h1>Article Not Found</h1>
+                <p>Sorry, we couldn't find the article you're looking for.</p>
+                <Link href="/blog" className="post-back-btn">
+                  <ArrowLeft size={16} />
+                  <span>Back to Blog</span>
+                </Link>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </>
+    )
+  }
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -146,228 +203,253 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   ]
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      
-      {/* Breadcrumb Navigation */}
-      <div className="bg-card border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Breadcrumb items={breadcrumbItems} />
-        </div>
-      </div>
+    <>
+      <style>{blogPostStyles}</style>
+      <div className="post-root">
+        <Header />
+        
+        <main className="post-main">
+          <div className="post-container">
+            <Breadcrumb items={breadcrumbItems} />
 
-      {/* Article */}
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-card rounded-lg shadow-lg overflow-hidden">
-          {/* Featured Image */}
-          {post.featuredImage && (
-            <div className="aspect-w-16 aspect-h-9">
-              <img
-                src={post.featuredImage}
-                alt={post.title}
-                className="w-full h-64 md:h-96 object-cover"
-              />
-            </div>
-          )}
+            <Link href="/blog" className="post-back-link">
+              <ArrowLeft size={16} />
+              <span>Back to Blog</span>
+            </Link>
 
-          <div className="p-8">
-            {/* Categories */}
-            {post.categories.length > 0 && (
-              <div className="flex items-center mb-4">
-                <Tag className="h-4 w-4 text-muted-foreground mr-2" />
-                <div className="flex flex-wrap gap-2">
-                  {post.categories.map((category) => (
-                    <span
-                      key={category}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary"
-                    >
-                      {category}
-                    </span>
-                  ))}
+            <article className="post-article">
+              {/* Hero Image */}
+              <div className="post-hero-img">
+                <img src={post.image} alt={post.title} />
+                <div className="post-hero-overlay" />
+              </div>
+
+              {/* Meta */}
+              <div className="post-meta">
+                <div className="post-meta-item">
+                  <Calendar size={14} />
+                  <time>{post.date}</time>
+                </div>
+                <div className="post-meta-item">
+                  <Tag size={14} />
+                  <span className="post-category">{post.category}</span>
                 </div>
               </div>
-            )}
 
-            {/* Title and Subtitle */}
-            <h1 className="text-3xl md:text-4xl font-bold text-card-foreground mb-4">
-              {post.title}
-            </h1>
-            
-            {post.subtitle && (
-              <p className="text-xl text-muted-foreground mb-6">{post.subtitle}</p>
-            )}
+              {/* Title */}
+              <h1 className="post-title">{post.title}</h1>
 
-            {/* Meta Information */}
-            <div className="flex items-center text-sm text-muted-foreground mb-8 pb-8 border-b">
-              <Calendar className="h-4 w-4 mr-1" />
-              <time dateTime={post.publishedAt?.toString()}>
-                {post.publishedAt 
-                  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })
-                  : new Date(post.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })
-                }
-              </time>
-              {post.author && (
-                <>
-                  <span className="mx-3">•</span>
-                  <User className="h-4 w-4 mr-1" />
-                  <span>By {post.author}</span>
-                </>
-              )}
-              <div className="ml-auto">
-                <Button variant="outline" size="sm">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="prose prose-lg max-w-none">
+              {/* Content */}
               <div 
-                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
-                className="text-card-foreground leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-8 [&>h2]:mb-4 [&>h2]:text-card-foreground [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mt-6 [&>h3]:mb-3 [&>h3]:text-card-foreground [&>p]:mb-4 [&>ul]:mb-4 [&>ul]:pl-6 [&>li]:mb-2"
+                className="post-content"
+                dangerouslySetInnerHTML={{ __html: post.content }}
               />
-            </div>
 
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-8 pt-8 border-t">
-                <h3 className="text-sm font-medium text-card-foreground mb-3">Tags:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
+              {/* CTA */}
+              <div className="post-cta">
+                <div className="post-cta-gem"></div>
+                <h3 className="post-cta-title">Love What You See?</h3>
+                <p className="post-cta-text">
+                  Explore our full collection and find your perfect pieces
+                </p>
+                <Link href="/products" className="post-cta-btn">
+                  <span className="post-cta-btn-inner">
+                    <span>Shop Now</span>
+                    <span className="post-cta-arrow"></span>
+                  </span>
+                  <span className="post-cta-shimmer" />
+                </Link>
               </div>
-            )}
+            </article>
           </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-8 bg-primary/5 rounded-2xl p-8 text-center">
-          <img 
-            src="/javiclogo.png" 
-            alt="Javic Collection Logo" 
-            className="w-12 h-12 mx-auto mb-4"
-          />
-          <h3 className="text-2xl font-bold text-card-foreground mb-4">Ready to Upgrade Your Electronics?</h3>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Visit our showroom or browse our online catalog to find the perfect electronics for your home. 
-            Our experts are ready to help you make the right choice.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/products">
-              <Button className="px-8 py-3">
-                Browse Products
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button variant="outline" className="px-8 py-3">
-                Contact Us
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Related Products */}
-        {post.relatedProducts && post.relatedProducts.length > 0 && (
-          <div className="mt-12">
-            <div className="bg-card rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-card-foreground mb-6">Featured Products</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {post.relatedProducts.map((product: any) => {
-                  if (!product || typeof product === 'string' || !product.name) {
-                    return null;
-                  }
-
-                  const displayImage = getProductDisplayImage(product);
-                  const { price, oldPrice } = getProductDisplayPrice(product);
-                  
-                  return (
-                    <div key={product._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <img
-                        src={displayImage}
-                        alt={product.name}
-                        className="w-full h-32 object-cover rounded mb-3"
-                      />
-                      <h3 className="font-semibold text-card-foreground mb-2">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-bold text-primary">
-                            KSH {price.toLocaleString()}
-                          </span>
-                          {oldPrice && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              KSH {oldPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                        <Link href={`/product/${product._id}`}>
-                          <Button size="sm">View Product</Button>
-                        </Link>
-                      </div>
-                    </div>
-                  );
-                }).filter(Boolean)}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <div className="mt-12">
-            <div className="bg-card rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-card-foreground mb-6">Related Articles</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {relatedPosts.map((relatedPost) => (
-                  <article key={relatedPost._id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                    {relatedPost.featuredImage && (
-                      <img
-                        src={relatedPost.featuredImage}
-                        alt={relatedPost.title}
-                        className="w-full h-32 object-cover"
-                      />
-                    )}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-card-foreground mb-2 line-clamp-2">
-                        <Link href={`/blog/${relatedPost.slug}`} className="hover:text-primary transition-colors">
-                          {relatedPost.title}
-                        </Link>
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{relatedPost.excerpt}</p>
-                      <div className="mt-3">
-                        <Link
-                          href={`/blog/${relatedPost.slug}`}
-                          className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-                        >
-                          Read More →
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-      
-      <Footer />
-    </div>
+        </main>
+        
+        <Footer />
+      </div>
+    </>
   )
 }
+
+const blogPostStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Josefin+Sans:wght@200;300;400;500&display=swap');
+
+  :root {
+    --post-pink:    #FF0066;
+    --post-magenta: #CC0066;
+    --post-deep:    #5a1e5c;
+    --post-gold:    #E8C87A;
+    --post-gold-lt: #F5DFA0;
+  }
+
+  .post-root { display: flex; flex-direction: column; min-height: 100vh; background: #fff; }
+  .post-main { flex: 1; padding: 32px 0 72px; background: #fdfdfd; }
+  .post-container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+  /* Back Link */
+  .post-back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--post-magenta); text-decoration: none;
+    margin: 24px 0; transition: gap 0.3s ease;
+  }
+  .post-back-link:hover { gap: 12px; }
+
+  /* Article */
+  .post-article {
+    background: white; border: 1px solid rgba(232,200,122,0.18);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(153,0,68,0.07);
+  }
+
+  /* Hero Image */
+  .post-hero-img {
+    position: relative; height: 400px; overflow: hidden;
+    background: linear-gradient(135deg, #fff0f6, #fce4f0);
+  }
+  .post-hero-img img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .post-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 60%, rgba(26,0,16,0.15) 100%);
+  }
+
+  /* Meta */
+  .post-meta {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 20px 32px; border-bottom: 1px solid rgba(232,200,122,0.15);
+  }
+  .post-meta-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 13px; color: #1A0010;
+  }
+  .post-category {
+    padding: 4px 12px; border-radius: 2px;
+    background: rgba(255,0,102,0.08); color: var(--post-magenta);
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
+  /* Title */
+  .post-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3rem); color: #1a0010;
+    margin: 0; padding: 24px 32px 32px; line-height: 1.2;
+  }
+
+  /* Content */
+  .post-content {
+    padding: 0 32px 40px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 16px; line-height: 1.8; letter-spacing: 0.02em; color: #1A0010;
+  }
+  .post-content h2 {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: 28px; color: #1a0010; margin: 32px 0 16px; line-height: 1.3;
+  }
+  .post-content h3 {
+    font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: 22px; color: var(--post-magenta); margin: 24px 0 12px; line-height: 1.3;
+  }
+  .post-content p {
+    margin: 0 0 16px;
+  }
+  .post-content ul {
+    margin: 16px 0; padding-left: 24px;
+  }
+  .post-content li {
+    margin-bottom: 8px;
+  }
+  .post-content strong {
+    font-weight: 500; color: var(--post-magenta);
+  }
+
+  /* CTA */
+  .post-cta {
+    background: linear-gradient(135deg, #1a0010, #2d0020);
+    border-top: 1px solid rgba(232,200,122,0.2);
+    padding: 40px 32px; text-align: center;
+  }
+  .post-cta-gem {
+    font-size: 24px; color: var(--post-gold); opacity: 0.7; margin-bottom: 12px;
+  }
+  .post-cta-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.2rem); color: white;
+    margin: 0 0 10px; line-height: 1.1;
+  }
+  .post-cta-text {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.08em; color: rgba(255,255,255,0.65);
+    margin: 0 0 24px;
+  }
+  .post-cta-btn {
+    position: relative; overflow: hidden;
+    background: none; border: none; padding: 0; cursor: pointer;
+    display: inline-block; text-decoration: none;
+  }
+  .post-cta-btn-inner {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--post-magenta), var(--post-pink));
+    border: 1px solid rgba(232,200,122,0.3);
+    border-radius: 2px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: white; transition: all 0.35s ease;
+    position: relative; z-index: 1;
+  }
+  .post-cta-btn:hover .post-cta-btn-inner {
+    border-color: var(--post-gold);
+    box-shadow: 0 0 28px rgba(255,0,102,0.4), 0 6px 20px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+  .post-cta-arrow {
+    color: var(--post-gold-lt); font-size: 16px; transition: transform 0.3s;
+  }
+  .post-cta-btn:hover .post-cta-arrow { transform: translateX(4px); }
+  .post-cta-shimmer {
+    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: skewX(-20deg); transition: left 0.55s ease;
+  }
+  .post-cta-btn:hover .post-cta-shimmer { left: 150%; }
+
+  /* Not Found */
+  .post-not-found {
+    text-align: center; padding: 80px 24px;
+  }
+  .post-not-found h1 {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: 36px; color: #1a0010; margin: 0 0 16px;
+  }
+  .post-not-found p {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 16px; color: #666; margin: 0 0 32px;
+  }
+  .post-back-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 12px 32px;
+    background: linear-gradient(135deg, var(--post-magenta), var(--post-pink));
+    border: 1px solid rgba(232,200,122,0.3);
+    border-radius: 2px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: white; text-decoration: none;
+    transition: all 0.35s ease;
+  }
+  .post-back-btn:hover {
+    border-color: var(--post-gold);
+    box-shadow: 0 0 28px rgba(255,0,102,0.4);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    .post-hero-img { height: 250px; }
+    .post-meta { padding: 16px 20px; }
+    .post-title { padding: 20px 20px 24px; }
+    .post-content { padding: 0 20px 32px; font-size: 15px; }
+    .post-cta { padding: 32px 20px; }
+  }
+`
