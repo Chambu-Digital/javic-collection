@@ -172,8 +172,7 @@ export default function HeroSlider() {
           <span>ELEGANCE</span>
           <span className="javic-strip-dot">✦</span>
           <span>STYLE</span>
-          <span className="javic-strip-dot">✦</span>
-          <span>GRACE</span>
+        
         </div>
       </div>
     </>
@@ -313,8 +312,8 @@ const heroStyles = `
   }
   .javic-badge-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11px;
+    font-weight: 400;
+    font-size: 13px;
     letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--javic-gold-light);
@@ -367,8 +366,8 @@ const heroStyles = `
   /* SUBTITLE */
   .javic-slide-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 200;
-    font-size: clamp(0.85rem, 2.2vw, 1.15rem);
+    font-weight: 300;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.88);
@@ -416,8 +415,8 @@ const heroStyles = `
   }
   .javic-cta-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: 15px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--javic-white);

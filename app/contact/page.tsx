@@ -257,7 +257,7 @@ const contactStyles = `
   .cp-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--cp-gold); opacity: 0.6; }
   .cp-eyebrow-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300; font-size: 10px; letter-spacing: 0.32em;
+    font-weight: 400; font-size: 12px; letter-spacing: 0.32em;
     text-transform: uppercase; color: var(--cp-gold);
   }
   .cp-hero-title {
@@ -271,8 +271,8 @@ const contactStyles = `
   .cp-div-line:last-child { background: linear-gradient(270deg, transparent, var(--cp-gold)); }
   .cp-div-gem { font-size: 9px; color: var(--cp-gold); }
   .cp-hero-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 13px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.75);
   }
 
   /* ── CONTACT CARDS ── */
@@ -319,13 +319,13 @@ const contactStyles = `
   .cp-contact-card:hover .cp-card-icon { box-shadow: 0 6px 20px rgba(153,0,68,0.25); }
 
   .cp-card-title {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase;
     color: var(--cp-magenta); margin: 0 0 5px;
   }
   .cp-card-detail {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; letter-spacing: 0.04em; color: #555; margin: 0;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 14px; letter-spacing: 0.04em; color: #1A0010; margin: 0;
   }
   .cp-card-bar {
     height: 2px; width: 0; background: linear-gradient(90deg, var(--cp-gold), var(--cp-pink));
@@ -357,7 +357,7 @@ const contactStyles = `
   .cp-form-gem { font-size: 8px; color: var(--cp-gold); }
   .cp-form-title {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 20px; color: #1a0010; margin: 0;
+    font-weight: 700; font-size: 22px; color: #1a0010; margin: 0;
   }
   .cp-form { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
   .cp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -365,15 +365,15 @@ const contactStyles = `
 
   .cp-field { display: flex; flex-direction: column; gap: 5px; }
   .cp-label {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--cp-magenta);
   }
   .cp-input, .cp-textarea {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 13px; letter-spacing: 0.03em;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.03em;
     background: #f9f9f9; border: 1px solid rgba(232,200,122,0.3);
-    border-radius: 3px; padding: 10px 14px; color: #333;
+    border-radius: 3px; padding: 10px 14px; color: #1A0010;
     outline: none; transition: all 0.25s ease;
     width: 100%; box-sizing: border-box;
   }
@@ -397,8 +397,8 @@ const contactStyles = `
     background: linear-gradient(135deg, var(--cp-magenta) 0%, var(--cp-pink) 50%, var(--cp-magenta) 100%);
     background-size: 200% 100%;
     border-radius: 2px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
     color: white; transition: all 0.35s ease;
     position: relative; z-index: 1;
   }
@@ -447,7 +447,7 @@ const contactStyles = `
   .cp-sidebar-gem  { font-size: 7px; color: var(--cp-gold); }
   .cp-sidebar-title {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 17px; color: white; margin: 0;
+    font-weight: 700; font-size: 19px; color: white; margin: 0;
   }
   .cp-sidebar-title.dark { color: #1a0010; }
 
@@ -459,13 +459,13 @@ const contactStyles = `
   }
   .cp-hours-row:last-child { border-bottom: none; }
   .cp-hours-day {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 10.5px; letter-spacing: 0.1em; color: var(--cp-gold);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.1em; color: var(--cp-gold);
     text-transform: uppercase;
   }
   .cp-hours-time {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; color: rgba(255,255,255,0.65); letter-spacing: 0.04em;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 14px; color: rgba(255,255,255,0.75); letter-spacing: 0.04em;
   }
 
   /* FAQ */

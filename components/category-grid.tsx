@@ -242,17 +242,17 @@ const catStyles = `
   }
   .jcat-badge-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.4em;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--jc-magenta);
   }
   .jcat-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: #1a0010;
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    color: #1A0010;
     line-height: 1.1;
     margin-bottom: 14px;
     letter-spacing: -0.01em;
@@ -278,12 +278,13 @@ const catStyles = `
   }
   .jcat-subtitle {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13.5px;
-    letter-spacing: 0.08em;
-    color: #888;
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    color: #1A0010;
     max-width: 440px;
     margin: 0 auto;
+    line-height: 1.6;
   }
 
   /* ── SCROLL WRAPPER ── */
@@ -425,8 +426,8 @@ const catStyles = `
   .jcat-card-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 17px;
-    color: #1a0010;
+    font-size: 20px;
+    color: #1A0010;
     margin: 0 0 6px;
     letter-spacing: 0.01em;
     transition: color 0.2s ease;
@@ -434,10 +435,10 @@ const catStyles = `
   .jcat-card:hover .jcat-card-name { color: var(--jc-magenta); }
   .jcat-card-desc {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11.5px;
-    color: #999;
-    letter-spacing: 0.04em;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1A0010;
+    letter-spacing: 0.02em;
     line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -459,9 +460,9 @@ const catStyles = `
   }
   .jcat-cta-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 10.5px;
-    letter-spacing: 0.22em;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--jc-magenta);
   }
@@ -545,9 +546,9 @@ const catStyles = `
   }
   .jcat-view-all-inner span:first-child {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 12px;
-    letter-spacing: 0.28em;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     color: white;
   }

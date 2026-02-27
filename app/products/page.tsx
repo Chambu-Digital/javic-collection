@@ -812,18 +812,18 @@ const pageStyles = `
   .pp-card-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
   .pp-card-cat {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 9px;
+    font-weight: 400;
+    font-size: 11px;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: #bbb;
+    color: #1A0010;
     margin-bottom: 5px;
     display: block;
   }
   .pp-card-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 17px;
     color: #1a0010;
     line-height: 1.3;
     margin: 0 0 7px;
@@ -847,16 +847,16 @@ const pageStyles = `
   .pp-card-price {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 20px;
     color: var(--pp-magenta);
     line-height: 1;
   }
   .pp-card-old {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11px;
+    font-weight: 400;
+    font-size: 13px;
     text-decoration: line-through;
-    color: #ccc;
+    color: #999;
   }
   .pp-card-bar {
     height: 2px;
@@ -908,7 +908,7 @@ const pageStyles = `
   .pp-list-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
     color: #1a0010;
     margin: 0;
     cursor: pointer;
@@ -919,9 +919,9 @@ const pageStyles = `
   .pp-list-name:hover { color: var(--pp-magenta); }
   .pp-list-desc {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    color: #888;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1A0010;
     line-height: 1.6;
     letter-spacing: 0.03em;
     margin: 0;
@@ -946,8 +946,8 @@ const pageStyles = `
     border: 1px solid rgba(232,200,122,0.4);
     border-radius: 2px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 10.5px;
+    font-weight: 500;
+    font-size: 12px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--pp-magenta);
@@ -993,16 +993,16 @@ const pageStyles = `
   .pp-empty-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 24px;
+    font-size: 26px;
     color: #1a0010;
     margin: 0;
   }
   .pp-empty-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13px;
+    font-weight: 400;
+    font-size: 15px;
     letter-spacing: 0.08em;
-    color: #aaa;
+    color: #1A0010;
     margin: 0;
   }
   .pp-empty-btn {
@@ -1012,8 +1012,8 @@ const pageStyles = `
     background: none;
     border-radius: 2px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
+    font-weight: 500;
+    font-size: 13px;
     letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--pp-magenta);
@@ -1045,8 +1045,8 @@ const pageStyles = `
     position: relative;
     z-index: 1;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
+    font-weight: 500;
+    font-size: 13px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--pp-magenta);

@@ -195,8 +195,8 @@ const aboutStyles = `
   .ab-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--ab-gold); opacity: 0.7; }
   .ab-eyebrow-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
+    font-weight: 400;
+    font-size: 12px;
     letter-spacing: 0.38em;
     text-transform: uppercase;
     color: var(--ab-gold);
@@ -226,10 +226,10 @@ const aboutStyles = `
 
   .ab-hero-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13.5px;
+    font-weight: 400;
+    font-size: 15px;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.75);
     max-width: 500px;
     margin: 0 auto;
   }
@@ -250,8 +250,8 @@ const aboutStyles = `
 
   .ab-section-label {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
+    font-weight: 400;
+    font-size: 12px;
     letter-spacing: 0.38em;
     text-transform: uppercase;
     color: var(--ab-magenta);
@@ -269,11 +269,11 @@ const aboutStyles = `
 
   .ab-body-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13.5px;
+    font-weight: 400;
+    font-size: 15px;
     line-height: 1.8;
     letter-spacing: 0.04em;
-    color: #666;
+    color: #1A0010;
     margin: 0 0 16px;
   }
 
@@ -425,7 +425,7 @@ const aboutStyles = `
   .ab-value-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 17px;
+    font-size: 19px;
     color: #1a0010;
     margin: 0 0 8px;
     letter-spacing: 0.01em;
@@ -435,11 +435,11 @@ const aboutStyles = `
 
   .ab-value-desc {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
+    font-weight: 400;
+    font-size: 14px;
     line-height: 1.7;
     letter-spacing: 0.04em;
-    color: #999;
+    color: #1A0010;
     margin: 0;
   }
 
@@ -481,10 +481,10 @@ const aboutStyles = `
   }
   .ab-cta-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13px;
+    font-weight: 400;
+    font-size: 15px;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.65);
     margin: 0;
   }
 
@@ -506,8 +506,8 @@ const aboutStyles = `
     padding: 13px 36px;
     border-radius: 2px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
+    font-weight: 500;
+    font-size: 13px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     transition: all 0.35s ease;
@@ -544,11 +544,11 @@ const aboutStyles = `
     border: 1px solid rgba(232,200,122,0.35);
     border-radius: 2px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
+    font-weight: 500;
+    font-size: 13px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.75);
     transition: all 0.3s ease;
     background: none;
     gap: 0;

@@ -123,7 +123,7 @@ export default function Footer() {
                 { href: '/categories', label: 'Categories' },
                 { href: '/about',      label: 'About Us' },
                 { href: '/contact',    label: 'Contact' },
-                { href: '/blog',       label: 'Blog' },
+                // { href: '/blog',       label: 'Blog' },
                 { href: '/account',    label: 'My Account' },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="jf-link">
@@ -275,11 +275,11 @@ const footerStyles = `
   /* Brand description */
   .jf-brand-desc {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13px;
+    font-weight: 400;
+    font-size: 14px;
     line-height: 1.75;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.03em;
+    color: rgba(255,255,255,0.75);
     margin-bottom: 22px;
   }
 
@@ -297,19 +297,19 @@ const footerStyles = `
   .jf-hours-icon { color: var(--jf-gold); flex-shrink: 0; margin-top: 2px; }
   .jf-hours-title {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--jf-gold-lt);
     margin: 0 0 4px;
   }
   .jf-hours-detail {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11.5px;
-    letter-spacing: 0.05em;
-    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.7);
     margin: 0;
   }
 
@@ -324,10 +324,10 @@ const footerStyles = `
     align-items: center;
     gap: 8px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11.5px;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.7);
   }
   .jf-trust-check {
     font-size: 7px;
@@ -352,7 +352,7 @@ const footerStyles = `
   .jf-col-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 22px;
     color: white;
     letter-spacing: 0.04em;
     margin: 0;
@@ -406,28 +406,28 @@ const footerStyles = `
 
   .jf-contact-label {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 10px;
-    letter-spacing: 0.22em;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--jf-gold);
     margin: 0 0 3px;
   }
   .jf-contact-value {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12.5px;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: rgba(255,255,255,0.85);
     margin: 0;
     transition: color 0.2s;
   }
   .jf-contact-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10.5px;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.06em;
+    font-weight: 400;
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
     margin: 2px 0 0;
   }
 
@@ -442,10 +442,10 @@ const footerStyles = `
     align-items: center;
     gap: 7px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12.5px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7);
     text-decoration: none;
     padding: 8px 4px;
     border-left: 2px solid transparent;
@@ -498,16 +498,16 @@ const footerStyles = `
   }
   .jf-copy {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
     margin: 0;
   }
   .jf-copy strong {
-    font-weight: 400;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.15em;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.12em;
   }
   .jf-tagline-row {
     display: flex;
@@ -516,11 +516,11 @@ const footerStyles = `
   }
   .jf-tagline {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 13px;
+    font-size: 14px;
     font-style: italic;
     font-weight: 400;
     letter-spacing: 0.12em;
-    color: rgba(232,200,122,0.5);
+    color: rgba(232,200,122,0.7);
   }
   .jf-tagline-gem {
     font-size: 7px;

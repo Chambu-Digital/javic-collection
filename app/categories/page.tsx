@@ -225,8 +225,8 @@ const catPageStyles = `
   }
   .catpg-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--catpg-gold); opacity: 0.7; }
   .catpg-eyebrow-text {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--catpg-gold);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--catpg-gold);
   }
   .catpg-hero-title {
     font-family: 'Cormorant Garamond', serif; font-weight: 700;
@@ -237,8 +237,8 @@ const catPageStyles = `
   .catpg-div-line:last-child { background: linear-gradient(270deg, transparent, var(--catpg-gold)); }
   .catpg-div-gem { font-size: 9px; color: var(--catpg-gold); }
   .catpg-hero-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 13px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6);
   }
 
   /* ── MAIN ── */
@@ -266,8 +266,8 @@ const catPageStyles = `
   .catpg-search-box:focus-within .catpg-search-icon { color: var(--catpg-magenta); }
   .catpg-search-input {
     flex: 1; background: none; border: none; outline: none;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 13px; letter-spacing: 0.04em; color: #333;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.04em; color: #1A0010;
   }
   .catpg-search-input::placeholder { color: #bbb; }
   .catpg-search-clear {
@@ -276,8 +276,8 @@ const catPageStyles = `
   }
   .catpg-search-clear:hover { color: var(--catpg-magenta); }
   .catpg-count {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 11px; letter-spacing: 0.1em; color: #aaa;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 13px; letter-spacing: 0.1em; color: #1A0010;
     flex-shrink: 0;
   }
 
@@ -344,8 +344,8 @@ const catPageStyles = `
     background: rgba(255,255,255,0.93);
     border: 1px solid rgba(232,200,122,0.4);
     border-radius: 2px; padding: 7px 18px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 9.5px; letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
     color: var(--catpg-magenta); white-space: nowrap;
     opacity: 0; transition: opacity 0.3s, transform 0.3s;
   }
@@ -357,14 +357,14 @@ const catPageStyles = `
   .catpg-card-body { padding: 18px 20px 16px; }
   .catpg-card-name {
     font-family: 'Cormorant Garamond', serif; font-weight: 700;
-    font-size: 20px; color: #1a0010; margin: 0 0 8px; line-height: 1.2;
+    font-size: 22px; color: #1a0010; margin: 0 0 8px; line-height: 1.2;
     transition: color 0.2s;
   }
   .catpg-card:hover .catpg-card-name { color: var(--catpg-magenta); }
   .catpg-card-desc {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; letter-spacing: 0.04em; line-height: 1.7;
-    color: #888; margin: 0 0 14px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 14px; letter-spacing: 0.04em; line-height: 1.7;
+    color: #1A0010; margin: 0 0 14px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .catpg-card-cta {
@@ -374,8 +374,8 @@ const catPageStyles = `
   }
   .catpg-card:hover .catpg-card-cta { opacity: 1; transform: translateY(0); }
   .catpg-cta-text {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--catpg-magenta);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--catpg-magenta);
   }
   .catpg-cta-arrow { color: var(--catpg-gold); font-size: 14px; transition: transform 0.3s; }
   .catpg-card:hover .catpg-cta-arrow { transform: translateX(3px); }
@@ -406,17 +406,17 @@ const catPageStyles = `
   .catpg-empty-gem { font-size: 28px; color: var(--catpg-gold); opacity: 0.4; }
   .catpg-empty-title {
     font-family: 'Cormorant Garamond', serif; font-weight: 600;
-    font-size: 24px; color: #1a0010; margin: 0;
+    font-size: 26px; color: #1a0010; margin: 0;
   }
   .catpg-empty-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 13px; letter-spacing: 0.08em; color: #aaa; margin: 0;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.08em; color: #1A0010; margin: 0;
   }
   .catpg-empty-btn {
     margin-top: 8px; padding: 11px 30px;
     border: 1px solid rgba(232,200,122,0.4); background: none; border-radius: 2px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.25em; text-transform: uppercase;
     color: var(--catpg-magenta); cursor: pointer; transition: all 0.25s;
   }
   .catpg-empty-btn:hover { background: var(--catpg-magenta); color: white; border-color: var(--catpg-magenta); }
@@ -434,8 +434,8 @@ const catPageStyles = `
     background: linear-gradient(135deg, var(--catpg-magenta) 0%, var(--catpg-pink) 50%, var(--catpg-magenta) 100%);
     background-size: 200% 100%;
     border-radius: 2px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: white;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
+    font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: white;
     transition: all 0.4s ease; position: relative; z-index: 1;
   }
   .catpg-cta-btn:hover .catpg-cta-inner {

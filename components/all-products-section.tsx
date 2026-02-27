@@ -260,9 +260,9 @@ const apStyles = `
   }
   .jap-eyebrow-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.38em;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--jap-magenta);
   }
@@ -270,8 +270,8 @@ const apStyles = `
   .jap-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: #1a0010;
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    color: #1A0010;
     margin: 0 0 10px;
     line-height: 1.05;
     letter-spacing: -0.01em;
@@ -330,9 +330,9 @@ const apStyles = `
   }
   .jap-view-all-inner span:first-child {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.28em;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     color: white;
   }
@@ -479,19 +479,19 @@ const apStyles = `
   }
   .jap-card-cat {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 9.5px;
-    letter-spacing: 0.25em;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #bbb;
+    color: #888;
     margin-bottom: 6px;
     display: block;
   }
   .jap-card-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 16px;
-    color: #1a0010;
+    font-size: 18px;
+    color: #1A0010;
     line-height: 1.3;
     margin: 0 0 8px;
     display: -webkit-box;
@@ -596,9 +596,9 @@ const apStyles = `
     position: relative;
     z-index: 1;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.28em;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--jap-magenta);
   }

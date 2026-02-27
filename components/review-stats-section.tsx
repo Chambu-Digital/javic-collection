@@ -359,17 +359,17 @@ const reviewStyles = `
   }
   .jrs-eyebrow-text {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.38em;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--jrs-magenta);
   }
   .jrs-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: clamp(1.9rem, 3.5vw, 2.8rem);
-    color: #1a0010;
+    font-size: clamp(2.1rem, 3.5vw, 3rem);
+    color: #1A0010;
     margin: 0 0 12px;
     line-height: 1.1;
   }
@@ -673,18 +673,18 @@ const reviewStyles = `
   .jrs-trust-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 22px;
     color: white;
     margin: 0 0 12px;
     letter-spacing: 0.01em;
   }
   .jrs-trust-desc {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12.5px;
+    font-weight: 400;
+    font-size: 14px;
     line-height: 1.7;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.03em;
+    color: rgba(255,255,255,0.75);
     margin: 0;
   }
   .jrs-trust-card-bar {

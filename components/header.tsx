@@ -505,7 +505,7 @@ const headerStyles = `
   .javic-logo-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 22px;
+    font-size: 26px;
     letter-spacing: 0.18em;
     background: linear-gradient(135deg, var(--jh-magenta), var(--jh-pink));
     -webkit-background-clip: text;
@@ -514,10 +514,10 @@ const headerStyles = `
   }
   .javic-logo-sub {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 8.5px;
+    font-weight: 400;
+    font-size: 10px;
     letter-spacing: 0.35em;
-    color: #999;
+    color: #1A0010;
     text-transform: uppercase;
     margin-top: 2px;
   }
@@ -533,11 +533,11 @@ const headerStyles = `
   }
   .javic-nav-link {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    letter-spacing: 0.2em;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #555;
+    color: #1A0010;
     text-decoration: none;
     padding: 8px 16px;
     border-radius: 2px;
@@ -620,10 +620,10 @@ const headerStyles = `
     gap: 10px;
     padding: 10px 20px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12.5px;
-    letter-spacing: 0.1em;
-    color: #444;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: #1A0010;
     text-decoration: none;
     transition: all 0.2s ease;
     border-left: 2px solid transparent;
@@ -674,12 +674,12 @@ const headerStyles = `
     border: none;
     outline: none;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12.5px;
-    letter-spacing: 0.05em;
-    color: #333;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: #1A0010;
   }
-  .javic-search-input::placeholder { color: #bbb; }
+  .javic-search-input::placeholder { color: #888; }
   .javic-search-spinner {
     width: 14px;
     height: 14px;
@@ -728,9 +728,9 @@ const headerStyles = `
   .javic-result-info { flex: 1; min-width: 0; }
   .javic-result-name {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 12.5px;
-    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+    color: #1A0010;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -738,10 +738,10 @@ const headerStyles = `
   }
   .javic-result-cat {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10.5px;
-    color: #aaa;
-    letter-spacing: 0.08em;
+    font-weight: 400;
+    font-size: 12px;
+    color: #666;
+    letter-spacing: 0.05em;
     margin: 0;
   }
   .javic-result-price {
@@ -887,11 +887,11 @@ const headerStyles = `
     gap: 12px;
     padding: 12px 16px;
     text-decoration: none;
-    color: #333;
+    color: #1A0010;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13px;
-    letter-spacing: 0.1em;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.08em;
     border-radius: 4px;
     transition: background 0.2s;
   }
@@ -931,11 +931,11 @@ const headerStyles = `
     gap: 10px;
     padding: 12px 16px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 13px;
-    letter-spacing: 0.15em;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #444;
+    color: #1A0010;
     text-decoration: none;
     border-left: 2px solid transparent;
     transition: all 0.2s ease;
@@ -947,10 +947,10 @@ const headerStyles = `
     background: rgba(255,0,128,0.03);
   }
   .javic-mobile-link.sub {
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-size: 14px;
+    letter-spacing: 0.08em;
     text-transform: none;
-    color: #1b0c0cff;
+    color: #1A0010;
   }
   .javic-mobile-link-dot {
     font-size: 7px;
@@ -967,9 +967,9 @@ const headerStyles = `
     align-items: center;
     gap: 8px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    letter-spacing: 0.1em;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.08em;
     color: var(--jh-magenta);
     text-decoration: none;
   }

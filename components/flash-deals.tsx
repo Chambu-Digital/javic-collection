@@ -400,7 +400,7 @@ const flashStyles = `
   .jfd-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
     color: white;
     letter-spacing: 0.02em;
     line-height: 1;
@@ -632,18 +632,18 @@ const flashStyles = `
   }
   .jfd-card-cat {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 9.5px;
-    letter-spacing: 0.25em;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--jfd-gold);
     margin: 0 0 6px;
-    opacity: 0.8;
+    opacity: 0.9;
   }
   .jfd-card-name {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 18px;
     color: white;
     line-height: 1.3;
     margin: 0 0 10px;
@@ -678,10 +678,10 @@ const flashStyles = `
   }
   .jfd-savings {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: rgba(232,200,122,0.75);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: rgba(232,200,122,0.85);
     margin: 0 0 12px;
   }
 
@@ -706,10 +706,10 @@ const flashStyles = `
   }
   .jfd-progress-label {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 9.5px;
-    letter-spacing: 0.05em;
-    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.6);
     white-space: nowrap;
   }
 
@@ -781,9 +781,9 @@ const flashStyles = `
   }
   .jfd-cta-inner span {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 12px;
-    letter-spacing: 0.3em;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
     color: white;
   }
