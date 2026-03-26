@@ -130,22 +130,15 @@ export default function AdminReviewsPage() {
     }
   }
 
-  const handleSingleAction = async (reviewId: string, action: 'approve' | 'reject', notes?: string) => {
+  const handleSingleAction = async (reviewId: string, action: 'approve' | 'reject') => {
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      const response = await fetch('/api/admin/reviews', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status: action === 'approve' ? 'approved' : 'rejected',
-          moderationNotes: notes
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewIds: [reviewId], action })
       })
-
-      if (response.ok) {
-        fetchReviews()
-      }
+      if (response.ok) fetchReviews()
+      else console.error('Failed to update review')
     } catch (error) {
       console.error('Error updating review:', error)
     }

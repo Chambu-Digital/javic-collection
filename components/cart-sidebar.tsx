@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Minus, ShoppingBag, Trash2, MessageCircle, ArrowLeft } from 'lucide-react'
+import { Plus, Minus, ShoppingBag, Trash2, MessageCircle, ArrowLeft, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useCartStore } from '@/lib/cart-store'
@@ -110,10 +110,27 @@ export default function CartSidebar({ children }: CartSidebarProps) {
             )}
             <ShoppingBag className="w-5 h-5" />
             {view === 'items' ? `Shopping Cart (${totalItems})` : 'Order Details'}
+            <div className="ml-auto">
+              {user ? (
+                <Link href="/account" onClick={() => setIsOpen(false)}>
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{user.firstName}</span>
+                  </button>
+                </Link>
+              ) : (
+                <Link href="/account/login" onClick={() => setIsOpen(false)}>
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Sign In</span>
+                  </button>
+                </Link>
+              )}
+            </div>
           </SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+        <div className="flex flex-col" style={{ height: 'calc(100dvh - 80px)', overflow: 'hidden' }}>
           {items.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
               <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />

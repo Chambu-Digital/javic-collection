@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Review from '@/models/Review'
-
 import Order from '@/models/Order'
 import User from '@/models/User'
 import { requireAuth } from '@/lib/auth'
+import mongoose from 'mongoose'
 
 // GET /api/reviews - Get reviews with filters
 export async function GET(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const query: any = {}
     
     if (productId) {
-      query.productId = productId
+      query.productId = new mongoose.Types.ObjectId(productId)
     }
     
     if (userId) {

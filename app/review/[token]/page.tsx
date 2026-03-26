@@ -161,9 +161,12 @@ export default function ReviewPage({ params }: { params: Promise<{ token: string
           {/* Product */}
           <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
             <img
-              src={currentItem.productImage || '/placeholder.svg'}
+              src={currentItem.productImage && currentItem.productImage.startsWith('http') 
+                ? currentItem.productImage 
+                : currentItem.productImage || '/placeholder.svg'}
               alt={currentItem.productName}
               className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+              onError={e => { (e.target as HTMLImageElement).src = '/placeholder.svg' }}
             />
             <div>
               <p className="font-semibold text-gray-900 text-sm">{currentItem.productName}</p>

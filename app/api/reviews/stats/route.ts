@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Review from '@/models/Review'
+import mongoose from 'mongoose'
 
 // GET /api/reviews/stats - Get review statistics
 export async function GET(request: NextRequest) {
@@ -11,68 +12,35 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get('productId')
 
     if (!productId) {
-      return NextResponse.json(
-        { error: 'Product ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
-    // Get rating distribution
+    const productObjectId = new mongoose.Types.ObjectId(productId)
+    const matchQuery = { productId: productObjectId, status: { $in: ['approved', 'auto_approved'] } }
+
     const distribution = await Review.aggregate([
-      {
-        $match: {
-          productId: productId,
-          status: 'approved'
-        }
-      },
-      {
-        $group: {
-          _id: '$rating',
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $sort: { _id: -1 }
-      }
+      { $match: matchQuery },
+      { $group: { _id: '$rating', count: { $sum: 1 } } },
+      { $sort: { _id: -1 } }
     ])
 
-    // Convert to object format
     const distributionObj: { [key: number]: number } = {}
-    distribution.forEach(item => {
-      distributionObj[item._id] = item.count
-    })
+    distribution.forEach(item => { distributionObj[item._id] = item.count })
 
-    // Get total stats
-    const totalReviews = await Review.countDocuments({
-      productId,
-      status: 'approved'
-    })
+    const totalReviews = await Review.countDocuments(matchQuery)
 
-    const avgRating = await Review.aggregate([
-      {
-        $match: {
-          productId: productId,
-          status: 'approved'
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          averageRating: { $avg: '$rating' }
-        }
-      }
+    const avgResult = await Review.aggregate([
+      { $match: matchQuery },
+      { $group: { _id: null, averageRating: { $avg: '$rating' } } }
     ])
 
     return NextResponse.json({
       distribution: distributionObj,
       totalReviews,
-      averageRating: avgRating.length > 0 ? avgRating[0].averageRating : 0
+      averageRating: avgResult.length > 0 ? Math.round(avgResult[0].averageRating * 10) / 10 : 0
     })
   } catch (error: any) {
     console.error('Error fetching review stats:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch review stats' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch review stats' }, { status: 500 })
   }
 }
