@@ -5,9 +5,7 @@ import { requireAuth } from '@/lib/auth'
 import { z } from 'zod'
 
 const updateOrderSchema = z.object({
-  status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']).optional(),
-  paymentStatus: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
-  trackingNumber: z.string().optional(),
+  status: z.enum(['pending', 'completed', 'cancelled']).optional(),
   adminNotes: z.string().optional()
 })
 
@@ -88,27 +86,10 @@ export async function PATCH(
       )
     }
     
-    // Update order fields
     if (validatedData.status) {
       order.status = validatedData.status
-      
-      // Set timestamps based on status
-      if (validatedData.status === 'shipped' && !order.shippedAt) {
-        order.shippedAt = new Date()
-      }
-      if (validatedData.status === 'delivered' && !order.deliveredAt) {
-        order.deliveredAt = new Date()
-      }
     }
-    
-    if (validatedData.paymentStatus) {
-      order.paymentStatus = validatedData.paymentStatus
-    }
-    
-    if (validatedData.trackingNumber !== undefined) {
-      order.trackingNumber = validatedData.trackingNumber || undefined
-    }
-    
+
     if (validatedData.adminNotes !== undefined) {
       order.adminNotes = validatedData.adminNotes || undefined
     }

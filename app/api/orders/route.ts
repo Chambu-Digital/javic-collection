@@ -16,11 +16,16 @@ export async function GET(request: NextRequest) {
     
     await connectDB()
     
-    // Build query
-    const query: any = { userId: new mongoose.Types.ObjectId(user.id) }
-    if (status && status !== 'all') {
-      query.status = status
+    // Build query — handle both ObjectId and string userId for backwards compatibility
+    const userIdQuery = {
+      $or: [
+        { userId: new mongoose.Types.ObjectId(user.id) },
+        { userId: user.id }
+      ]
     }
+    const query: any = status && status !== 'all'
+      ? { ...userIdQuery, status }
+      : userIdQuery
     
     // Get orders with pagination
     const orders = await Order.find(query)

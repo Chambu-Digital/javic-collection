@@ -12,6 +12,7 @@ import {
   Truck,
   Star,
   CreditCard,
+  Upload,
   LucideIcon
 } from 'lucide-react'
 import { PERMISSIONS, Permission, PermissionChecker } from './permissions'
@@ -49,6 +50,13 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     permissions: [PERMISSIONS.PRODUCTS_VIEW],
     notificationKey: 'products',
   },
+  {
+    name: 'Import Products',
+    href: '/admin/import-products',
+    icon: Upload,
+    permissions: [PERMISSIONS.PRODUCTS_CREATE],
+    notificationKey: null,
+  },
   // {
   //   name: 'Blog',
   //   href: '/admin/blog',
@@ -63,20 +71,13 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     permissions: [PERMISSIONS.ORDERS_VIEW],
     notificationKey: 'orders',
   },
-  // {
-  //   name: 'M-Pesa Transactions',
-  //   href: '/admin/mpesa-transactions',
-  //   icon: CreditCard,
-  //   permissions: [PERMISSIONS.ORDERS_VIEW], // Use orders permission since it's related
-  //   notificationKey: null,
-  // },
-  // {
-  //   name: 'Reviews',
-  //   href: '/admin/reviews',
-  //   icon: Star,
-  //   permissions: [PERMISSIONS.REVIEWS_VIEW],
-  //   notificationKey: 'reviews',
-  // },
+  {
+    name: 'Reviews',
+    href: '/admin/reviews',
+    icon: Star,
+    permissions: [PERMISSIONS.REVIEWS_VIEW],
+    notificationKey: 'reviews',
+  },
   // {
   //   name: 'Shipping Areas',
   //   href: '/admin/shipping',

@@ -187,12 +187,8 @@ export default function OrdersPage() {
                 <SelectContent>
                   <SelectItem value="all">All Orders</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="shipped">Shipped</SelectItem>
-                  <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
-                  <SelectItem value="returned">Returned</SelectItem>
                 </SelectContent>
               </Select>
             </div>

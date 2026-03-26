@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Review from '@/models/Review'
-import { verifyToken } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth'
 
 // GET /api/admin/reviews - Get all reviews for admin management
 export async function GET(request: NextRequest) {
   try {
     await connectDB()
-    
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-    }
-
-    const decoded = verifyToken(token)
-    if (!decoded || (decoded.role !== 'admin' && decoded.role !== 'super_admin')) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-    }
+    const decoded = await requireAdmin(request)
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -109,16 +100,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     await connectDB()
-    
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
-    if (!token) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-    }
-
-    const decoded = verifyToken(token)
-    if (!decoded || (decoded.role !== 'admin' && decoded.role !== 'super_admin')) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-    }
+    const decoded = await requireAdmin(request)
 
     const body = await request.json()
     const { reviewIds, action, moderationNotes } = body
@@ -141,7 +123,7 @@ export async function PUT(request: NextRequest) {
     
     const updateData: any = {
       status,
-      moderatedBy: decoded.userId,
+      moderatedBy: decoded.id,
       moderatedAt: new Date()
     }
 

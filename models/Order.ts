@@ -43,7 +43,7 @@ export interface IOrder {
   shippingAddress: IShippingAddress
   billingAddress?: IShippingAddress
 
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'completed'
+  status: 'pending' | 'completed' | 'cancelled' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'returned'
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded'
   paymentMethod: 'mpesa' | 'card' | 'bank_transfer' | 'cash_on_delivery'
 
@@ -102,7 +102,7 @@ const OrderSchema = new mongoose.Schema<IOrder>({
 
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'returned', 'completed'],
+    enum: ['pending', 'completed', 'cancelled', 'confirmed', 'processing', 'shipped', 'delivered', 'returned'],
     default: 'pending'
   },
   paymentStatus: {
@@ -121,7 +121,7 @@ const OrderSchema = new mongoose.Schema<IOrder>({
     enum: ['not_requested', 'requested'],
     default: 'not_requested'
   },
-  review_token: { type: String, sparse: true },
+  review_token: { type: String },
   review_token_created_at: Date,
 
   trackingNumber: String,
