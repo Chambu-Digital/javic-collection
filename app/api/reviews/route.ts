@@ -31,7 +31,12 @@ export async function GET(request: NextRequest) {
     }
     
     if (status) {
-      query.status = status
+      // Show both approved and auto_approved as "visible" reviews
+      if (status === 'approved') {
+        query.status = 'approved'
+      } else {
+        query.status = status
+      }
     }
 
     const skip = (page - 1) * limit
@@ -78,11 +83,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { productId, orderId, orderItemId, rating, title, comment, images } = body
+    const { productId, orderId, orderItemId, rating, title, comment } = body
     
     const numericRating = Number(rating)
     
-    if (!productId || !orderId || !orderItemId || !rating || isNaN(numericRating) || numericRating < 1 || numericRating > 5 || !title?.trim() || !comment?.trim()) {
+    if (!productId || !orderId || !orderItemId || !rating || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
       return NextResponse.json(
         { error: 'Missing required fields or invalid rating (must be 1-5)' },
         { status: 400 }
@@ -93,7 +98,7 @@ export async function POST(request: NextRequest) {
     const order = await Order.findOne({
       _id: orderId,
       userId: authUser.id,
-      status: 'delivered' // Only allow reviews for delivered orders
+      status: { $in: ['delivered', 'completed'] }
     })
 
     if (!order) {
@@ -138,13 +143,13 @@ export async function POST(request: NextRequest) {
       orderId,
       orderItemId,
       rating: numericRating,
-      title: title.trim(),
-      comment: comment.trim(),
-      images: images || [],
+      title: title?.trim() || '',
+      comment: comment?.trim() || '',
       customerName: `${user.firstName} ${user.lastName}`,
       customerEmail: user.email,
       isVerifiedPurchase: true,
-      status: 'pending' // Reviews need admin approval
+      source: 'logged_in',
+      status: 'pending'
     })
 
     await review.save()

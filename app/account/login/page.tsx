@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { useUserStore } from '@/lib/user-store'
 import GoogleSignInButton from '@/components/auth/google-sign-in-button'
 import { useToast } from '@/components/ui/custom-toast'
@@ -16,11 +14,6 @@ export default function LoginPage() {
   const { success: showSuccessToast, error: showErrorToast } = useToast()
   const [returnTo, setReturnTo] = useState<string>('/')
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
 
   // Get return URL from query params
   useEffect(() => {
@@ -41,41 +34,6 @@ export default function LoginPage() {
       router.push(returnTo)
     }
   }, [user, router, returnTo])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
-      }
-
-      // Update user store
-      setUser(data.user)
-      showSuccessToast('Welcome back!')
-      router.push(returnTo)
-    } catch (error: any) {
-      showErrorToast(error.message || 'Login failed. Please check your credentials.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
 
   if (user) {
     return null // Will redirect
@@ -121,84 +79,9 @@ export default function LoginPage() {
             </CardHeader>
             
             <CardContent className="login-card-content">
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="login-form">
-                <div className="login-form-field">
-                  <label htmlFor="email" className="login-label">Email Address</label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="login-input"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-
-                <div className="login-form-field">
-                  <label htmlFor="password" className="login-label">Password</label>
-                  <div className="login-password-wrapper">
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="login-input"
-                      placeholder="Enter your password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="login-password-toggle"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                          <line x1="1" y1="1" x2="23" y2="23"/>
-                        </svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="login-forgot-link-wrap">
-                  <Link href="/account/forgot-password" className="login-forgot-link">
-                    Forgot password?
-                  </Link>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="login-submit-btn"
-                >
-                  {isLoading ? 'Signing In...' : 'SIGN IN'}
-                </Button>
-              </form>
-              
-              {/* Divider */}
-              <div className="login-divider">
-                <span className="login-divider-line" />
-                <span className="login-divider-text">or continue with</span>
-                <span className="login-divider-line" />
-              </div>
-
-              {/* Google Sign-In */}
               <GoogleSignInButton
                 returnTo={returnTo}
-                onSuccess={() => {
-                  showSuccessToast('Welcome back!')
-                }}
+                onSuccess={() => { showSuccessToast('Welcome back!') }}
                 onError={(error) => {
                   console.error('Login error:', error)
                   showErrorToast(error || 'Google sign-in failed. Please try again.')
@@ -289,22 +172,15 @@ const pageStyles = `
   }
 
   .login-logo-wrap {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #FF0066, #FF4D94);
-    padding: 2px;
+    height: 52px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 24px rgba(255, 0, 102, 0.3);
   }
 
   .login-logo-img {
-    width: 100%;
     height: 100%;
+    width: auto;
     object-fit: contain;
-    border-radius: 50%;
   }
 
   .login-brand {

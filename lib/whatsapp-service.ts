@@ -90,7 +90,8 @@ export const sendWhatsAppOrder = async (
   }>,
   shippingAddress?: { county: string; area: string },
   customerEmail?: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
+  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254723277306',
+  userId?: string
 ) => {
   // Generate the WhatsApp message
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -132,10 +133,10 @@ Thank you!`
         customerName,
         customerPhone,
         customerEmail,
+        userId,
         items,
         shippingAddress,
-        customerNotes: 'Order placed via WhatsApp',
-        whatsappMessage: message
+        customerNotes: 'Order placed via WhatsApp'
       })
     })
 

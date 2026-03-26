@@ -47,15 +47,6 @@ export const useCartStore = create<CartStore>()(
       isLoaded: false,
 
       addItem: (newItem) => {
-        // Check if user is logged in
-        const userStore = (window as any).__userStore
-        if (!userStore?.getState?.()?.user) {
-          // Redirect to login with return URL
-          const currentPath = window.location.pathname
-          window.location.href = `/account/login?returnTo=${encodeURIComponent(currentPath)}`
-          return
-        }
-
         const items = get().items
         const existingItemIndex = items.findIndex(
           (item) =>

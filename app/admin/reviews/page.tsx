@@ -167,7 +167,7 @@ export default function AdminReviewsPage() {
       rejected: 'bg-red-100 text-red-800'
     }
     return (
-      <Badge className={variants[status as keyof typeof variants]}>
+      <Badge className={variants[status as keyof typeof variants] || 'bg-gray-100 text-gray-800'}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     )

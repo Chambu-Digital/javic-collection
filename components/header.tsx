@@ -227,8 +227,18 @@ export default function Header() {
                 <Search size={18} />
               </button>
 
-              {/* Account */}
-              <div className="javic-icon-wrap sm-hide">
+              {/* Cart */}
+              <CartSidebar>
+                <button className="javic-icon-btn javic-cart-btn" aria-label="Cart">
+                  <ShoppingCart size={18} />
+                  {isLoaded && getTotalItems() > 0 && (
+                    <span className="javic-cart-badge">{getTotalItems()}</span>
+                  )}
+                </button>
+              </CartSidebar>
+
+              {/* Account - desktop only */}
+              <div className="javic-icon-wrap desktop-only">
                 {user ? (
                   <Link href="/account">
                     <button className="javic-icon-btn">
@@ -244,16 +254,6 @@ export default function Header() {
                   </Link>
                 )}
               </div>
-
-              {/* Cart */}
-              <CartSidebar>
-                <button className="javic-icon-btn javic-cart-btn" aria-label="Cart">
-                  <ShoppingCart size={18} />
-                  {isLoaded && getTotalItems() > 0 && (
-                    <span className="javic-cart-badge">{getTotalItems()}</span>
-                  )}
-                </button>
-              </CartSidebar>
 
               {/* Divider */}
               <span className="javic-action-divider lg-hide" />
@@ -475,27 +475,18 @@ const headerStyles = `
     text-decoration: none;
   }
   .javic-logo-ring {
-    width: 48px;
     height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--jh-pink), var(--jh-deep));
-    padding: 2px;
-    box-shadow: 0 0 0 1px rgba(232, 200, 122, 0.3), 0 4px 12px rgba(204, 0, 102, 0.25);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    overflow: hidden;
     display: flex;
     align-items: center;
-    justify-content: center;
+    transition: transform 0.3s ease;
   }
   .javic-logo-link:hover .javic-logo-ring {
-    box-shadow: 0 0 0 1px rgba(232, 200, 122, 0.7), 0 6px 20px rgba(255, 0, 128, 0.4);
     transform: scale(1.04);
   }
   .javic-logo-img {
-    width: 100%;
     height: 100%;
+    width: auto;
     object-fit: contain;
-    padding: 3px;
   }
   .javic-logo-text {
     display: flex;
@@ -840,6 +831,8 @@ const headerStyles = `
   .sm-hide { display: none; }
   @media (min-width: 768px) { .md-hide { display: none !important; } }
   @media (min-width: 1024px) { .lg-hide { display: none !important; } }
+  .desktop-only { display: none; }
+  @media (min-width: 1024px) { .desktop-only { display: flex; } }
 
   /* ── BOTTOM BORDER ACCENT ── */
   .javic-header-border {

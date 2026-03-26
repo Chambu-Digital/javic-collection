@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, Phone, MapPin, Clock, MessageCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, MessageCircle, Instagram, Music } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Footer() {
@@ -38,26 +38,27 @@ export default function Footer() {
             </Link>
 
             <p className="jf-brand-desc">
-              Kenya's premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, exceptional service.
+              Kenya's trusted clothing store for sexy innerwear, baby clothing, sleepwear & more. Wholesale & retail prices. We do delivery.
             </p>
 
             <div className="jf-hours-card">
               <Clock size={16} className="jf-hours-icon" />
               <div>
                 <p className="jf-hours-title">Business Hours</p>
-                <p className="jf-hours-detail">Mon–Fri: 8AM – 6PM</p>
-                <p className="jf-hours-detail">Saturday: 9AM – 5PM</p>
+                <p className="jf-hours-detail">Mon–Sat: 8AM – 5PM</p>
               </div>
             </div>
 
-            {/* Trust badges */}
-            <div className="jf-trust-badges">
-              {['Genuine Products', 'Quality Guaranteed', 'Fast Delivery'].map(b => (
-                <span key={b} className="jf-trust-badge">
-                  <span className="jf-trust-check"></span>
-                  {b}
-                </span>
-              ))}
+            {/* Social Links */}
+            <div className="jf-socials">
+              <a href="https://www.instagram.com/javic_collection" target="_blank" rel="noopener noreferrer" className="jf-social-link">
+                <Instagram size={16} />
+                <span>@Javic_collection</span>
+              </a>
+              <a href="https://www.tiktok.com/@javic_collection" target="_blank" rel="noopener noreferrer" className="jf-social-link">
+                <Music size={16} />
+                <span>@Javic_Collection</span>
+              </a>
             </div>
           </div>
 
@@ -68,33 +69,23 @@ export default function Footer() {
             </div>
 
             <div className="jf-contact-list">
-              <a href="tel:+254706512984" className="jf-contact-item">
+              <a href="tel:+254723277306" className="jf-contact-item">
                 <div className="jf-contact-icon-ring">
                   <Phone size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">Call Us</p>
-                  <p className="jf-contact-value">+254 706 512 984</p>
+                  <p className="jf-contact-value">+254 723 277 306</p>
                 </div>
               </a>
 
-              <a href="https://wa.me/254706512984" className="jf-contact-item whatsapp">
+              <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer" className="jf-contact-item whatsapp">
                 <div className="jf-contact-icon-ring green">
                   <MessageCircle size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">WhatsApp</p>
-                  <p className="jf-contact-value">Quick Support</p>
-                </div>
-              </a>
-
-              <a href="mailto:sales@javiccollection.co.ke" className="jf-contact-item">
-                <div className="jf-contact-icon-ring">
-                  <Mail size={16} />
-                </div>
-                <div>
-                  <p className="jf-contact-label">Email Us</p>
-                  <p className="jf-contact-value">sales@javiccollection.co.ke</p>
+                  <p className="jf-contact-value">+254 723 277 306</p>
                 </div>
               </a>
 
@@ -104,8 +95,8 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="jf-contact-label">Our Store</p>
-                  <p className="jf-contact-value">Taveta Lane, Nairobi</p>
-                  <p className="jf-contact-sub">Premium Collection</p>
+                  <p className="jf-contact-value">Biashara Street, Mombasa</p>
+                  <p className="jf-contact-sub">Shop at Marikiti, Mombasa</p>
                 </div>
               </div>
             </div>
@@ -228,27 +219,15 @@ const footerStyles = `
     margin-bottom: 20px;
   }
   .jf-logo-ring {
-    width: 52px;
     height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--jf-pink), var(--jf-deep));
-    padding: 2px;
-    box-shadow: 0 0 0 1px rgba(232,200,122,0.3), 0 6px 20px rgba(255,0,128,0.3);
-    overflow: hidden;
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: box-shadow 0.3s ease;
     flex-shrink: 0;
   }
-  .jf-logo-wrap:hover .jf-logo-ring {
-    box-shadow: 0 0 0 1px rgba(232,200,122,0.7), 0 8px 28px rgba(255,0,128,0.5);
-  }
   .jf-logo-img {
-    width: 100%;
     height: 100%;
+    width: auto;
     object-fit: contain;
-    padding: 3px;
   }
   .jf-logo-text {
     display: flex;
@@ -333,6 +312,27 @@ const footerStyles = `
     font-size: 7px;
     color: var(--jf-gold);
   }
+
+  /* Social links */
+  .jf-socials {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .jf-social-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--jf-gold-lt);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .jf-social-link:hover { color: white; }
 
   /* ── COLUMN HEADERS ── */
   .jf-col-header {

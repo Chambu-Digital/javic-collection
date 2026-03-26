@@ -155,10 +155,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               alt={category.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <div className="text-center text-white">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.name}</h1>
-                <p className="text-lg md:text-xl max-w-2xl">{category.description}</p>
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="text-center px-4 flex flex-col items-center gap-3">
+                <h1 className="text-4xl md:text-5xl font-bold inline-block px-5 py-2 rounded-xl" style={{ background: 'rgba(255,0,128,0.75)', color: '#F5DFA0', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{category.name}</h1>
+                {category.description && (
+                  <p className="text-lg md:text-xl inline-block px-5 py-2 rounded-xl max-w-2xl" style={{ background: 'rgba(255,0,128,0.75)', color: '#F5DFA0', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{category.description}</p>
+                )}
               </div>
             </div>
           </div>

@@ -28,10 +28,12 @@ interface Order {
   orderNumber: string
   customerEmail: string
   customerPhone?: string
+  whatsapp_phone?: string
   totalAmount: number
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned'
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'completed'
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded'
   paymentMethod: 'mpesa' | 'card' | 'bank_transfer' | 'cash_on_delivery'
+  review_request_status: 'not_requested' | 'requested'
   items: Array<{
     productName: string
     quantity: number
@@ -154,6 +156,22 @@ export default function AdminOrdersPage() {
       order.adminNotes?.includes('WhatsApp Order') ||
       order.customerNotes?.includes('Order placed via WhatsApp')
     )
+  }
+
+  const handleRequestReview = async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/request-review`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || 'Failed to request review')
+        return
+      }
+      // Open WhatsApp in new tab
+      window.open(data.whatsappUrl, '_blank')
+      fetchOrders()
+    } catch {
+      alert('Failed to request review')
+    }
   }
 
   const handleExport = async () => {
@@ -282,6 +300,7 @@ export default function AdminOrdersPage() {
                 <SelectItem value="processing">Processing</SelectItem>
                 <SelectItem value="shipped">Shipped</SelectItem>
                 <SelectItem value="delivered">Delivered</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
                 <SelectItem value="returned">Returned</SelectItem>
               </SelectContent>
@@ -414,12 +433,29 @@ export default function AdminOrdersPage() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Button asChild size="sm" variant="outline">
                             <Link href={`/admin/orders/${order._id}`}>
                               <Eye className="w-4 h-4" />
                             </Link>
                           </Button>
+                          {(order.status === 'completed' || order.status === 'delivered') &&
+                            order.review_request_status === 'not_requested' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                onClick={() => handleRequestReview(order._id)}
+                              >
+                                <MessageCircle className="w-4 h-4 mr-1" />
+                                Request Review
+                              </Button>
+                            )}
+                          {order.review_request_status === 'requested' && (
+                            <Badge variant="outline" className="text-blue-600 border-blue-300">
+                              Review Sent
+                            </Badge>
+                          )}
                         </div>
                       </td>
                     </tr>

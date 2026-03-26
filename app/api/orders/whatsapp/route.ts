@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Order from '@/models/Order'
 import Product from '@/models/Product'
-import mongoose from 'mongoose'
 
 // POST /api/orders/whatsapp - Create a WhatsApp order record
 export async function POST(request: NextRequest) {
@@ -15,9 +14,10 @@ export async function POST(request: NextRequest) {
       customerPhone, 
       customerEmail, 
       items, 
-      shippingAddress, 
+      shippingAddress,
+      location,
       customerNotes,
-      whatsappMessage 
+      userId
     } = body
     
     if (!customerName || !customerPhone || !items || !Array.isArray(items) || items.length === 0) {
@@ -26,9 +26,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Create a guest user ID for WhatsApp orders
-    const guestUserId = new mongoose.Types.ObjectId()
     
     // Process order items and calculate totals
     let subtotal = 0
@@ -63,11 +60,11 @@ export async function POST(request: NextRequest) {
     const shippingCost = subtotal >= 5000 ? 0 : 500
     const totalAmount = subtotal + shippingCost
     
-    // Create the order
     const order = new Order({
-      userId: guestUserId,
-      customerEmail: customerEmail || 'whatsapp@javiccollection.co.ke',
+      ...(userId ? { userId } : {}),
+      customerEmail: customerEmail || 'guest@javic.co.ke',
       customerPhone: customerPhone,
+      whatsapp_phone: customerPhone,
       items: processedItems,
       subtotal,
       shippingCost,
@@ -77,14 +74,14 @@ export async function POST(request: NextRequest) {
       shippingAddress: {
         name: customerName,
         phone: customerPhone,
-        county: shippingAddress?.county || 'Nairobi',
-        area: shippingAddress?.area || 'CBD'
+        county: shippingAddress?.county || location || 'Kenya',
+        area: shippingAddress?.area || location || 'N/A'
       },
       status: 'pending',
       paymentStatus: 'pending',
-      paymentMethod: 'mpesa', // Default for WhatsApp orders
+      paymentMethod: 'cash_on_delivery',
       customerNotes: customerNotes || 'Order placed via WhatsApp',
-      adminNotes: `WhatsApp Order - Original Message: ${whatsappMessage || 'N/A'}`
+      adminNotes: `WhatsApp Order`
     })
 
     await order.save()
