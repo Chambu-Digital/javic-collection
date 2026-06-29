@@ -244,22 +244,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-6">
-        <Link href="/admin/products" className="flex items-center text-gray-600 hover:text-gray-900 mb-4">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Products
+        <Link href="/admin/products" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-sm sm:text-base">Back to Products</span>
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
-        <p className="text-gray-600">Update product information and settings</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">Edit Product</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">Update product information and settings</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Basic Information</h2>
           
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Name *
@@ -269,7 +269,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 required
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
 
@@ -281,7 +281,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 required
                 value={formData.category}
                 onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
               >
                 <option value="">Select Category</option>
                 {categories.map(category => (
@@ -293,7 +293,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Description *
             </label>
@@ -302,17 +302,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
               placeholder="Describe your product, its benefits, and how to use it..."
             />
           </div>
         </div>
 
         {/* Pricing & Variants */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Pricing & Variants</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Pricing & Variants</h2>
           
-          <div className="flex items-center mb-6">
+          <div className="flex items-start mb-6">
             <input
               type="checkbox"
               id="hasVariants"
@@ -322,9 +322,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 hasVariants: e.target.checked,
                 variants: e.target.checked ? prev.variants : []
               }))}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5 flex-shrink-0"
             />
-            <label htmlFor="hasVariants" className="ml-2 block text-sm font-medium text-gray-900">
+            <label htmlFor="hasVariants" className="ml-3 block text-sm font-medium text-gray-900">
               This product has variants (different sizes, colors, etc.)
             </label>
           </div>
@@ -349,7 +349,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         price: value === '' ? 0 : parseFloat(value) || 0 
                       }))
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="0.00"
                   />
                 </div>
@@ -369,7 +369,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         oldPrice: value === '' ? 0 : parseFloat(value) || 0 
                       }))
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="0.00"
                   />
                 </div>
@@ -389,7 +389,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         stockQuantity: value === '' ? 0 : parseInt(value) || 0 
                       }))
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="0"
                   />
                 </div>
@@ -398,7 +398,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               {/* Wholesale Pricing for Simple Products */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-blue-900 mb-3">Wholesale Pricing (Optional)</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Wholesale Price (KSH)
@@ -414,7 +414,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                           wholesalePrice: value === '' ? 0 : parseFloat(value) || 0 
                         }))
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="0.00"
                     />
                   </div>
@@ -433,7 +433,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                           wholesaleThreshold: value === '' ? 0 : parseInt(value) || 0 
                         }))
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="10"
                     />
                   </div>
@@ -441,7 +441,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 
                 {formData.price && formData.wholesalePrice && formData.wholesaleThreshold && (
                   <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm text-green-800">
+                    <p className="text-xs sm:text-sm text-green-800">
                       <strong>Wholesale Savings:</strong> KSH {(formData.price - formData.wholesalePrice).toFixed(2)} per unit 
                       ({Math.round(((formData.price - formData.wholesalePrice) / formData.price) * 100)}% off) 
                       when buying {formData.wholesaleThreshold}+ units
@@ -456,28 +456,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <p className="text-sm text-gray-600 mb-4">
                 Manage variants for this product. Each variant can have its own price, image, and stock level.
               </p>
-              <VariantManager
-                variants={formData.variants}
-                onVariantsChange={(variants) => setFormData(prev => ({ ...prev, variants }))}
-              />
+              <div className="overflow-x-auto">
+                <VariantManager
+                  variants={formData.variants}
+                  onVariantsChange={(variants) => setFormData(prev => ({ ...prev, variants }))}
+                />
+              </div>
             </div>
           )}
         </div>
 
         {/* Product Images - Only for Simple Products */}
         {!formData.hasVariants && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Product Images</h2>
+          <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold mb-4">Product Images</h2>
             
             {/* Existing Images Grid */}
             {formData.images.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
                 {formData.images.map((image, index) => (
-                  <div key={index} className="relative group">
+                  <div key={index} className="relative group aspect-square">
                     <img
                       src={image}
                       alt={`Product ${index + 1}`}
-                      className="h-32 w-full object-cover rounded-lg border border-gray-200"
+                      className="h-full w-full object-cover rounded-lg border border-gray-200"
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <button
@@ -500,7 +502,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
             {/* Enhanced Upload Area */}
             <div 
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+              className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-blue-400 transition-colors"
               onDrop={(e) => {
                 e.preventDefault()
                 const files = Array.from(e.dataTransfer.files)
@@ -522,13 +524,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
                   <div>
                     <label className="cursor-pointer">
-                      <span className="text-blue-600 hover:text-blue-500 font-medium">
+                      <span className="text-blue-600 hover:text-blue-500 font-medium text-sm">
                         Click to upload
                       </span>
-                      <span className="text-gray-500"> or drag and drop multiple images</span>
+                      <span className="text-gray-500 text-sm"> or drag and drop</span>
                       <input
                         type="file"
                         className="sr-only"
@@ -551,7 +553,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         {/* Variant Images Note */}
         {formData.hasVariants && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
+            <p className="text-xs sm:text-sm text-blue-800">
               <strong>Note:</strong> For products with variants, images are managed individually for each variant. 
               Each variant has its own specific image that customers will see when they select that variant.
             </p>
@@ -594,72 +596,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         
       
 
-        {/* Product Images */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Product Images</h2>
-          
-          {/* Current Images */}
-          {formData.images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              {formData.images.map((image, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={image}
-                    alt={`Product ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem('images', index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Upload New Images */}
-          <div className="border-2 border-gray-300 border-dashed rounded-lg p-6">
-            <div className="text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <div className="flex text-sm text-gray-600 justify-center">
-                <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                  <span>Upload new images</span>
-                  <input
-                    type="file"
-                    className="sr-only"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={imageUploading}
-                  />
-                </label>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB each</p>
-              {imageUploading && (
-                <p className="text-sm text-blue-600 mt-2">Uploading images...</p>
-              )}
-            </div>
-          </div>
-
-
-        </div>
 
         {/* Product Settings */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Product Settings</h2>
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Product Settings</h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={formData.isActive}
                 onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                className="mr-2"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2 flex-shrink-0"
               />
-              Active
+              <span className="text-sm">Active</span>
             </label>
             
             <label className="flex items-center">
@@ -667,9 +617,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 type="checkbox"
                 checked={formData.isFeatured}
                 onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
-                className="mr-2"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2 flex-shrink-0"
               />
-              Featured
+              <span className="text-sm">Featured</span>
             </label>
             
             <label className="flex items-center">
@@ -677,9 +627,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 type="checkbox"
                 checked={formData.isNewProduct}
                 onChange={(e) => setFormData(prev => ({ ...prev, isNewProduct: e.target.checked }))}
-                className="mr-2"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2 flex-shrink-0"
               />
-              New Product
+              <span className="text-sm">New Product</span>
             </label>
             
             <label className="flex items-center">
@@ -687,25 +637,25 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 type="checkbox"
                 checked={formData.isBestseller}
                 onChange={(e) => setFormData(prev => ({ ...prev, isBestseller: e.target.checked }))}
-                className="mr-2"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2 flex-shrink-0"
               />
-              Bestseller
+              <span className="text-sm">Bestseller</span>
             </label>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className="flex items-center">
+          <div className="mt-4 sm:mt-6">
+            <label className="flex items-start sm:items-center mb-4">
               <input
                 type="checkbox"
                 checked={formData.isFlashDeal}
                 onChange={(e) => setFormData(prev => ({ ...prev, isFlashDeal: e.target.checked }))}
-                className="mr-2"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2 mt-0.5 sm:mt-0 flex-shrink-0"
               />
-              Flash Deal
+              <span className="text-sm">Flash Deal</span>
             </label>
             
             {formData.isFlashDeal && (
-              <div>
+              <div className="mt-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Flash Deal Discount (%)
                 </label>
@@ -715,7 +665,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   max="100"
                   value={formData.flashDealDiscount}
                   onChange={(e) => setFormData(prev => ({ ...prev, flashDealDiscount: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
             )}
@@ -723,13 +673,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-4">
-          <Link href="/admin/products">
-            <Button type="button" variant="outline">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:space-x-4 sticky bottom-0 bg-white p-4 sm:p-6 shadow-lg border-t border-gray-200 -mx-4 sm:-mx-6">
+          <Link href="/admin/products" className="w-full sm:w-auto">
+            <Button type="button" variant="outline" className="w-full sm:w-auto">
               Cancel
             </Button>
           </Link>
-          <Button type="submit" disabled={saving}>
+          <Button type="submit" disabled={saving} className="w-full sm:w-auto">
             {saving ? 'Updating...' : 'Update Product'}
           </Button>
         </div>

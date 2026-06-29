@@ -90,7 +90,7 @@ export const sendWhatsAppOrder = async (
   }>,
   shippingAddress?: { county: string; area: string },
   customerEmail?: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254723277306',
+  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984',
   userId?: string
 ) => {
   // Generate the WhatsApp message
@@ -182,9 +182,9 @@ export const openWhatsAppChat = (
 export const BUSINESS_PROFILE = {
   name: 'JAVIC COLLECTION',
   description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, exceptional service.',
-  address: 'Taveta Lane, Nairobi, Kenya',
+  address: 'Biashara Street, Mombasa',
   phone: '+254 706 512 984',
-  email: 'sales@javiccollection.co.ke',
+  email: 'sales@javic.co.ke',
   website: 'https://javiccollection.co.ke',
   businessHours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-5PM',
   logo: '/javic-logo1.png'

@@ -1,5 +1,9 @@
 'use client'
 
+// TO REVERT: Set SHOW_COMING_SOON to false
+const SHOW_COMING_SOON = true
+
+import ComingSoonPage from '@/components/coming-soon-page'
 import HeroSlider from '@/components/hero-slider'
 import CategoryGrid from '@/components/category-grid'
 import FlashDealsSection from '@/components/flash-deals'
@@ -10,6 +14,10 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 
 export default function Home() {
+  if (SHOW_COMING_SOON) {
+    return <ComingSoonPage />
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />

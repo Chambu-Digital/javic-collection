@@ -129,7 +129,7 @@ export default function ProductsPage() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -137,53 +137,61 @@ export default function ProductsPage() {
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
           >
             <option value="">All Categories</option>
             {categories.map(category => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>
-          <div className="text-sm text-gray-500 flex items-center">
-            Showing {filteredProducts.length} of {products.length} products
+          <div className="text-sm text-gray-500 flex items-center justify-center sm:justify-start">
+            <span className="text-center sm:text-left">
+              Showing {filteredProducts.length} of {products.length} products
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {filteredProducts.map((product) => {
-            const displayImage = getProductDisplayImage(product)
-            const { price, oldPrice } = getProductDisplayPrice(product)
-            
-            return (
-              <li key={product._id}>
-                <div className="px-4 py-4 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-16 w-16">
+      <div className="bg-white shadow rounded-md overflow-hidden">
+        {/* Mobile Card Layout */}
+        <div className="md:hidden">
+          <div className="divide-y divide-gray-200">
+            {filteredProducts.map((product) => {
+              const displayImage = getProductDisplayImage(product)
+              const { price, oldPrice } = getProductDisplayPrice(product)
+              
+              return (
+                <div key={product._id} className="p-4">
+                  <div className="flex gap-4">
+                    {/* Product Image */}
+                    <div className="flex-shrink-0">
                       <img
-                        className="h-16 w-16 rounded-lg object-cover"
+                        className="h-20 w-20 rounded-lg object-cover"
                         src={displayImage}
                         alt={product.name}
                       />
                     </div>
-                    <div className="ml-4">
-                      <div className="flex items-center">
-                        <p className="text-lg font-medium text-gray-900">
-                          {product.name}
-                        </p>
+                    
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold text-gray-900 truncate">
+                        {product.name}
+                      </h3>
+                      
+                      {/* Status Badges */}
+                      <div className="flex flex-wrap gap-1 mt-1">
                         {product.hasVariants && (
-                          <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            Has Variants
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                            Variants
                           </span>
                         )}
-                        <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           product.isActive 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
@@ -191,65 +199,184 @@ export default function ProductsPage() {
                           {product.isActive ? 'Active' : 'Inactive'}
                         </span>
                         {product.isFeatured && (
-                          <span className="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                             Featured
                           </span>
                         )}
                         {product.isFlashDeal && (
-                          <span className="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                             Flash Deal
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {product.category} • KSH {price}
-                        {oldPrice && (
-                          <span className="line-through text-gray-400 ml-2">
-                            KSH {oldPrice}
-                          </span>
-                        )}
+                      
+                      {/* Category and Price */}
+                      <div className="mt-2 text-sm text-gray-600">
+                        <p className="font-medium text-gray-900">{product.category}</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          KSH {price}
+                          {oldPrice && (
+                            <span className="text-sm font-normal text-gray-400 line-through ml-2">
+                              KSH {oldPrice}
+                            </span>
+                          )}
+                        </p>
                         {product.hasVariants && (
-                          <span className="text-xs text-blue-600 ml-2">
-                            (Starting from cheapest variant)
-                          </span>
+                          <p className="text-xs text-blue-600">
+                            Starting from cheapest variant
+                          </p>
                         )}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Stock: {product.stockQuantity} • Rating: {product.rating}/5 ({product.reviews} reviews)
-                      </p>
+                      </div>
+                      
+                      {/* Stock and Rating */}
+                      <div className="mt-1 text-xs text-gray-500">
+                        <p>Stock: {product.stockQuantity} • Rating: {product.rating}/5 ({product.reviews} reviews)</p>
+                      </div>
                     </div>
                   </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleActive(product._id!, product.isActive)}
-                  >
-                    {product.isActive ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Link href={`/admin/products/${product._id}/edit`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(product._id!)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  
+                  {/* Action Buttons */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleActive(product._id!, product.isActive)}
+                        className="flex-1 min-w-[80px]"
+                      >
+                        {product.isActive ? (
+                          <>
+                            <EyeOff className="h-4 w-4 mr-1" />
+                            Hide
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4 mr-1" />
+                            Show
+                          </>
+                        )}
+                      </Button>
+                      <Link href={`/admin/products/${product._id}/edit`} className="flex-1 min-w-[80px]">
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(product._id!)}
+                        className="flex-1 min-w-[80px] text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </li>
-            )
-          })}
-        </ul>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Desktop/Tablet Table Layout */}
+        <div className="hidden md:block">
+          <ul className="divide-y divide-gray-200">
+            {filteredProducts.map((product) => {
+              const displayImage = getProductDisplayImage(product)
+              const { price, oldPrice } = getProductDisplayPrice(product)
+              
+              return (
+                <li key={product._id}>
+                  <div className="px-4 py-4 flex items-center justify-between">
+                    <div className="flex items-center flex-1 min-w-0">
+                      <div className="flex-shrink-0 h-16 w-16">
+                        <img
+                          className="h-16 w-16 rounded-lg object-cover"
+                          src={displayImage}
+                          alt={product.name}
+                        />
+                      </div>
+                      <div className="ml-4 flex-1 min-w-0">
+                        <div className="flex items-center flex-wrap gap-2">
+                          <p className="text-lg font-medium text-gray-900 truncate">
+                            {product.name}
+                          </p>
+                          {product.hasVariants && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 flex-shrink-0">
+                              Has Variants
+                            </span>
+                          )}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
+                            product.isActive 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                          {product.isFeatured && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0">
+                              Featured
+                            </span>
+                          )}
+                          {product.isFlashDeal && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex-shrink-0">
+                              Flash Deal
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {product.category} • KSH {price}
+                          {oldPrice && (
+                            <span className="line-through text-gray-400 ml-2">
+                              KSH {oldPrice}
+                            </span>
+                          )}
+                          {product.hasVariants && (
+                            <span className="text-xs text-blue-600 ml-2">
+                              (Starting from cheapest variant)
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Stock: {product.stockQuantity} • Rating: {product.rating}/5 ({product.reviews} reviews)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleActive(product._id!, product.isActive)}
+                        title={product.isActive ? 'Hide product' : 'Show product'}
+                      >
+                        {product.isActive ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Link href={`/admin/products/${product._id}/edit`}>
+                        <Button variant="outline" size="sm" title="Edit product">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(product._id!)}
+                        className="text-red-600 hover:text-red-700"
+                        title="Delete product"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </div>
 
       {filteredProducts.length === 0 && (

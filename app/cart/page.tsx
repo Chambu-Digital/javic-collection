@@ -50,7 +50,7 @@ export default function CartPage() {
         '+254706512984', // Placeholder - customer will provide real phone
         orderItems,
         { county: 'Nairobi', area: 'CBD' }, // Default location
-        'whatsapp@javiccollection.co.ke' // Default email
+        'sales@javic.co.ke' // Default email
       )
       
       // Clear cart after successful order

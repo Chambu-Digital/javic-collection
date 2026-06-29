@@ -110,7 +110,7 @@ export default function TrackOrderPage() {
               <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <h3 className="font-semibold text-gray-900 mb-1">Order Not Found</h3>
               <p className="text-gray-500 text-sm mb-4">Check your order number or WhatsApp number and try again.</p>
-              <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="sm">
                   <Phone className="w-4 h-4 mr-2" />Contact Us on WhatsApp
                 </Button>
@@ -175,7 +175,7 @@ export default function TrackOrderPage() {
 
             {order.status === 'pending' && (
               <div className="text-center">
-                <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline">
                     <Phone className="w-4 h-4 mr-2" />Ask about your order on WhatsApp
                   </Button>

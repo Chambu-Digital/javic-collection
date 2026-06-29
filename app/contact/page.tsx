@@ -36,8 +36,8 @@ export default function ContactPage() {
   const contactInfo = [
     { icon: Phone,          title: 'Call Us',   detail: '+254 706 512 984',               href: 'tel:+254706512984',                    accent: 'blue' },
     { icon: MessageCircle,  title: 'WhatsApp',  detail: '+254 706 512 984',               href: 'https://wa.me/254706512984',           accent: 'green' },
-    { icon: Mail,           title: 'Email',     detail: 'sales@javiccollection.co.ke',    href: 'mailto:sales@javiccollection.co.ke',   accent: 'magenta' },
-    { icon: MapPin,         title: 'Visit Us',  detail: 'Agro House, Moi Ave, 1st Fl Rm 35', href: '#',                               accent: 'gold' },
+    { icon: Mail,           title: 'Email',     detail: 'sales@javic.co.ke',    href: 'mailto:sales@javic.co.ke',   accent: 'magenta' },
+    { icon: MapPin,         title: 'Visit Us',  detail: 'Biashara Street, Mombasa', href: '#',                               accent: 'gold' },
   ]
 
   const faqs = [

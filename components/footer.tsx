@@ -69,23 +69,23 @@ export default function Footer() {
             </div>
 
             <div className="jf-contact-list">
-              <a href="tel:+254723277306" className="jf-contact-item">
+              <a href="tel:+254706512984" className="jf-contact-item">
                 <div className="jf-contact-icon-ring">
                   <Phone size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">Call Us</p>
-                  <p className="jf-contact-value">+254 723 277 306</p>
+                  <p className="jf-contact-value">+254 706 512 984</p>
                 </div>
               </a>
 
-              <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer" className="jf-contact-item whatsapp">
+              <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer" className="jf-contact-item whatsapp">
                 <div className="jf-contact-icon-ring green">
                   <MessageCircle size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">WhatsApp</p>
-                  <p className="jf-contact-value">+254 723 277 306</p>
+                  <p className="jf-contact-value">+254 706 512 984</p>
                 </div>
               </a>
 

@@ -52,6 +52,12 @@ export const PERMISSIONS = {
   // Requests (Super Admin only)
   REQUESTS_VIEW: 'requests.view',
   REQUESTS_MANAGE: 'requests.manage',
+
+  // Campaigns
+  CAMPAIGNS_VIEW: 'campaigns.view',
+  CAMPAIGNS_CREATE: 'campaigns.create',
+  CAMPAIGNS_EDIT: 'campaigns.edit',
+  CAMPAIGNS_DELETE: 'campaigns.delete',
 } as const
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS]
@@ -78,6 +84,10 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.SHIPPING_VIEW,
     PERMISSIONS.SHIPPING_MANAGE,
     PERMISSIONS.SETTINGS_VIEW,
+    PERMISSIONS.CAMPAIGNS_VIEW,
+    PERMISSIONS.CAMPAIGNS_CREATE,
+    PERMISSIONS.CAMPAIGNS_EDIT,
+    PERMISSIONS.CAMPAIGNS_DELETE,
   ],
 } as const
 
@@ -186,5 +196,11 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.ADMINS_MANAGE,
     PERMISSIONS.REQUESTS_VIEW,
     PERMISSIONS.REQUESTS_MANAGE,
+  ],
+  'Campaign Management': [
+    PERMISSIONS.CAMPAIGNS_VIEW,
+    PERMISSIONS.CAMPAIGNS_CREATE,
+    PERMISSIONS.CAMPAIGNS_EDIT,
+    PERMISSIONS.CAMPAIGNS_DELETE,
   ],
 } as const

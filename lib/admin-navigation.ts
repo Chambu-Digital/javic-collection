@@ -13,6 +13,7 @@ import {
   Star,
   CreditCard,
   Upload,
+  Megaphone,
   LucideIcon
 } from 'lucide-react'
 import { PERMISSIONS, Permission, PermissionChecker } from './permissions'
@@ -112,6 +113,13 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     icon: BarChart3,
     permissions: [PERMISSIONS.REPORTS_VIEW],
     notificationKey: 'reports',
+  },
+  {
+    name: 'Campaigns',
+    href: '/admin/campaigns',
+    icon: Megaphone,
+    permissions: [PERMISSIONS.CAMPAIGNS_VIEW],
+    notificationKey: null,
   },
   {
     name: 'Settings',

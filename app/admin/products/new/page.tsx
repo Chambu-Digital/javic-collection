@@ -211,25 +211,25 @@ export default function NewProductPage() {
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-6">
-        <Link href="/admin/products" className="flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Products
+        <Link href="/admin/products" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="text-sm sm:text-base">Back to Products</span>
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">Add New Product</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">
           Create a new product listing with all the details.
         </p>
       </div>
 
       <div className="bg-white shadow rounded-lg">
-        <form onSubmit={handleSubmit} className="space-y-8 p-6">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 p-4 sm:p-6">
           {/* Basic Information */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
             
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Product Name *
@@ -239,7 +239,7 @@ export default function NewProductPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="e.g., Satin 5pcs Pajama Set"
                 />
               </div>
@@ -252,7 +252,7 @@ export default function NewProductPage() {
                   required
                   value={formData.categoryId}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
                 >
                   <option value="">Select a category</option>
                   {categories.map(category => (
@@ -264,7 +264,7 @@ export default function NewProductPage() {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Product Description *
               </label>
@@ -273,17 +273,17 @@ export default function NewProductPage() {
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
                 placeholder="Describe your fashion item, its style, material, and care instructions..."
               />
             </div>
           </div>
 
           {/* Pricing & Variants */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing & Variants</h3>
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Pricing & Variants</h3>
             
-            <div className="flex items-center mb-6">
+            <div className="flex items-start mb-6">
               <input
                 type="checkbox"
                 id="hasVariants"
@@ -293,9 +293,9 @@ export default function NewProductPage() {
                   hasVariants: e.target.checked,
                   variants: e.target.checked ? prev.variants : []
                 }))}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5 flex-shrink-0"
               />
-              <label htmlFor="hasVariants" className="ml-2 block text-sm font-medium text-gray-900">
+              <label htmlFor="hasVariants" className="ml-3 block text-sm font-medium text-gray-900">
                 This product has variants (different sizes, colors, styles, etc.)
               </label>
             </div>
@@ -314,7 +314,7 @@ export default function NewProductPage() {
                       required
                       value={formData.price}
                       onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="0.00"
                     />
                   </div>
@@ -328,7 +328,7 @@ export default function NewProductPage() {
                       step="0.01"
                       value={formData.oldPrice}
                       onChange={(e) => setFormData(prev => ({ ...prev, oldPrice: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="0.00"
                     />
                   </div>
@@ -342,7 +342,7 @@ export default function NewProductPage() {
                       required
                       value={formData.stockQuantity}
                       onChange={(e) => setFormData(prev => ({ ...prev, stockQuantity: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="0"
                     />
                   </div>
@@ -351,7 +351,7 @@ export default function NewProductPage() {
                 {/* Wholesale Pricing for Simple Products */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="text-sm font-semibold text-blue-900 mb-3">Wholesale Pricing (Optional)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Wholesale Price (KSH)
@@ -361,7 +361,7 @@ export default function NewProductPage() {
                         step="0.01"
                         value={formData.wholesalePrice}
                         onChange={(e) => setFormData(prev => ({ ...prev, wholesalePrice: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         placeholder="0.00"
                       />
                     </div>
@@ -374,7 +374,7 @@ export default function NewProductPage() {
                         type="number"
                         value={formData.wholesaleThreshold}
                         onChange={(e) => setFormData(prev => ({ ...prev, wholesaleThreshold: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         placeholder="10"
                       />
                     </div>
@@ -382,7 +382,7 @@ export default function NewProductPage() {
                   
                   {formData.price && formData.wholesalePrice && formData.wholesaleThreshold && (
                     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-                      <p className="text-sm text-green-800">
+                      <p className="text-xs sm:text-sm text-green-800">
                         <strong>Wholesale Savings:</strong> KSH {(parseFloat(formData.price) - parseFloat(formData.wholesalePrice)).toFixed(2)} per unit 
                         ({Math.round(((parseFloat(formData.price) - parseFloat(formData.wholesalePrice)) / parseFloat(formData.price)) * 100)}% off) 
                         when buying {formData.wholesaleThreshold}+ units
@@ -397,10 +397,12 @@ export default function NewProductPage() {
                 <p className="text-sm text-gray-600 mb-4">
                   Add variants for this product. Each variant can have different colors, sizes, and its own price, image, and stock level.
                 </p>
-                <VariantManager
-                  variants={formData.variants}
-                  onVariantsChange={(variants) => setFormData(prev => ({ ...prev, variants }))}
-                />
+                <div className="overflow-x-auto">
+                  <VariantManager
+                    variants={formData.variants}
+                    onVariantsChange={(variants) => setFormData(prev => ({ ...prev, variants }))}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -414,13 +416,13 @@ export default function NewProductPage() {
               
               {/* Existing Images Grid */}
               {formData.images.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
                   {formData.images.map((image, index) => (
-                    <div key={index} className="relative group">
+                    <div key={index} className="relative group aspect-square">
                       <img
                         src={image}
                         alt={`Product ${index + 1}`}
-                        className="h-32 w-full object-cover rounded-lg border border-gray-200"
+                        className="h-full w-full object-cover rounded-lg border border-gray-200"
                       />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                         <button
@@ -443,7 +445,7 @@ export default function NewProductPage() {
 
               {/* Enhanced Upload Area */}
               <div 
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-blue-400 transition-colors"
                 onDrop={(e) => {
                   e.preventDefault()
                   const files = Array.from(e.dataTransfer.files)
@@ -465,13 +467,13 @@ export default function NewProductPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
                     <div>
                       <label className="cursor-pointer">
-                        <span className="text-blue-600 hover:text-blue-500 font-medium">
+                        <span className="text-blue-600 hover:text-blue-500 font-medium text-sm">
                           Click to upload
                         </span>
-                        <span className="text-gray-500"> or drag and drop multiple images</span>
+                        <span className="text-gray-500 text-sm"> or drag and drop</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -494,7 +496,7 @@ export default function NewProductPage() {
           {/* Variant Images Note */}
           {formData.hasVariants && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
+              <p className="text-xs sm:text-sm text-blue-800">
                 <strong>Note:</strong> For products with variants, images are uploaded individually for each variant. 
                 Each variant will have its own specific image that customers will see when they select that variant.
               </p>
@@ -502,8 +504,8 @@ export default function NewProductPage() {
           )}
 
           {/* Product Details */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
             
             {/* Tags */}
             <div>
@@ -515,13 +517,14 @@ export default function NewProductPage() {
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="e.g., cotton, comfortable, casual, sleepwear (separate with commas)"
                 />
                 <Button
                   type="button"
                   onClick={() => addArrayItem('tags', newTag)}
                   disabled={!newTag.trim()}
+                  className="flex-shrink-0"
                 >
                   Add
                 </Button>
@@ -547,26 +550,26 @@ export default function NewProductPage() {
           </div>
 
           {/* Product Settings */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Settings</h3>
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Product Settings</h3>
             
             {/* Flash Deal */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
-              <div className="flex items-center">
+            <div className="mb-6">
+              <div className="flex items-start sm:items-center mb-4">
                 <input
                   type="checkbox"
                   id="isFlashDeal"
                   checked={formData.isFlashDeal}
                   onChange={(e) => setFormData(prev => ({ ...prev, isFlashDeal: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5 sm:mt-0 flex-shrink-0"
                 />
-                <label htmlFor="isFlashDeal" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="isFlashDeal" className="ml-3 block text-sm text-gray-900">
                   Flash Deal
                 </label>
               </div>
 
               {formData.isFlashDeal && (
-                <div>
+                <div className="mt-3">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Discount Percentage
                   </label>
@@ -576,7 +579,7 @@ export default function NewProductPage() {
                     max="100"
                     value={formData.flashDealDiscount}
                     onChange={(e) => setFormData(prev => ({ ...prev, flashDealDiscount: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="0"
                   />
                 </div>
@@ -584,14 +587,14 @@ export default function NewProductPage() {
             </div>
 
             {/* Product Flags */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
                 />
                 <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
                   Active
@@ -604,7 +607,7 @@ export default function NewProductPage() {
                   id="isFeatured"
                   checked={formData.isFeatured}
                   onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
                 />
                 <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">
                   Featured
@@ -617,7 +620,7 @@ export default function NewProductPage() {
                   id="isNewProduct"
                   checked={formData.isNewProduct}
                   onChange={(e) => setFormData(prev => ({ ...prev, isNewProduct: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
                 />
                 <label htmlFor="isNewProduct" className="ml-2 block text-sm text-gray-900">
                   New Product
@@ -630,7 +633,7 @@ export default function NewProductPage() {
                   id="isBestseller"
                   checked={formData.isBestseller}
                   onChange={(e) => setFormData(prev => ({ ...prev, isBestseller: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
                 />
                 <label htmlFor="isBestseller" className="ml-2 block text-sm text-gray-900">
                   Bestseller
@@ -639,9 +642,9 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <Link href="/admin/products">
-              <Button type="button" variant="outline">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:space-x-3 pt-4 sm:pt-6 border-t border-gray-200">
+            <Link href="/admin/products" className="w-full sm:w-auto">
+              <Button type="button" variant="outline" className="w-full sm:w-auto">
                 Cancel
               </Button>
             </Link>
@@ -650,6 +653,7 @@ export default function NewProductPage() {
               disabled={loading || 
                 (formData.hasVariants ? formData.variants.length === 0 : formData.images.length === 0)
               }
+              className="w-full sm:w-auto"
             >
               {loading ? 'Creating...' : 'Create Product'}
             </Button>
