@@ -133,7 +133,7 @@ export default function OrderReviewStep({
               <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 border rounded-lg">
                 <div className="relative w-12 h-12 shrink-0">
                   <Image
-                    src={item.image}
+                    src={item.selectedImage || item.image}
                     alt={item.name}
                     fill
                     className="object-cover rounded"
@@ -142,6 +142,11 @@ export default function OrderReviewStep({
                 
                 <div className="flex-1 min-w-0 w-full sm:w-auto">
                   <h3 className="font-medium text-sm">{item.name}</h3>
+                  {item.selectedImage && item.selectedImage !== item.image && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      ✓ Selected design shown
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-1">
                     {item.selectedSize && <span>Size: {item.selectedSize}</span>}
                     {item.selectedScent && <span>Scent: {item.selectedScent}</span>}

@@ -11,6 +11,7 @@ const orderItemSchema = z.object({
   productId: z.string(),
   productName: z.string(),
   productImage: z.string(),
+  selectedImage: z.string().optional(),
   variantId: z.string().optional(),
   variantDetails: z.object({
     type: z.string(),

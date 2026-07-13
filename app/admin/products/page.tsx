@@ -13,6 +13,8 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [categories, setCategories] = useState<string[]>([])
+  const [rowsPerPage, setRowsPerPage] = useState(25)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     fetchProducts()
@@ -95,6 +97,17 @@ export default function ProductsPage() {
     return matchesSearch && matchesCategory
   })
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage)
+  const startIndex = (currentPage - 1) * rowsPerPage
+  const endIndex = startIndex + rowsPerPage
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, categoryFilter, rowsPerPage])
+
   if (loading) {
     return (
       <div className="animate-pulse">
@@ -152,7 +165,7 @@ export default function ProductsPage() {
           </select>
           <div className="text-sm text-gray-500 flex items-center justify-center sm:justify-start">
             <span className="text-center sm:text-left">
-              Showing {filteredProducts.length} of {products.length} products
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} products
             </span>
           </div>
         </div>
@@ -162,7 +175,7 @@ export default function ProductsPage() {
         {/* Mobile Card Layout */}
         <div className="md:hidden">
           <div className="divide-y divide-gray-200">
-            {filteredProducts.map((product) => {
+            {paginatedProducts.map((product) => {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
               
@@ -186,11 +199,6 @@ export default function ProductsPage() {
                       
                       {/* Status Badges */}
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {product.hasVariants && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                            Variants
-                          </span>
-                        )}
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           product.isActive 
                             ? 'bg-green-100 text-green-800' 
@@ -221,11 +229,6 @@ export default function ProductsPage() {
                             </span>
                           )}
                         </p>
-                        {product.hasVariants && (
-                          <p className="text-xs text-blue-600">
-                            Starting from cheapest variant
-                          </p>
-                        )}
                       </div>
                       
                       {/* Stock and Rating */}
@@ -282,7 +285,7 @@ export default function ProductsPage() {
         {/* Desktop/Tablet Table Layout */}
         <div className="hidden md:block">
           <ul className="divide-y divide-gray-200">
-            {filteredProducts.map((product) => {
+            {paginatedProducts.map((product) => {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
               
@@ -302,11 +305,6 @@ export default function ProductsPage() {
                           <p className="text-lg font-medium text-gray-900 truncate">
                             {product.name}
                           </p>
-                          {product.hasVariants && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 flex-shrink-0">
-                              Has Variants
-                            </span>
-                          )}
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
                             product.isActive 
                               ? 'bg-green-100 text-green-800' 
@@ -330,11 +328,6 @@ export default function ProductsPage() {
                           {oldPrice && (
                             <span className="line-through text-gray-400 ml-2">
                               KSH {oldPrice}
-                            </span>
-                          )}
-                          {product.hasVariants && (
-                            <span className="text-xs text-blue-600 ml-2">
-                              (Starting from cheapest variant)
                             </span>
                           )}
                         </p>
@@ -389,6 +382,75 @@ export default function ProductsPage() {
           </Link>
         </div>
       )}
+
+      {/* Pagination Controls */}
+      {filteredProducts.length > 0 && (
+        <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6 flex items-center justify-between">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(endIndex, filteredProducts.length)}</span> of{' '}
+                <span className="font-medium">{filteredProducts.length}</span> results
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">Rows per page:</span>
+                <select
+                  value={rowsPerPage}
+                  onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm text-gray-700">
+                  Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

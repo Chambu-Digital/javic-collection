@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import ImageUpload from '@/components/image-upload'
-import { Trash2, Edit, Plus, GripVertical } from 'lucide-react'
+import { Trash2, Edit, Plus, GripVertical, Image, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Banner {
@@ -34,9 +35,58 @@ export default function SettingsPage() {
     order: 0
   })
 
+  // Watermark settings
+  const [watermark, setWatermark] = useState({
+    watermarkEnabled: true,
+    watermarkText: '',
+    watermarkPosition: 'bottom-right' as const,
+    watermarkOpacity: 0.7,
+  })
+  const [watermarkSaving, setWatermarkSaving] = useState(false)
+  const [watermarkSaved, setWatermarkSaved] = useState(false)
+
   useEffect(() => {
     fetchBanners()
+    fetchWatermarkSettings()
   }, [])
+
+  const fetchWatermarkSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/settings')
+      if (res.ok) {
+        const data = await res.json()
+        setWatermark({
+          watermarkEnabled: data.watermarkEnabled ?? true,
+          watermarkText: data.watermarkText || '',
+          watermarkPosition: data.watermarkPosition || 'bottom-right',
+          watermarkOpacity: data.watermarkOpacity ?? 0.7,
+        })
+      }
+    } catch { /* silent */ }
+  }
+
+  const saveWatermarkSettings = async () => {
+    setWatermarkSaving(true)
+    setWatermarkSaved(false)
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(watermark),
+      })
+      if (res.ok) {
+        setWatermarkSaved(true)
+        toast.success('Watermark settings saved')
+        setTimeout(() => setWatermarkSaved(false), 3000)
+      } else {
+        toast.error('Failed to save watermark settings')
+      }
+    } catch {
+      toast.error('Failed to save watermark settings')
+    } finally {
+      setWatermarkSaving(false)
+    }
+  }
 
   const fetchBanners = async () => {
     try {
@@ -140,7 +190,7 @@ export default function SettingsPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your website banners and hero images</p>
+          <p className="text-muted-foreground">Manage your store settings, watermark, and banners</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -148,6 +198,103 @@ export default function SettingsPage() {
         </Button>
       </div>
 
+      {/* ── Watermark Settings ── */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image className="w-5 h-5" />
+            Image Watermark
+          </CardTitle>
+          <CardDescription>
+            Text overlay applied to all uploaded product images. Leave blank or disable to upload without a watermark.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {/* Enable toggle */}
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <p className="font-medium text-sm">Enable Watermark</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                When off, images are uploaded without any watermark text
+              </p>
+            </div>
+            <Switch
+              checked={watermark.watermarkEnabled}
+              onCheckedChange={v => setWatermark(prev => ({ ...prev, watermarkEnabled: v }))}
+            />
+          </div>
+
+          {watermark.watermarkEnabled && (
+            <div className="space-y-4">
+              {/* Watermark text */}
+              <div className="space-y-1.5">
+                <Label>Watermark Text</Label>
+                <Input
+                  value={watermark.watermarkText}
+                  onChange={e => setWatermark(prev => ({ ...prev, watermarkText: e.target.value }))}
+                  placeholder="e.g. © Javic Collection"
+                />
+                <p className="text-xs text-muted-foreground">This text will appear on every uploaded image</p>
+              </div>
+
+              {/* Position */}
+              <div className="space-y-1.5">
+                <Label>Position</Label>
+                <Select
+                  value={watermark.watermarkPosition}
+                  onValueChange={v => setWatermark(prev => ({ ...prev, watermarkPosition: v as any }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top-left">Top Left</SelectItem>
+                    <SelectItem value="top-right">Top Right</SelectItem>
+                    <SelectItem value="center">Center</SelectItem>
+                    <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                    <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Opacity */}
+              <div className="space-y-1.5">
+                <Label>Opacity — {Math.round(watermark.watermarkOpacity * 100)}%</Label>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1"
+                  step="0.05"
+                  value={watermark.watermarkOpacity}
+                  onChange={e => setWatermark(prev => ({ ...prev, watermarkOpacity: parseFloat(e.target.value) }))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Subtle (10%)</span>
+                  <span>Strong (100%)</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 pt-2 border-t">
+            <Button onClick={saveWatermarkSettings} disabled={watermarkSaving}>
+              {watermarkSaving ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
+              ) : watermarkSaved ? (
+                <><CheckCircle className="w-4 h-4 mr-2 text-green-600" />Saved</>
+              ) : (
+                'Save Watermark Settings'
+              )}
+            </Button>
+            {watermarkSaved && (
+              <p className="text-sm text-green-600">Settings saved — new uploads will use this watermark</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Banner Form ── */}
       {showForm && (
         <Card className="mb-6">
           <CardHeader>
@@ -222,6 +369,7 @@ export default function SettingsPage() {
         </Card>
       )}
 
+      {/* ── Banners List ── */}
       <div className="grid gap-4">
         <h2 className="text-2xl font-semibold">Current Banners</h2>
         {banners.length === 0 ? (
@@ -242,17 +390,11 @@ export default function SettingsPage() {
                   <div className="shrink-0">
                     <GripVertical className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  
                   <div className="shrink-0 w-24 h-16 rounded-lg overflow-hidden bg-muted">
                     {banner.image && (
-                      <img
-                        src={banner.image}
-                        alt={banner.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
                     )}
                   </div>
-                  
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
@@ -265,20 +407,11 @@ export default function SettingsPage() {
                           <Badge variant="outline">Order: {banner.order}</Badge>
                         </div>
                       </div>
-                      
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(banner)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(banner)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(banner._id!)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => handleDelete(banner._id!)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

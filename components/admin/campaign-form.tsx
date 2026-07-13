@@ -65,6 +65,23 @@ const AUDIENCES: {v: AudienceTarget; l: string}[] = [
   {v:'everyone',l:'Everyone'},{v:'first_time_visitors',l:'First-time Visitors'},
   {v:'returning_visitors',l:'Returning Visitors'},{v:'logged_in_users',l:'Logged-in Users'},{v:'guests',l:'Guests'},
 ]
+const STATUSES: {v: CampaignStatus; l: string}[] = [
+  {v:'draft',l:'Draft'},{v:'scheduled',l:'Scheduled'},{v:'active',l:'Active'},{v:'expired',l:'Expired'},{v:'disabled',l:'Disabled'},
+]
+const PAGE_ROUTES = [
+  {v:'/',l:'Homepage'},
+  {v:'/products',l:'Products'},
+  {v:'/categories',l:'Categories'},
+  {v:'/about',l:'About Us'},
+  {v:'/contact',l:'Contact'},
+  {v:'/cart',l:'Shopping Cart'},
+  {v:'/checkout',l:'Checkout'},
+  {v:'/account',l:'My Account'},
+  {v:'/blog',l:'Blog'},
+  {v:'/testimonials',l:'Testimonials'},
+  {v:'/track-order',l:'Track Order'},
+  {v:'/search',l:'Search'},
+]
 const CTA_PRESETS = ['Shop Now','View Products','Book Now','Learn More','Contact Us','WhatsApp']
 
 const DEFAULT: {
@@ -118,6 +135,7 @@ export function CampaignForm({ initialData, campaignId }: { initialData?: Partia
   const [startStr, setStartStr] = useState(toLocal(initialData?.schedule?.startDate))
   const [endStr, setEndStr] = useState(toLocal(initialData?.schedule?.endDate))
   const [cdStr, setCdStr] = useState(toLocal(initialData?.countdown?.endsAt))
+  const [selectedPage, setSelectedPage] = useState('')
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   type D = typeof fd; type Disp = D['display']; type Bg = Disp['background']
@@ -130,6 +148,12 @@ export function CampaignForm({ initialData, campaignId }: { initialData?: Partia
   const rmDev = (dev: 'desktop'|'mobile') => setFd(p => ({ ...p, images: p.images.filter(i => i.device !== dev) }))
   const addCar = (url: string) => { const n = fd.images.filter(i => i.device === 'carousel').length; setFd(p => ({ ...p, images: [...p.images, { url, device: 'carousel', order: n, alt: '' }] })) }
   const rmCar = (idx: number) => { const c = fd.images.filter(i => i.device === 'carousel'); setFd(p => ({ ...p, images: p.images.filter(i => i !== c[idx]) })) }
+  const handlePageSelect = (page: string) => {
+    setSelectedPage(page)
+    if (page) {
+      setFd(p => ({ ...p, cta: { ...p.cta, url: page } }))
+    }
+  }
   function validate() {
     const e: Record<string,string> = {}
     if (!fd.title.trim()) e.title = 'Title is required'
@@ -171,7 +195,10 @@ export function CampaignForm({ initialData, campaignId }: { initialData?: Partia
           <div><Label>Title <span className="text-destructive">*</span></Label><Input value={fd.title} maxLength={120} onChange={e=>{s('title',e.target.value);if(errors.title)setErrors(p=>({...p,title:''}))}} placeholder="Campaign title" className="mt-1"/>{errors.title&&<p className="text-sm text-destructive mt-1">{errors.title}</p>}<p className="text-xs text-muted-foreground mt-1">{fd.title.length}/120</p></div>
           <div><Label>Subtitle</Label><Input value={fd.subtitle??''} maxLength={200} onChange={e=>s('subtitle',e.target.value)} placeholder="Optional" className="mt-1"/></div>
           <div><Label>Description</Label><Textarea value={fd.description??''} maxLength={1000} rows={3} onChange={e=>s('description',e.target.value)} className="mt-1"/></div>
-          <div><Label>Type <span className="text-destructive">*</span></Label><Select value={fd.type} onValueChange={v=>s('type',v as CampaignType)}><SelectTrigger className="mt-1"><SelectValue/></SelectTrigger><SelectContent>{TYPES.map(t=><SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent></Select></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><Label>Type <span className="text-destructive">*</span></Label><Select value={fd.type} onValueChange={v=>s('type',v as CampaignType)}><SelectTrigger className="mt-1"><SelectValue/></SelectTrigger><SelectContent>{TYPES.map(t=><SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent></Select></div>
+            <div><Label>Status</Label><Select value={fd.status} onValueChange={v=>s('status',v as CampaignStatus)}><SelectTrigger className="mt-1"><SelectValue/></SelectTrigger><SelectContent>{STATUSES.map(st=><SelectItem key={st.v} value={st.v}>{st.l}</SelectItem>)}</SelectContent></Select></div>
+          </div>
         </CardContent></Card></TabsContent>
         <TabsContent value="media" className="mt-4"><Card><CardHeader><CardTitle>Images</CardTitle></CardHeader><CardContent className="space-y-6">
           <div><Label className="mb-2 block">Desktop</Label><ImageUpload currentImage={dImg?.url} onUpload={url=>setDev('desktop',url)} onRemove={()=>rmDev('desktop')}/></div>
@@ -217,6 +244,17 @@ export function CampaignForm({ initialData, campaignId }: { initialData?: Partia
             <div className="flex gap-3 items-center"><Switch checked={fd.cta.enabled} onCheckedChange={v=>setFd(p=>({...p,cta:{...p.cta,enabled:v}}))}/><Label>Enable CTA</Label></div>
             {fd.cta.enabled&&<><Input value={fd.cta.text} onChange={e=>setFd(p=>({...p,cta:{...p.cta,text:e.target.value}}))} placeholder="Button label" className="mt-1"/>
             <div className="flex gap-2 flex-wrap">{CTA_PRESETS.map(pr=><button key={pr} type="button" onClick={()=>setFd(p=>({...p,cta:{...p.cta,text:pr}}))} className="text-xs px-2 py-1 rounded-full border hover:bg-muted">{pr}</button>)}</div>
+            <div className="space-y-2">
+              <Label>Link to Page (optional)</Label>
+              <Select value={selectedPage} onValueChange={handlePageSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a page to auto-fill URL" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_ROUTES.map(pg=>(<SelectItem key={pg.v} value={pg.v}>{pg.l}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
             <Input value={fd.cta.url} onChange={e=>setFd(p=>({...p,cta:{...p.cta,url:e.target.value}}))} placeholder="URL" className="mt-1"/>
             <div className="flex gap-3 items-center"><Switch checked={fd.cta.isExternal} onCheckedChange={v=>setFd(p=>({...p,cta:{...p.cta,isExternal:v}}))}/><Label>Open in new tab</Label></div></>}
           </CardContent></Card>

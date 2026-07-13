@@ -74,12 +74,12 @@ export default function RelatedProducts({ currentProductId, category }: RelatedP
                 key={product._id}
                 className="bg-card rounded-lg overflow-hidden hover:shadow-lg transition flex flex-col"
               >
-                <Link href={`/product/${product._id}`}>
+                <Link href={`/product/${product.slug}`}>
                   <div className="relative bg-muted overflow-hidden h-48 cursor-pointer">
                     <img
                       src={displayImage}
                       alt={product.name}
-                      className="w-full h-full object-cover hover:scale-105 transition"
+                      className="w-full h-full object-contain bg-white hover:scale-105 transition"
                     />
                     {hasWholesale && (
                       <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
@@ -92,7 +92,7 @@ export default function RelatedProducts({ currentProductId, category }: RelatedP
                 <div className="p-4 flex-1 flex flex-col">
                   <span className="text-xs text-muted-foreground mb-1">{product.category}</span>
                   
-                  <Link href={`/product/${product._id}`}>
+                  <Link href={`/product/${product.slug}`}>
                     <h3 className="font-semibold text-sm md:text-base text-card-foreground hover:text-primary transition-colors mb-2 line-clamp-2 cursor-pointer">
                       {product.name}
                     </h3>
@@ -122,14 +122,14 @@ export default function RelatedProducts({ currentProductId, category }: RelatedP
                     <span className="text-base font-bold text-primary">
                       KSH {price}
                     </span>
-                    {oldPrice && (
+                    {oldPrice != null && oldPrice > 0 && (
                       <span className="text-sm line-through text-muted-foreground">
                         KSH {oldPrice}
                       </span>
                     )}
                   </div>
 
-                  <Link href={`/product/${product._id}`}>
+                  <Link href={`/product/${product.slug}`}>
                     <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm mt-auto">
                       View Product
                     </Button>

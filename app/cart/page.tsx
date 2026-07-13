@@ -31,16 +31,17 @@ export default function CartPage() {
     // Format cart items for order recording
     const orderItems = cartItems.map(item => ({
       productId: item.id,
-      name: `${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}${item.selectedScent ? ` - ${item.selectedScent}` : ''}`,
+      name: `${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}`,
       quantity: item.quantity,
       price: item.price,
-      image: item.image,
-      variantId: item.variantId,
-      variantDetails: {
-        type: item.selectedSize ? 'size' : (item.selectedScent ? 'scent' : 'default'),
-        value: item.selectedSize || item.selectedScent || 'default',
-        sku: item.variantId || 'default'
-      }
+      image: item.selectedImage || item.image,
+      selectedImage: item.selectedImage,
+      selectedSize: item.selectedSize,
+      variantDetails: item.selectedSize ? {
+        type: 'size',
+        value: item.selectedSize,
+        sku: 'default'
+      } : undefined
     }))
 
     try {
@@ -102,7 +103,7 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item, index) => (
-                <div key={`${item.id}-${item.selectedSize}-${item.selectedScent}-${index}`} className="bg-white rounded-lg p-4 shadow-sm border">
+                <div key={`${item.id}-${item.selectedImage || 'default'}-${item.selectedSize || 'default'}-${index}`} className="bg-white rounded-lg p-4 shadow-sm border">
                   {/* Mobile Layout */}
                   <div className="block sm:hidden">
                     <div className="flex gap-4 mb-4">
@@ -126,7 +127,7 @@ export default function CartPage() {
                         {/* Variations */}
                         <div className="text-sm text-muted-foreground mt-1">
                           {item.selectedSize && <div>Size: {item.selectedSize}</div>}
-                          {item.selectedScent && <div>Scent: {item.selectedScent}</div>}
+                          {item.selectedImage && <div className="text-xs text-gray-400">Design selected</div>}
                         </div>
 
                         {/* Price */}
@@ -247,8 +248,7 @@ export default function CartPage() {
                         {/* Variations */}
                         <div className="text-sm text-muted-foreground mt-1">
                           {item.selectedSize && <span>Size: {item.selectedSize}</span>}
-                          {item.selectedSize && item.selectedScent && <span> • </span>}
-                          {item.selectedScent && <span>Scent: {item.selectedScent}</span>}
+                          {item.selectedImage && <span className="text-xs text-gray-400 ml-2">Design selected</span>}
                         </div>
 
                         <div className="mt-2">

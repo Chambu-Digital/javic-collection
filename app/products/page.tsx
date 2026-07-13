@@ -162,7 +162,7 @@ export default function ProductsPage() {
                       const { price, oldPrice } = getProductDisplayPrice(product)
                       const discount = product.flashDealDiscount || 20
                       return (
-                        <Link key={product._id} href={`/product/${product._id}`} className="pp-deal-card">
+                        <Link key={product._id} href={`/product/${product.slug}`} className="pp-deal-card">
                           <div className="pp-deal-img-wrap">
                             <img src={displayImage} alt={product.name} className="pp-deal-img" />
                             <span className="pp-deal-badge">-{discount}%</span>
@@ -171,7 +171,7 @@ export default function ProductsPage() {
                             <p className="pp-deal-name">{product.name}</p>
                             <div className="pp-deal-price-row">
                               <span className="pp-deal-price">KSH {price.toLocaleString()}</span>
-                              {oldPrice && <span className="pp-deal-old">KSH {oldPrice.toLocaleString()}</span>}
+                              {oldPrice != null && oldPrice > 0 && <span className="pp-deal-old">KSH {oldPrice.toLocaleString()}</span>}
                             </div>
                           </div>
                         </Link>
@@ -277,7 +277,7 @@ export default function ProductsPage() {
                     return viewMode === 'grid' ? (
                       /* GRID CARD */
                       <div key={product._id} className="pp-card" style={{ animationDelay: `${(index % 12) * 0.04}s` }}>
-                        <Link href={`/product/${product._id}`} className="pp-card-img-link">
+                        <Link href={`/product/${product.slug}`} className="pp-card-img-link">
                           <div className="pp-card-img-wrap">
                             <img src={displayImage} alt={product.name} className="pp-card-img" />
                             <div className="pp-card-overlay" />
@@ -293,7 +293,7 @@ export default function ProductsPage() {
                         </Link>
                         <div className="pp-card-body">
                           <span className="pp-card-cat">{product.category}</span>
-                          <Link href={`/product/${product._id}`}>
+                          <Link href={`/product/${product.slug}`}>
                             <h3 className="pp-card-name">{product.name}</h3>
                           </Link>
                           <div className="pp-card-rating">
@@ -306,7 +306,7 @@ export default function ProductsPage() {
                           </div>
                           <div className="pp-card-price-row">
                             <span className="pp-card-price">KSH {price.toLocaleString()}</span>
-                            {oldPrice && <span className="pp-card-old">KSH {oldPrice.toLocaleString()}</span>}
+                            {oldPrice != null && oldPrice > 0 && <span className="pp-card-old">KSH {oldPrice.toLocaleString()}</span>}
                           </div>
                         </div>
                         <div className="pp-card-bar" />
@@ -314,7 +314,7 @@ export default function ProductsPage() {
                     ) : (
                       /* LIST CARD */
                       <div key={product._id} className="pp-list-card" style={{ animationDelay: `${(index % 12) * 0.04}s` }}>
-                        <Link href={`/product/${product._id}`} className="pp-list-img-link">
+                        <Link href={`/product/${product.slug}`} className="pp-list-img-link">
                           <div className="pp-list-img-wrap">
                             <img src={displayImage} alt={product.name} className="pp-list-img" />
                             {hasDiscount && (
@@ -326,7 +326,7 @@ export default function ProductsPage() {
                         </Link>
                         <div className="pp-list-body">
                           <span className="pp-card-cat">{product.category}</span>
-                          <Link href={`/product/${product._id}`}>
+                          <Link href={`/product/${product.slug}`}>
                             <h3 className="pp-list-name">{product.name}</h3>
                           </Link>
                           <div className="pp-card-rating">
@@ -342,7 +342,7 @@ export default function ProductsPage() {
                           )}
                           <div className="pp-card-price-row">
                             <span className="pp-card-price">KSH {price.toLocaleString()}</span>
-                            {oldPrice && <span className="pp-card-old">KSH {oldPrice.toLocaleString()}</span>}
+                            {oldPrice != null && oldPrice > 0 && <span className="pp-card-old">KSH {oldPrice.toLocaleString()}</span>}
                           </div>
                         </div>
                         <div className="pp-list-cta">

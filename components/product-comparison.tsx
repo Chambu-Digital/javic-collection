@@ -61,7 +61,7 @@ export default function ProductComparison({ isOpen, onClose, productIds }: Produ
         id: product._id,
         name: product.name,
         price: product.price,
-        image: product.images[0],
+        image: product.images[0]?.url ?? '/placeholder.svg',
         quantity: 1
       })
       
@@ -102,7 +102,7 @@ export default function ProductComparison({ isOpen, onClose, productIds }: Produ
                     <td key={product._id} className="p-4 text-center min-w-[250px]">
                       <div className="space-y-3">
                         <img
-                          src={product.images[0] || '/placeholder.svg'}
+                          src={product.images[0]?.url || '/placeholder.svg'}
                           alt={product.name}
                           className="w-32 h-32 object-cover rounded-lg mx-auto"
                         />
@@ -227,7 +227,7 @@ export default function ProductComparison({ isOpen, onClose, productIds }: Produ
                           className="w-full"
                           onClick={() => {
                             onClose()
-                            window.location.href = `/product/${product._id}`
+                            window.location.href = `/product/${product.slug}`
                           }}
                         >
                           View Details

@@ -1,7 +1,7 @@
 'use client'
 
 // TO REVERT: Set SHOW_COMING_SOON to false
-const SHOW_COMING_SOON = true
+const SHOW_COMING_SOON = false
 
 import ComingSoonPage from '@/components/coming-soon-page'
 import HeroSlider from '@/components/hero-slider'

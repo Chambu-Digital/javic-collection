@@ -279,7 +279,7 @@ export default function CustomerReviews() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
                           <img
-                            src={review.productId.images[0]}
+                            src={review.productId.images?.[0]?.url ?? '/placeholder.svg'}
                             alt={review.productId.name}
                             className="w-16 h-16 object-cover rounded"
                           />

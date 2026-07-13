@@ -95,6 +95,7 @@ export default function CheckoutPage() {
           productId: item.id,
           productName: item.name,
           productImage: item.image,
+          selectedImage: item.selectedImage,
           variantId: item.variantId,
           variantDetails: item.selectedSize || item.selectedScent ? {
             type: item.selectedSize ? 'size' : 'scent',

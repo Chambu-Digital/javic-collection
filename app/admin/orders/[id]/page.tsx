@@ -33,6 +33,7 @@ interface OrderItem {
   productId: string
   productName: string
   productImage: string
+  selectedImage?: string
   variantId?: string
   variantDetails?: {
     type: string
@@ -252,7 +253,7 @@ export default function AdminOrderDetailsPage() {
                 <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
                   <div className="relative w-16 h-16 shrink-0">
                     <Image
-                      src={item.productImage}
+                      src={item.selectedImage || item.productImage}
                       alt={item.productName}
                       fill
                       className="object-cover rounded"
@@ -261,6 +262,11 @@ export default function AdminOrderDetailsPage() {
                   
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium">{item.productName}</h3>
+                    {item.selectedImage && item.selectedImage !== item.productImage && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        ✓ Selected design shown
+                      </p>
+                    )}
                     {item.variantDetails && (
                       <p className="text-sm text-muted-foreground">
                         {item.variantDetails.type}: {item.variantDetails.value}

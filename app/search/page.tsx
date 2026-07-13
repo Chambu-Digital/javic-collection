@@ -65,25 +65,25 @@ function SearchResults() {
               
               return (
                 <div key={product._id} className="bg-card rounded-lg overflow-hidden hover:shadow-md transition border">
-                  <Link href={`/product/${product._id}`}>
-                    <div className="relative bg-muted overflow-hidden h-40 cursor-pointer">
+                  <Link href={`/product/${product.slug}`}>
+                    <div className="relative bg-white overflow-hidden h-40 cursor-pointer">
                       <img
                         src={displayImage}
                         alt={product.name}
-                        className="w-full h-full object-cover hover:scale-105 transition"
+                        className="w-full h-full object-contain hover:scale-105 transition"
                       />
                     </div>
                   </Link>
                   <div className="p-3">
                     <span className="text-xs text-muted-foreground mb-1 block">{product.category}</span>
-                    <Link href={`/product/${product._id}`}>
+                    <Link href={`/product/${product.slug}`}>
                       <h3 className="font-semibold text-sm text-card-foreground hover:text-primary transition-colors mb-2 line-clamp-2 cursor-pointer">
                         {product.name}
                       </h3>
                     </Link>
                     <div className="flex items-center gap-2">
                       <span className="text-base font-bold text-primary">KSH {price.toLocaleString()}</span>
-                      {oldPrice && (
+                      {oldPrice != null && oldPrice > 0 && (
                         <span className="text-sm line-through text-muted-foreground">KSH {oldPrice.toLocaleString()}</span>
                       )}
                     </div>

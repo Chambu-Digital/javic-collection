@@ -17,7 +17,7 @@ export default function ImageUpload({
   onUpload, 
   onRemove, 
   currentImage, 
-  watermarkText = '© Serenleaf Natural',
+  watermarkText = '',  // defaults to empty — upload API reads from DB settings
   className = '' 
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)

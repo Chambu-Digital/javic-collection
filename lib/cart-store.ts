@@ -7,11 +7,10 @@ export interface CartItem {
   price: number
   wholesalePrice?: number
   wholesaleThreshold?: number
-  image: string
+  image: string          // thumbnail shown in cart (first image or selected image)
   quantity: number
-  selectedSize?: string
-  selectedScent?: string
-  variantId?: string
+  selectedSize?: string  // size the buyer picked
+  selectedImage?: string // image the buyer picked from the carousel
   addedAt: string
 }
 
@@ -48,11 +47,12 @@ export const useCartStore = create<CartStore>()(
 
       addItem: (newItem) => {
         const items = get().items
+        // Two cart lines are the same if same product + same image + same size
         const existingItemIndex = items.findIndex(
           (item) =>
             item.id === newItem.id &&
             item.selectedSize === newItem.selectedSize &&
-            item.selectedScent === newItem.selectedScent
+            item.selectedImage === newItem.selectedImage
         )
 
         if (existingItemIndex > -1) {
@@ -134,7 +134,7 @@ export const useCartStore = create<CartStore>()(
           unitPrice,
           totalPrice,
           savings,
-          isWholesale,
+          isWholesale: !!isWholesale,
           hasWholesale: !!hasWholesale,
           wholesaleThreshold: item.wholesaleThreshold || 0
         }

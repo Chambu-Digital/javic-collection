@@ -4,6 +4,63 @@ import User from '@/models/User'
 import { requireAuth } from '@/lib/auth'
 import mongoose from 'mongoose'
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const admin = await requireAuth(request)
+
+    if (admin.role !== 'admin' && admin.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    const { id } = params
+
+    await connectDB()
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 })
+    }
+
+    const user = await User.findById(id)
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    // Prevent deleting self
+    if (user._id.toString() === admin.id) {
+      return NextResponse.json(
+        { error: 'Cannot delete your own account' },
+        { status: 400 }
+      )
+    }
+
+    // Only super_admin can delete admin/super_admin accounts
+    if ((user.role === 'admin' || user.role === 'super_admin') && admin.role !== 'super_admin') {
+      return NextResponse.json(
+        { error: 'Only super_admin can delete admin accounts' },
+        { status: 403 }
+      )
+    }
+
+    await User.findByIdAndDelete(id)
+
+    console.log(`[admin/customers DELETE] ${admin.email} deleted user: ${user.email} (${user.role})`)
+
+    return NextResponse.json({
+      success: true,
+      message: 'User deleted successfully',
+    })
+  } catch (error: any) {
+    console.error('[admin/customers DELETE] Error:', error)
+    if (error.message === 'Authentication required') {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }

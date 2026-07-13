@@ -41,7 +41,7 @@ export default function ContactPage() {
   ]
 
   const faqs = [
-    { q: 'Free Delivery?',        a: 'Free delivery within Nairobi for orders above KSh 10,000.' },
+    { q: 'Free Delivery?',        a: 'Same day delivery within Mombasa for orders above KSh 10,000.' },
     { q: 'Fitting Consultation?', a: 'Professional sizing advice available for all intimate apparel.' },
     { q: 'Warranty Support?',     a: 'All products carry manufacturer warranties plus our own guarantee.' },
   ]

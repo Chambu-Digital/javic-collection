@@ -5,12 +5,8 @@ export interface IOrderItem {
   productId: mongoose.Types.ObjectId
   productName: string
   productImage: string
-  variantId?: string
-  variantDetails?: {
-    type: string
-    value: string
-    sku: string
-  }
+  selectedImage?: string  // which image the buyer picked from the carousel
+  selectedSize?: string   // which size the buyer picked
   quantity: number
   price: number
   totalPrice: number
@@ -67,8 +63,8 @@ const OrderItemSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   productName: { type: String, required: true },
   productImage: { type: String, required: true },
-  variantId: String,
-  variantDetails: { type: { type: String }, value: String, sku: String },
+  selectedImage: { type: String },   // image the buyer picked
+  selectedSize: { type: String },    // size the buyer picked
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true, min: 0 },
   totalPrice: { type: Number, required: true, min: 0 },

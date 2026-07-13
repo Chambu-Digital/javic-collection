@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/ui/custom-toast'
 import GoogleOAuthProvider from '@/components/providers/google-oauth-provider'
 import WhatsAppFloat from '@/components/whatsapp-float'
+import CampaignRenderer from '@/components/campaign-renderer'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({ 
@@ -40,6 +41,7 @@ export default function RootLayout({
         <GoogleOAuthProvider>
           <ToastProvider>
             {children}
+            <CampaignRenderer />
             <WhatsAppFloat />
             <Analytics />
           </ToastProvider>

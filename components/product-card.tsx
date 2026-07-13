@@ -9,12 +9,15 @@ import Link from 'next/link'
 
 interface Product {
   id: string
+  slug: string         // used for the URL
   name: string
   price: number
   oldPrice?: number
   rating: number
   reviews: number
   image: string
+  images?: { url: string; price?: number }[]
+  sizes?: string[]
   inStock: boolean
   isNew?: boolean
   isBestseller?: boolean
@@ -45,7 +48,24 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     setIsAddingToCart(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 500))
-      addItem({ id: product.id, name: product.name, price: product.price, image: product.image, quantity })
+      // If product has multiple images or sizes, the card can't know which design/size
+      // the customer wants — send them to the product page instead.
+      // Only add directly if there's exactly one image and no size choice needed.
+      const hasChoice = (product.images && product.images.length > 1) || (product.sizes && product.sizes.length > 1)
+      if (hasChoice) {
+        // Redirect to product page so customer can pick design + size
+        window.location.href = `/product/${product.slug}`
+        return
+      }
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity,
+        selectedImage: product.images?.[0]?.url !== product.image ? product.images?.[0]?.url : undefined,
+        selectedSize: product.sizes?.length === 1 ? product.sizes[0] : undefined,
+      })
       setJustAdded(true)
       toast.success(`${product.name} added to cart!`, `Quantity: ${quantity}`)
       setTimeout(() => setJustAdded(false), 2000)
@@ -68,7 +88,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         <style>{cardStyles}</style>
         <div className="pcard-list">
           {/* Image */}
-          <Link href={`/product/${product.id}`} className="pcard-list-img-link">
+          <Link href={`/product/${product.slug}`} className="pcard-list-img-link">
             <div className="pcard-list-img-wrap">
               <img src={product.image || '/placeholder.svg'} alt={product.name} className="pcard-list-img" />
               <div className="pcard-list-overlay" />
@@ -85,7 +105,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 {product.isNew && <span className="pcard-pill new">New</span>}
                 {product.isBestseller && <span className="pcard-pill best">Bestseller</span>}
               </div>
-              <Link href={`/product/${product.id}`}>
+              <Link href={`/product/${product.slug}`}>
                 <h3 className="pcard-list-name">{product.name}</h3>
               </Link>
 
@@ -112,7 +132,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 <button onClick={() => setIsFavorite(!isFavorite)} className={`pcard-fav-btn ${isFavorite ? 'active' : ''}`}>
                   <Heart size={16} />
                 </button>
-                <Link href={`/product/${product.id}`}>
+                <Link href={`/product/${product.slug}`}>
                   <button className="pcard-eye-btn"><Eye size={16} /></button>
                 </Link>
 
@@ -157,7 +177,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image */}
-        <Link href={`/product/${product.id}`} className="pcard-img-link">
+        <Link href={`/product/${product.slug}`} className="pcard-img-link">
           <div className="pcard-img-wrap">
             <img src={product.image || '/placeholder.svg'} alt={product.name} className="pcard-img" />
             <div className="pcard-img-overlay" />

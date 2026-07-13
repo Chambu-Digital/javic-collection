@@ -7,8 +7,11 @@ import { Upload, Download, ArrowLeft, CheckCircle, AlertTriangle, Loader2 } from
 import { Button } from '@/components/ui/button'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface ColorVariant {
-  color: string
+// Internal parser type — represents one Excel row's worth of data.
+// "row" is not a colour variant; it's a stock row that contributes sizes + qty
+// to the product defaults. The name is kept neutral.
+interface StockRow {
+  label: string   // was "color" — kept for grouping rows with the same product
   quantity: number
   sizes: string[]
 }
@@ -23,37 +26,72 @@ interface ParsedProduct {
   buyingPrice: number
   wholesaleThreshold: number
   bulkDiscountPercent: number
-  variants: ColorVariant[]
+  variants: StockRow[]   // rows from Excel — used to aggregate sizes + stock
+  tags: string[]         // from the Tags column
   hasNoVariants: boolean
   parseWarnings: string[]
 }
 
 // ─── Size expansion ───────────────────────────────────────────────────────────
+
+// Full ordered size scale used for range expansion (e.g. S-XL → S,M,L,XL)
+const SIZE_SCALE = [
+  'XXXS', 'XXS', 'XS', 'S', 'M', 'L', 'XL',
+  '2XL', 'XXL', '3XL', 'XXXL', '4XL', '5XL', '6XL', '7XL', '8XL',
+]
+
+// Normalise a size token so "2xl" → "2XL", "xxl" → "XXL", "3XL" → "3XL" etc.
+function normSize(s: string): string {
+  return s.trim().toUpperCase()
+    .replace(/^(\d+)\s*X\s*L$/i, (_, n) => `${n}XL`)   // "3 XL" → "3XL"
+    .replace(/^(X+)L$/i, (_, x) => `${x.toUpperCase()}L`) // "xxl" → "XXL"
+}
+
 function expandSizes(raw: string | undefined | null): string[] {
   if (!raw) return []
   const str = String(raw).trim()
+  if (!str) return []
 
-  const rangeMatch = str.match(/^([a-z0-9]+)\s*[-–]\s*([a-z0-9]+)$/i)
+  // ── 1. Multi-value separators: comma, semicolon, ampersand, slash ──────────
+  const multiSep = /[,;&\/]/
+  if (multiSep.test(str)) {
+    return str.split(multiSep).map(s => s.trim()).filter(Boolean)
+  }
+
+  // ── 2. Range notation: "from - to" or "from–to" ───────────────────────────
+  // Match things like: 36-40, S-XL, 2xl-6xl, XL-4XL
+  // We split on the LAST dash that is surrounded by alphanumerics
+  const rangeMatch = str.match(/^(.+?)\s*[-–]\s*(.+)$/)
   if (rangeMatch) {
-    const from = rangeMatch[1].toUpperCase()
-    const to = rangeMatch[2].toUpperCase()
-    if (/^\d+$/.test(from) && /^\d+$/.test(to)) {
-      const results: string[] = []
-      for (let i = parseInt(from); i <= parseInt(to); i++) results.push(String(i))
-      return results
+    const rawFrom = rangeMatch[1].trim()
+    const rawTo   = rangeMatch[2].trim()
+
+    // Pure numeric range: 36-40
+    if (/^\d+$/.test(rawFrom) && /^\d+$/.test(rawTo)) {
+      const from = parseInt(rawFrom)
+      const to   = parseInt(rawTo)
+      if (from <= to && to - from <= 50) {
+        const out: string[] = []
+        for (let i = from; i <= to; i++) out.push(String(i))
+        return out
+      }
     }
-    const xlSizes = ['XL', '2XL', '3XL', '4XL', '5XL', '6XL', '7XL']
-    const norm = (s: string) => s.replace(/^(\d)(xl)$/i, (_, n, x) => `${n}${x.toUpperCase()}`).toUpperCase()
-    const fi = xlSizes.indexOf(norm(from))
-    const ti = xlSizes.indexOf(norm(to))
-    if (fi !== -1 && ti !== -1) return xlSizes.slice(fi, ti + 1)
-    return [from, to]
+
+    // Letter/XL size range: S-XL, 2xl-6xl, XL-4XL
+    const normFrom = normSize(rawFrom)
+    const normTo   = normSize(rawTo)
+    const fi = SIZE_SCALE.indexOf(normFrom)
+    const ti = SIZE_SCALE.indexOf(normTo)
+
+    if (fi !== -1 && ti !== -1 && fi <= ti) {
+      return SIZE_SCALE.slice(fi, ti + 1)
+    }
+
+    // Both ends not in scale — return them as individual sizes
+    return [rawFrom, rawTo]
   }
 
-  if (/[,/&]/.test(str)) {
-    return str.split(/[,/&]/).map(s => s.trim()).filter(Boolean)
-  }
-
+  // ── 3. Single value ────────────────────────────────────────────────────────
   return [str]
 }
 
@@ -66,6 +104,7 @@ function parseExcel(buffer: ArrayBuffer): ParsedProduct[] {
   const productMap = new Map<string, ParsedProduct>()
   let lastCode = ''
   let lastName = ''
+  let autoCodeCounter = 1
 
   for (const row of rows) {
     const get = (col: string) => {
@@ -73,13 +112,17 @@ function parseExcel(buffer: ArrayBuffer): ParsedProduct[] {
       return val !== null && val !== undefined ? String(val).trim() : ''
     }
     const getNum = (col: string, fallback = 0) => {
-      const v = parseFloat(get(col))
+      const v = parseFloat(get(col).replace(/,/g, ''))
       return isNaN(v) ? fallback : v
     }
 
-    const itemCode = get('Item Code') || lastCode
+    let itemCode = get('Item Code') || lastCode
     const itemName = get('Item Name') || lastName
-    if (!itemCode) continue
+    
+    // Auto-generate item code if missing
+    if (!itemCode) {
+      itemCode = `AUTO-${String(autoCodeCounter++).padStart(4, '0')}`
+    }
 
     lastCode = itemCode
     lastName = itemName
@@ -98,6 +141,9 @@ function parseExcel(buffer: ArrayBuffer): ParsedProduct[] {
         wholesaleThreshold: getNum('Wholesale Threshold', 12),
         bulkDiscountPercent: getNum('Bulk Discount %', retail && wholesale ? Math.round((1 - wholesale / retail) * 100) : 20),
         variants: [],
+        tags: get('Tags')
+          ? get('Tags').split(',').map(t => t.trim()).filter(Boolean)
+          : [],
         hasNoVariants: false,
         parseWarnings: [],
       })
@@ -106,22 +152,33 @@ function parseExcel(buffer: ArrayBuffer): ParsedProduct[] {
     const product = productMap.get(itemCode)!
     if (itemName && !product.name) product.name = itemName
 
-    const color = get('Color')
-    const sizeRaw = get('Size')
-    const qty = getNum('Quantity', 0)
+    const color = get('Colour') || get('Color')
+    const sizeRaw = get('Sizes') || get('Size')
+    const qty = getNum('Stock Quantity') || getNum('Quantity', 0)
 
-    if (!color && !sizeRaw && !qty) {
+    // Skip only if truly empty — no colour, no sizes, no qty
+    if (!color && !sizeRaw && qty === 0) {
       product.hasNoVariants = true
       continue
     }
 
     const sizes = expandSizes(sizeRaw)
-    const existing = product.variants.find(v => v.color.toLowerCase() === (color || '').toLowerCase())
+
+    // Still skip if expansion gave us nothing
+    if (!color && sizes.length === 0 && qty === 0) {
+      product.hasNoVariants = true
+      continue
+    }
+
+    // Size-only products get 'Default' as a neutral placeholder label
+    const resolvedLabel = color || 'Default'
+
+    const existing = product.variants.find(v => v.label.toLowerCase() === resolvedLabel.toLowerCase())
     if (existing) {
       existing.quantity += qty
       existing.sizes = Array.from(new Set([...existing.sizes, ...sizes]))
     } else {
-      product.variants.push({ color: color || 'Default', quantity: qty, sizes })
+      product.variants.push({ label: resolvedLabel, quantity: qty, sizes })
     }
   }
 
@@ -130,9 +187,9 @@ function parseExcel(buffer: ArrayBuffer): ParsedProduct[] {
 
 // ─── Template download ────────────────────────────────────────────────────────
 function downloadTemplate() {
-  const headers = [
+    const headers = [
     'Item Code', 'Item Name', 'Category', 'Description',
-    'Color', 'Size', 'Quantity', 'Buying Price',
+    'Colour', 'Sizes', 'Stock Quantity', 'Buying Price',
     'Wholesale Price', 'Retail Price', 'Wholesale Threshold', 'Bulk Discount %',
   ]
   const examples = [
@@ -196,6 +253,33 @@ function ProductCard({ product }: { product: ParsedProduct }) {
             ))}
           </div>
 
+          {/* Sizes */}
+          {(() => {
+            const allSizes = Array.from(new Set(product.variants.flatMap(v => v.sizes).filter(Boolean)))
+            return allSizes.length > 0 ? (
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Base Sizes</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {allSizes.map(s => (
+                    <span key={s} className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{s}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null
+          })()}
+
+          {/* Tags */}
+          {product.tags.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Tags</p>
+              <div className="flex flex-wrap gap-1.5">
+                {product.tags.map(t => (
+                  <span key={t} className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">{t}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Description</p>
             <p className="text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2">
@@ -208,17 +292,19 @@ function ProductCard({ product }: { product: ParsedProduct }) {
 
           {product.variants.length > 0 && (
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Colour Variants</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Stock Rows</p>
               <div className="space-y-2">
-                {product.variants.map(v => (
-                  <div key={v.color} className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                {product.variants.map((v, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-3 py-2">
                     <div className="w-7 h-7 rounded-full bg-pink-200 border-2 border-pink-300 flex items-center justify-center text-xs font-bold text-pink-800 flex-shrink-0">
-                      {v.color[0]?.toUpperCase()}
+                      {v.label[0]?.toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-gray-800">{v.color}</p>
+                      <p className="font-semibold text-sm text-gray-800">
+                        {v.label === 'Default' ? <span className="text-gray-400 italic">No label</span> : v.label}
+                      </p>
                       <p className="text-xs text-gray-500">
-                        Stock: {v.quantity} · {v.sizes.length > 0 ? `Sizes: ${v.sizes.join(', ')}` : 'Free size'}
+                        Stock: {v.quantity} · {v.sizes.length > 0 ? `Sizes: ${v.sizes.join(', ')}` : 'Free size / one size'}
                       </p>
                     </div>
                     <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded">📷 Add image later</span>
@@ -378,9 +464,9 @@ export default function ImportProductsPage() {
             <p className="font-semibold text-gray-800 mb-3">📋 How to use</p>
             <ul className="text-sm text-gray-500 space-y-1.5 list-disc list-inside">
               <li>Download the template above — it shows all required columns with examples</li>
-              <li>One row per <strong>colour variant</strong> — repeat Item Code & Item Name for each colour</li>
-              <li>Sizes: single value, comma list <code className="bg-gray-100 px-1 rounded">M,L,XL</code>, or range <code className="bg-gray-100 px-1 rounded">2xl-6xl</code></li>
-              <li>Description is auto-generated from Item Name if left blank</li>
+              <li>One row per stock group — repeat Item Code &amp; Item Name for each row</li>
+              <li>Sizes: single value, comma list <code className="bg-gray-100 px-1 rounded">M,L,XL</code>, or range <code className="bg-gray-100 px-1 rounded">S-XL</code> / <code className="bg-gray-100 px-1 rounded">2xl-6xl</code> / <code className="bg-gray-100 px-1 rounded">36-40</code></li>
+              <li>Colour column is optional — it's used only to group rows, not as a variant identifier</li>
               <li>Wholesale Threshold defaults to 12 units if blank</li>
               <li>After import, add images to each variant in the product editor</li>
             </ul>
@@ -398,7 +484,7 @@ export default function ImportProductsPage() {
               <p className="text-2xl font-bold text-pink-700">{products.length}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide">Colour Variants</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide">Stock Rows</p>
               <p className="text-2xl font-bold text-yellow-600">{totalVariants}</p>
             </div>
             {noDataCount > 0 && (
@@ -417,7 +503,7 @@ export default function ImportProductsPage() {
 
           {noDataCount > 0 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-700">
-              ⚠ {noDataCount} product{noDataCount > 1 ? 's have' : ' has'} no colour/size/stock data — they'll be created as drafts. Add variants manually after import.
+              ⚠ {noDataCount} product{noDataCount > 1 ? 's have' : ' has'} no size/stock data — they'll be created as drafts. Add images and sizes manually after import.
             </div>
           )}
 

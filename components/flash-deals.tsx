@@ -7,79 +7,10 @@ import Link from 'next/link'
 import { IProduct } from '@/models/Product'
 import { getProductDisplayImage, getProductDisplayPrice } from '@/lib/product-utils'
 
-interface FeaturedDeal {
-  id: number
-  name: string
-  originalPrice: number
-  salePrice: number
-  discount: number
-  image: string
-  rating: number
-  reviews: number
-  inStock: boolean
-  category: string
-  slug: string
-}
-
 export default function FlashDealsSection() {
   const [timeLeft, setTimeLeft] = useState(3600)
   const [deals, setDeals] = useState<IProduct[]>([])
   const [loading, setLoading] = useState(true)
-
-  const featuredDeals: FeaturedDeal[] = [
-    {
-      id: 1,
-      name: "Samsung 55\" 4K Smart TV",
-      originalPrice: 89999,
-      salePrice: 67499,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600",
-      rating: 4.8,
-      reviews: 234,
-      inStock: true,
-      category: "Entertainment",
-      slug: "samsung-55-4k-smart-tv"
-    },
-    {
-      id: 2,
-      name: "LG Inverter Refrigerator 345L",
-      originalPrice: 72999,
-      salePrice: 54749,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=600",
-      rating: 4.7,
-      reviews: 189,
-      inStock: true,
-      category: "Home Appliances",
-      slug: "lg-inverter-refrigerator-345l"
-    },
-    {
-      id: 3,
-      name: "iPhone 15 Pro 256GB",
-      originalPrice: 149999,
-      salePrice: 134999,
-      discount: 10,
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600",
-      rating: 4.9,
-      reviews: 456,
-      inStock: true,
-      category: "Mobile & Tablets",
-      slug: "iphone-15-pro-256gb"
-    },
-    {
-      id: 4,
-      name: "Sony WH-1000XM5 Headphones",
-      originalPrice: 34999,
-      salePrice: 24499,
-      discount: 30,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600",
-      rating: 4.8,
-      reviews: 312,
-      inStock: true,
-      category: "Audio & Headphones",
-      slug: "sony-wh-1000xm5-headphones"
-    }
-  ]
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,7 +41,10 @@ export default function FlashDealsSection() {
   const minutes = Math.floor((timeLeft % 3600) / 60)
   const seconds = timeLeft % 60
 
-  const displayDeals: (IProduct | FeaturedDeal)[] = deals.length > 0 ? deals : featuredDeals
+  const displayDeals = deals
+
+  // Don't render the section at all when there are no real flash deals
+  if (!loading && deals.length === 0) return null
 
   return (
     <>
@@ -185,26 +119,14 @@ export default function FlashDealsSection() {
                   </div>
                 ))
               : displayDeals.slice(0, 4).map((deal, index) => {
-                  const isDbProduct = '_id' in deal
-                  const dealId = isDbProduct ? (deal as IProduct)._id : (deal as FeaturedDeal).id
+                  const dealId = deal._id
                   const dealName = deal.name
-                  const dealImage = isDbProduct ? getProductDisplayImage(deal as IProduct) : (deal as FeaturedDeal).image
-                  const dealSlug = isDbProduct ? (deal as IProduct)._id : (deal as FeaturedDeal).slug
-
-                  let dealPrice: number, dealOldPrice: number | undefined, dealDiscount: number
-                  if (isDbProduct) {
-                    const product = deal as IProduct
-                    const { price, oldPrice } = getProductDisplayPrice(product)
-                    dealPrice = price
-                    dealOldPrice = oldPrice
-                    dealDiscount = product.flashDealDiscount || 20
-                  } else {
-                    const featuredDeal = deal as FeaturedDeal
-                    dealPrice = featuredDeal.salePrice
-                    dealOldPrice = featuredDeal.originalPrice
-                    dealDiscount = featuredDeal.discount
-                  }
-
+                  const dealImage = getProductDisplayImage(deal)
+                  const dealSlug = deal.slug
+                  const { price, oldPrice } = getProductDisplayPrice(deal)
+                  const dealPrice = price
+                  const dealOldPrice = oldPrice
+                  const dealDiscount = deal.flashDealDiscount || 20
                   const savings = dealOldPrice ? dealOldPrice - dealPrice : 0
 
                   return (
@@ -239,9 +161,7 @@ export default function FlashDealsSection() {
 
                       {/* Body */}
                       <div className="jfd-card-body">
-                        <p className="jfd-card-cat">
-                          {'category' in deal ? (deal as FeaturedDeal).category : ''}
-                        </p>
+                        <p className="jfd-card-cat">{deal.category}</p>
                         <h3 className="jfd-card-name">{dealName}</h3>
 
                         <div className="jfd-price-row">

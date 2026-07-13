@@ -56,15 +56,16 @@ export default function CartSidebar({ children }: CartSidebarProps) {
 
     const orderItems = items.map(item => ({
       productId: item.id,
-      name: `${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}${item.selectedScent ? ` - ${item.selectedScent}` : ''}`,
+      name: item.name,
       quantity: item.quantity,
       price: item.price,
-      image: item.image,
-      variantId: item.variantId,
+      image: item.selectedImage || item.image,
+      selectedImage: item.selectedImage,
+      selectedSize: item.selectedSize,
       variantDetails: {
-        type: item.selectedSize ? 'size' : (item.selectedScent ? 'scent' : 'default'),
-        value: item.selectedSize || item.selectedScent || 'default',
-        sku: item.variantId || 'default'
+        type: item.selectedSize ? 'size' : 'default',
+        value: item.selectedSize || 'default',
+        sku: 'default'
       }
     }))
 
@@ -144,18 +145,17 @@ export default function CartSidebar({ children }: CartSidebarProps) {
               <div className="flex-1 overflow-y-auto py-4">
                 <div className="space-y-4">
                   {items.map((item, index) => (
-                    <div key={`${item.id}-${item.selectedSize || 'default'}-${item.selectedScent || 'default'}`}
+                    <div key={`${item.id}-${item.selectedImage || 'default'}-${item.selectedSize || 'default'}`}
                       className="flex gap-4 p-4 bg-gray-50 rounded-lg">
                       <div className="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0">
-                        <img src={item.image || '/placeholder.svg'} alt={item.name} className="w-full h-full object-cover" />
+                        {/* Show selected image if buyer picked one, else fallback to item.image */}
+                        <img src={item.selectedImage || item.image || '/placeholder.svg'} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 truncate">{item.name}</h4>
-                        {(item.selectedSize || item.selectedScent) && (
+                        {item.selectedSize && (
                           <div className="text-sm text-gray-500">
-                            {item.selectedSize && <span>Size: {item.selectedSize}</span>}
-                            {item.selectedSize && item.selectedScent && <span> • </span>}
-                            {item.selectedScent && <span>Scent: {item.selectedScent}</span>}
+                            Size: {item.selectedSize}
                           </div>
                         )}
                         <p className="text-base font-bold text-primary">KSH {item.price.toLocaleString()}</p>

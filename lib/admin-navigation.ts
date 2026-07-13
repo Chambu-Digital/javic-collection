@@ -14,6 +14,7 @@ import {
   CreditCard,
   Upload,
   Megaphone,
+  UsersRound,
   LucideIcon
 } from 'lucide-react'
 import { PERMISSIONS, Permission, PermissionChecker } from './permissions'
@@ -86,13 +87,20 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
   //   permissions: [PERMISSIONS.SHIPPING_VIEW],
   //   notificationKey: null,
   // },
-  // {
-  //   name: 'Customers',
-  //   href: '/admin/customers',
-  //   icon: Users,
-  //   permissions: [PERMISSIONS.CUSTOMERS_VIEW],
-  //   notificationKey: 'customers',
-  // },
+  {
+    name: 'Customers',
+    href: '/admin/customers',
+    icon: Users,
+    permissions: [PERMISSIONS.CUSTOMERS_VIEW],
+    notificationKey: 'customers',
+  },
+  {
+    name: 'Team',
+    href: '/admin/team',
+    icon: UsersRound,
+    permissions: [PERMISSIONS.ADMINS_VIEW],
+    notificationKey: null,
+  },
   {
     name: 'Admins',
     href: '/admin/admins',

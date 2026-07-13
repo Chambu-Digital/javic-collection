@@ -20,36 +20,10 @@ export async function GET(
     }
     
     const product = await Product.findById(id)
-    
+
     if (!product) {
-      // For debugging: let's see what products exist
-      const allProducts = await Product.find({}).limit(5)
-      console.log('Available product IDs:', allProducts.map(p => p._id.toString()))
-      
-      return NextResponse.json(
-        { 
-          error: 'Product not found',
-          requestedId: id,
-          availableIds: allProducts.map(p => p._id.toString())
-        },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
-    
-    // Debug: Log what we're returning from database
-    console.log('Raw product from database:', {
-      id: product._id,
-      name: product.name,
-      hasVariants: product.hasVariants,
-      variantsCount: product.variants?.length || 0,
-      variants: product.variants,
-      fullProduct: JSON.stringify(product, null, 2)
-    })
-    
-    // Debug: Check if variants exist in raw document
-    console.log('Product document keys:', Object.keys(product.toObject()))
-    console.log('Variants field exists:', 'variants' in product.toObject())
-    console.log('HasVariants field exists:', 'hasVariants' in product.toObject())
     
     return NextResponse.json(product)
   } catch (error) {
@@ -105,6 +79,18 @@ export async function PUT(
       if (category) {
         body.categoryId = category._id
       }
+    }
+
+    // Auto-compute stockQuantity from per-image stock overrides.
+    // If any image has a stock value set, sum them all (images without a stock
+    // override contribute 0 — they are designs not yet stocked individually).
+    // Only do this when images are present in the update payload.
+    if (Array.isArray(body.images) && body.images.length > 0) {
+      const imagesWithStock = body.images.filter((img: any) => img.stock != null)
+      if (imagesWithStock.length > 0) {
+        body.stockQuantity = body.images.reduce((sum: number, img: any) => sum + (img.stock ?? 0), 0)
+      }
+      body.inStock = (body.stockQuantity ?? 0) > 0
     }
     
     const product = await Product.findByIdAndUpdate(

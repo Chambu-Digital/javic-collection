@@ -243,13 +243,17 @@ export default function AllProductsCatalog({ onAddToCart }: { onAddToCart: () =>
                     key={product._id}
                     className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
                   >
-                    <Link href={`/product/${product._id}`}>
-                      <div className="relative bg-gray-100 overflow-hidden h-48 cursor-pointer group">
-                        <img
-                          src={displayImage}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        />
+                        <Link href={`/product/${product.slug}`}>
+                  <div className="relative bg-white overflow-hidden h-48 cursor-pointer">
+                    <img
+                      src={displayImage}
+                      alt={product.name}
+                      className="w-full h-full object-contain bg-white hover:scale-105 transition"
+                    />
+                      src={displayImage}
+                      alt={product.name}
+                      className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-200"
+                    />
                       
                       {/* Badges */}
                       <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -289,8 +293,8 @@ export default function AllProductsCatalog({ onAddToCart }: { onAddToCart: () =>
                   <div className="p-4">
                     <span className="text-xs text-muted-foreground mb-1 block">{product.category}</span>
 
-                    <Link href={`/product/${product._id}`}>
-                      <h3 className="font-semibold text-sm md:text-base text-foreground hover:text-primary transition-colors mb-2 line-clamp-2 cursor-pointer">
+                <Link href={`/product/${product.slug}`}>
+                  <h3 className="font-semibold text-sm md:text-base text-foreground hover:text-primary transition-colors mb-2 line-clamp-2 cursor-pointer">
                         {product.name}
                       </h3>
                     </Link>
@@ -319,7 +323,7 @@ export default function AllProductsCatalog({ onAddToCart }: { onAddToCart: () =>
                       <span className="text-base font-bold text-primary">
                         KSH {price}
                       </span>
-                      {oldPrice && (
+                      {oldPrice != null && oldPrice > 0 && (
                         <span className="text-sm line-through text-muted-foreground">
                           KSH {oldPrice}
                         </span>

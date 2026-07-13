@@ -5,8 +5,8 @@ import Category from '@/models/Category'
 import { requireAdmin } from '@/lib/auth'
 import mongoose from 'mongoose'
 
-interface ColorVariant {
-  color: string
+interface ParsedVariant {
+  label: string   // neutral row label (was color)
   quantity: number
   sizes: string[]
 }
@@ -21,7 +21,8 @@ interface ParsedProduct {
   buyingPrice: number
   wholesaleThreshold: number
   bulkDiscountPercent: number
-  variants: ColorVariant[]
+  variants: ParsedVariant[]   // still used by the import page parser
+  tags: string[]              // from the Tags column
   hasNoVariants: boolean
   parseWarnings: string[]
 }
@@ -34,7 +35,6 @@ function slugify(name: string, code: string): string {
   )
 }
 
-// Ensure slug is unique by appending a counter if needed
 async function uniqueSlug(base: string): Promise<string> {
   let slug = base
   let i = 1
@@ -56,17 +56,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No products provided' }, { status: 400 })
     }
 
-    // Cache categories to avoid repeated DB hits
     const categoryCache = new Map<string, { id: mongoose.Types.ObjectId; name: string }>()
 
     const getCategory = async (name: string) => {
       const key = name.toLowerCase().trim()
       if (categoryCache.has(key)) return categoryCache.get(key)!
 
-      // Try to find existing category (case-insensitive)
       let cat = await Category.findOne({ name: new RegExp(`^${name}$`, 'i') })
-
-      // Create it if it doesn't exist
       if (!cat) {
         cat = await Category.create({
           name: name.trim(),
@@ -89,7 +85,6 @@ export async function POST(request: NextRequest) {
 
     for (const p of products) {
       try {
-        // Validation
         if (!p.itemCode || !p.name) {
           errors.push(`Skipped: missing Item Code or Item Name`)
           skipped++
@@ -101,68 +96,49 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Skip duplicates by item code stored in slug
+        // Skip duplicates
         const baseSlug = slugify(p.name, p.itemCode)
-        const existingBySlug = await Product.findOne({
-          slug: new RegExp(`^${baseSlug}`, 'i')
-        })
+        const existingBySlug = await Product.findOne({ slug: new RegExp(`^${baseSlug}`, 'i') })
         if (existingBySlug) {
           skipped++
           continue
         }
 
-        // Resolve category
         const categoryName = p.category?.trim() || 'Uncategorised'
         const category = await getCategory(categoryName)
-
         const slug = await uniqueSlug(baseSlug)
-        const hasVariants = p.variants.length > 0
 
-        // Build variants for the Product schema
-        const variants = p.variants.map((v, idx) => ({
-          id: `${p.itemCode}-${v.color.replace(/\s+/g, '-').toLowerCase()}-${idx}`,
-          color: v.color,
-          availableSizes: v.sizes,
-          price: p.retailPrice,
-          wholesalePrice: p.wholesalePrice || undefined,
-          wholesaleThreshold: p.wholesaleThreshold || undefined,
-          image: '/placeholder.svg', // admin adds real images after import
-          stock: v.quantity,
-          sku: `${p.itemCode}-${v.color.substring(0, 3).toUpperCase()}`,
-          isActive: true,
-        }))
+        // Collect all unique sizes across all variants (rows) for this product
+        const allSizes = Array.from(
+          new Set(p.variants.flatMap(v => v.sizes).filter(Boolean))
+        )
 
-        const totalStock = hasVariants
-          ? variants.reduce((sum, v) => sum + v.stock, 0)
-          : 0
+        // Total stock across all variants
+        const totalStock = p.variants.reduce((sum, v) => sum + v.quantity, 0)
 
-        const productData: any = {
+        await Product.create({
           name: p.name,
           slug,
           description: p.description,
-          hasVariants,
+          price: p.retailPrice,
+          wholesalePrice: p.wholesalePrice || undefined,
+          wholesaleThreshold: p.wholesaleThreshold || undefined,
+          // One placeholder per variant row — admin replaces with real images after import
+          images: p.variants.length > 0
+            ? p.variants.map(() => ({ url: '/placeholder.svg' }))
+            : [{ url: '/placeholder.svg' }],
+          sizes: allSizes,
+          tags: p.tags || [],
           category: category.name,
           categoryId: category.id,
-          inStock: totalStock > 0 || !hasVariants,
+          inStock: totalStock > 0,
           stockQuantity: totalStock,
           rating: 0,
           reviews: 0,
-          isActive: !p.hasNoVariants, // drafts for products with no data
+          isActive: !p.hasNoVariants,
           isNewProduct: true,
-        }
+        })
 
-        if (hasVariants) {
-          productData.variants = variants
-          productData.price = 0 // required field default for variant products
-        } else {
-          // Simple product (no variant data)
-          productData.price = p.retailPrice
-          productData.wholesalePrice = p.wholesalePrice || undefined
-          productData.wholesaleThreshold = p.wholesaleThreshold || undefined
-          productData.images = ['/placeholder.svg']
-        }
-
-        await Product.create(productData)
         created++
       } catch (rowErr: any) {
         errors.push(`${p.itemCode}: ${rowErr.message}`)

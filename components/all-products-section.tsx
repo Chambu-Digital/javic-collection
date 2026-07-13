@@ -108,7 +108,7 @@ export default function AllProductsSection() {
               : products.map((product, index) => {
                   const displayImage = getProductDisplayImage(product)
                   const { price, oldPrice } = getProductDisplayPrice(product)
-                  const hasDiscount = !!oldPrice
+                  const hasDiscount = !!oldPrice && oldPrice > 0
                   const discountPct = hasDiscount
                     ? Math.round((1 - price / oldPrice!) * 100)
                     : 0
@@ -120,7 +120,7 @@ export default function AllProductsSection() {
                       style={{ animationDelay: `${(index % 8) * 0.06}s` }}
                     >
                       {/* Image */}
-                      <Link href={`/product/${product._id}`} className="jap-card-img-link">
+                      <Link href={`/product/${product.slug}`} className="jap-card-img-link">
                         <div className="jap-card-img-wrap">
                           <img
                             src={displayImage}
@@ -147,7 +147,7 @@ export default function AllProductsSection() {
                       <div className="jap-card-body">
                         <span className="jap-card-cat">{product.category}</span>
 
-                        <Link href={`/product/${product._id}`}>
+                        <Link href={`/product/${product.slug}`}>
                           <h3 className="jap-card-name">{product.name}</h3>
                         </Link>
 
@@ -162,7 +162,7 @@ export default function AllProductsSection() {
 
                         <div className="jap-price-row">
                           <span className="jap-price-current">KSH {price.toLocaleString()}</span>
-                          {oldPrice && (
+                          {oldPrice != null && oldPrice > 0 && (
                             <span className="jap-price-old">KSH {oldPrice.toLocaleString()}</span>
                           )}
                         </div>
@@ -394,7 +394,7 @@ const apStyles = `
     position: relative;
     height: 220px;
     overflow: hidden;
-    background: linear-gradient(135deg, #fff0f6, #fce4f0);
+    background: #fff;
   }
   @media (min-width: 768px) {
     .jap-card-img-wrap { height: 240px; }
@@ -402,7 +402,7 @@ const apStyles = `
   .jap-card-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
   }
   .jap-card:hover .jap-card-img { transform: scale(1.07); }

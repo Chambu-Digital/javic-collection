@@ -42,7 +42,7 @@ export default function CartReviewStep({ onNext }: CartReviewStepProps) {
               <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg">
                 <div className="relative w-16 h-16 shrink-0">
                   <Image
-                    src={item.image}
+                    src={item.selectedImage || item.image}
                     alt={item.name}
                     fill
                     className="object-cover rounded"
@@ -51,6 +51,11 @@ export default function CartReviewStep({ onNext }: CartReviewStepProps) {
                 
                 <div className="flex-1 min-w-0 w-full sm:w-auto">
                   <h3 className="font-medium text-sm">{item.name}</h3>
+                  {item.selectedImage && item.selectedImage !== item.image && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      ✓ Selected design shown
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-1">
                     {item.selectedSize && <span>Size: {item.selectedSize}</span>}
                     {item.selectedScent && <span>Scent: {item.selectedScent}</span>}

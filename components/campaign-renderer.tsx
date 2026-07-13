@@ -131,7 +131,7 @@ function Countdown({ endsAt }: { endsAt: Date }) {
 type Camp = ICampaign & { _id: string }
 
 function CampaignCard({ campaign, onDismiss }: { campaign: Camp; onDismiss: () => void }) {
-  const { display, title, subtitle, description, badge, cta, countdown, coupon } = campaign
+  const { display, title, subtitle, description, badge, cta, countdown, coupon, images } = campaign
   const bg = display?.background
   const bgStyle: React.CSSProperties = {
     background:
@@ -151,26 +151,42 @@ function CampaignCard({ campaign, onDismiss }: { campaign: Camp; onDismiss: () =
     }).catch(() => {})
   }
 
+  // Get campaign images
+  const desktopImg = images?.find(i => i.device === 'desktop')
+  const mobileImg = images?.find(i => i.device === 'mobile')
+  const carouselImages = images?.filter(i => i.device === 'carousel') || []
+
   const inner = (
     <div className="relative" style={bgStyle}>
       {display?.overlay !== 'none' && (
         <div className={`absolute inset-0 pointer-events-none ${display?.overlay === 'dark' ? 'bg-black/40' : 'backdrop-blur-sm bg-black/20'}`} />
       )}
-      <div className="relative z-10 p-6 text-center space-y-2">
+      <div className="relative z-10 p-6 text-center space-y-3">
+        {/* Campaign Image */}
+        {desktopImg && (
+          <div className="mb-4">
+            <img 
+              src={desktopImg.url} 
+              alt={desktopImg.alt || title} 
+              className="w-full h-auto max-h-48 object-contain mx-auto rounded-lg"
+            />
+          </div>
+        )}
+        
         {badge?.type && (
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 mb-1">
+          <span className="inline-block px-4 py-1.5 rounded-full text-sm font-bold bg-white/20 mb-2 shadow-lg">
             {badge.type === 'custom' ? (badge.customText || 'Custom') : badge.type.toUpperCase()}
             {badge.discountValue ? ` ${badge.discountValue}${badge.discountType === 'percentage' ? '%' : ''}` : ''}
           </span>
         )}
-        <h2 className="text-xl font-bold leading-tight">{title}</h2>
-        {subtitle && <p className="opacity-90 text-sm">{subtitle}</p>}
-        {description && <p className="opacity-75 text-xs">{description}</p>}
+        <h2 className="text-2xl font-bold leading-tight">{title}</h2>
+        {subtitle && <p className="opacity-95 text-base font-medium">{subtitle}</p>}
+        {description && <p className="opacity-85 text-sm leading-relaxed">{description}</p>}
         {countdown?.enabled && countdown.endsAt && <Countdown endsAt={new Date(countdown.endsAt)} />}
         {coupon?.enabled && coupon.code && (
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <span className="font-mono font-bold bg-white/20 px-3 py-1 rounded tracking-widest text-sm">{coupon.code}</span>
-            <button type="button" onClick={handleCopy} className="text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors">
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <span className="font-mono font-bold bg-white/20 px-4 py-2 rounded-lg tracking-widest text-base border border-white/30">{coupon.code}</span>
+            <button type="button" onClick={handleCopy} className="text-sm bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors border border-white/30">
               {copied ? (coupon.copyConfirmationText || 'Copied!') : 'Copy'}
             </button>
           </div>
@@ -180,7 +196,7 @@ function CampaignCard({ campaign, onDismiss }: { campaign: Camp; onDismiss: () =
             href={cta.url}
             target={cta.isExternal ? '_blank' : undefined}
             rel={cta.isExternal ? 'noopener noreferrer' : undefined}
-            className="inline-block mt-2 px-6 py-2 bg-white text-gray-900 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors"
+            className="inline-block mt-3 px-8 py-3 bg-white text-gray-900 rounded-full text-base font-semibold hover:bg-white/90 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
           >
             {cta.text}
           </a>
@@ -190,7 +206,7 @@ function CampaignCard({ campaign, onDismiss }: { campaign: Camp; onDismiss: () =
         <button
           type="button"
           onClick={onDismiss}
-          className="absolute top-3 right-3 z-20 opacity-70 hover:opacity-100 transition-opacity"
+          className="absolute top-4 right-4 z-20 opacity-70 hover:opacity-100 transition-opacity bg-black/20 hover:bg-black/40 rounded-full p-1"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
