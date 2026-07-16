@@ -4,6 +4,7 @@ import { Zap, Award, Shield, Truck } from 'lucide-react'
 import Breadcrumb from '@/components/breadcrumb'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import ShopMap from '@/components/shop-map'
 import Link from 'next/link'
 
 export default function AboutPage() {
@@ -77,6 +78,28 @@ export default function AboutPage() {
 
             
 
+            </div>
+          </section>
+
+          {/* ── FIND US ── */}
+          <section className="ab-section" style={{ background: '#fdf5f9', padding: '56px 0' }}>
+            <div className="ab-container">
+              <div className="ab-eyebrow center">
+                <span className="ab-eyebrow-line" />
+                <span className="ab-eyebrow-text">Visit Us</span>
+                <span className="ab-eyebrow-line" />
+              </div>
+              <h2 className="ab-section-title center">Find Our Store</h2>
+              <div className="ab-divider center">
+                <span className="ab-div-line" />
+                <span className="ab-div-gem">◆</span>
+                <span className="ab-div-line" />
+              </div>
+              <p className="ab-body-text" style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto 32px' }}>
+                We're located at Biashara Street, Marikiti — Mombasa, Kenya.
+                Mon–Sat, 8 AM to 5 PM.
+              </p>
+              <ShopMap height={420} showDirectionsButton />
             </div>
           </section>
 

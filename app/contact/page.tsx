@@ -1,212 +1,186 @@
 'use client'
 
-import { useState } from 'react'
-import { MessageCircle, Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
-import Breadcrumb from '@/components/breadcrumb'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
-import { useToast } from '@/components/ui/custom-toast'
+import Breadcrumb from '@/components/breadcrumb'
+import ShopMap from '@/components/shop-map'
 import Link from 'next/link'
+import { Phone, MessageCircle, Mail, MapPin, Clock, Instagram, Music } from 'lucide-react'
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Contact', href: '/contact' },
+]
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
-  const [submitting, setSubmitting] = useState(false)
-  const toast = useToast()
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    await new Promise(r => setTimeout(r, 600))
-    console.log('Form submitted:', formData)
-    toast.success('Thank you for your message! We will get back to you soon.')
-    setFormData({ name: '', email: '', subject: '', message: '' })
-    setSubmitting(false)
-  }
-
-  const handleWhatsAppClick = () => {
-    const msg = encodeURIComponent(`Hello JAVIC COLLECTION!\n\nI am interested in your products and would love to know more.\n\nThank you!`)
-    window.open(`https://wa.me/254706512984?text=${msg}`, '_blank')
-  }
-
-  const contactInfo = [
-    { icon: Phone,          title: 'Call Us',   detail: '+254 706 512 984',               href: 'tel:+254706512984',                    accent: 'blue' },
-    { icon: MessageCircle,  title: 'WhatsApp',  detail: '+254 706 512 984',               href: 'https://wa.me/254706512984',           accent: 'green' },
-    { icon: Mail,           title: 'Email',     detail: 'sales@javic.co.ke',    href: 'mailto:sales@javic.co.ke',   accent: 'magenta' },
-    { icon: MapPin,         title: 'Visit Us',  detail: 'Biashara Street, Mombasa', href: '#',                               accent: 'gold' },
-  ]
-
-  const faqs = [
-    { q: 'Free Delivery?',        a: 'Same day delivery within Mombasa for orders above KSh 10,000.' },
-    { q: 'Fitting Consultation?', a: 'Professional sizing advice available for all intimate apparel.' },
-    { q: 'Warranty Support?',     a: 'All products carry manufacturer warranties plus our own guarantee.' },
-  ]
-
-  const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Contact', href: '/contact' }
-  ]
-
   return (
     <>
-      <style>{contactStyles}</style>
-      <div className="cp-root">
+      <style>{styles}</style>
+      <div className="ct-root">
         <Header />
 
-        <main className="cp-main">
+        <main className="ct-main">
 
           {/* Breadcrumb */}
-          <div className="cp-breadcrumb-bar">
-            <div className="cp-container"><Breadcrumb items={breadcrumbItems} /></div>
+          <div className="ct-breadcrumb-bar">
+            <div className="ct-container">
+              <Breadcrumb items={breadcrumbItems} />
+            </div>
           </div>
 
           {/* ── HERO ── */}
-          <section className="cp-hero">
-            <div className="cp-hero-orb left"  aria-hidden="true" />
-            <div className="cp-hero-orb right" aria-hidden="true" />
-            <div className="cp-hero-inner">
-              <div className="cp-eyebrow">
-                <span className="cp-eyebrow-line" />
-                <span className="cp-eyebrow-text">We'd Love to Hear From You</span>
-                <span className="cp-eyebrow-line" />
+          <section className="ct-hero">
+            <div className="ct-hero-orb left"  aria-hidden="true" />
+            <div className="ct-hero-orb right" aria-hidden="true" />
+            <div className="ct-hero-inner">
+              <div className="ct-eyebrow">
+                <span className="ct-eyebrow-line" />
+                <span className="ct-eyebrow-text">Get In Touch</span>
+                <span className="ct-eyebrow-line" />
               </div>
-              <h1 className="cp-hero-title">Get in <em>Touch</em></h1>
-              <div className="cp-divider">
-                <span className="cp-div-line" />
-                <span className="cp-div-gem"></span>
+              <h1 className="ct-hero-title">
+                Contact <em>Javic Collection</em>
+              </h1>
+              <div className="ct-divider">
+                <span className="ct-div-line" />
+                <span className="ct-div-gem">◆</span>
+                <span className="ct-div-line" />
               </div>
-              <p className="cp-hero-sub">Questions about our products? Need sizing help? We're here for you.</p>
+              <p className="ct-hero-sub">
+                Visit us in store, call, or chat on WhatsApp — we're here to help.
+              </p>
             </div>
           </section>
 
-          {/* ── CONTACT CARDS ── */}
-          <section className="cp-cards-section">
-            <div className="cp-container">
-              <div className="cp-cards-grid">
-                {contactInfo.map((c, i) => {
-                  const Icon = c.icon
-                  return (
+          {/* ── CONTACT DETAILS + MAP ── */}
+          <section className="ct-section">
+            <div className="ct-container ct-grid">
+
+              {/* Left — details */}
+              <div className="ct-details">
+                <div className="ct-section-label">Reach Us</div>
+                <h2 className="ct-section-title">We'd Love to Hear From You</h2>
+
+                <div className="ct-contact-list">
+
+                  {/* Phone */}
+                  <a href="tel:+254706512984" className="ct-contact-item">
+                    <div className="ct-icon-ring">
+                      <Phone size={18} />
+                    </div>
+                    <div>
+                      <p className="ct-contact-label">Call Us</p>
+                      <p className="ct-contact-value">+254 706 512 984</p>
+                    </div>
+                  </a>
+
+                  {/* WhatsApp */}
+                  <a
+                    href="https://wa.me/254706512984"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ct-contact-item whatsapp"
+                  >
+                    <div className="ct-icon-ring green">
+                      <MessageCircle size={18} />
+                    </div>
+                    <div>
+                      <p className="ct-contact-label">WhatsApp</p>
+                      <p className="ct-contact-value">+254 706 512 984</p>
+                    </div>
+                  </a>
+
+                  {/* Location */}
+                  <div className="ct-contact-item static">
+                    <div className="ct-icon-ring">
+                      <MapPin size={18} />
+                    </div>
+                    <div>
+                      <p className="ct-contact-label">Our Store</p>
+                      <p className="ct-contact-value">Biashara Street, Mombasa</p>
+                      <p className="ct-contact-sub">Shop at Marikiti, Mombasa</p>
+                    </div>
+                  </div>
+
+                  {/* Hours */}
+                  <div className="ct-contact-item static">
+                    <div className="ct-icon-ring">
+                      <Clock size={18} />
+                    </div>
+                    <div>
+                      <p className="ct-contact-label">Business Hours</p>
+                      <p className="ct-contact-value">Mon – Sat: 8 AM – 5 PM</p>
+                      <p className="ct-contact-sub">Sunday: Closed</p>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Social links */}
+                <div className="ct-socials">
+                  <p className="ct-socials-label">Follow Us</p>
+                  <div className="ct-socials-row">
                     <a
-                      key={i}
-                      href={c.href}
-                      target={c.href.startsWith('http') ? '_blank' : undefined}
-                      className={`cp-contact-card accent-${c.accent}`}
-                      style={{ animationDelay: `${i * 0.08}s` }}
+                      href="https://www.instagram.com/javic_collection"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ct-social-link"
                     >
-                      <div className="cp-card-icon"><Icon size={20} /></div>
-                      <h3 className="cp-card-title">{c.title}</h3>
-                      <p className="cp-card-detail">{c.detail}</p>
-                      <div className="cp-card-bar" />
+                      <Instagram size={16} />
+                      <span>@javic_collection</span>
                     </a>
-                  )
-                })}
+                    <a
+                      href="https://www.tiktok.com/@javic_collection"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ct-social-link"
+                    >
+                      <Music size={16} />
+                      <span>@javic_collection</span>
+                    </a>
+                  </div>
+                </div>
               </div>
+
+              {/* Right — map */}
+              <div className="ct-map-wrap">
+                <ShopMap height={480} showDirectionsButton />
+                <p className="ct-map-caption">
+                  <MapPin size={13} />
+                  Biashara Street, Marikiti — Mombasa, Kenya
+                </p>
+              </div>
+
             </div>
           </section>
 
-          {/* ── FORM + SIDEBAR ── */}
-          <section className="cp-body-section">
-            <div className="cp-container cp-two-col">
-
-              {/* Contact form */}
-              <div className="cp-form-card">
-                <div className="cp-form-header">
-                  <span className="cp-form-gem"></span>
-                  <h2 className="cp-form-title">Send Us a Message</h2>
-                </div>
-
-                <form onSubmit={handleSubmit} className="cp-form">
-                  <div className="cp-form-row">
-                    <div className="cp-field">
-                      <label className="cp-label">Your Name</label>
-                      <input
-                        type="text" name="name" value={formData.name}
-                        onChange={handleChange} placeholder="Jane Doe"
-                        required className="cp-input"
-                      />
-                    </div>
-                    <div className="cp-field">
-                      <label className="cp-label">Email Address</label>
-                      <input
-                        type="email" name="email" value={formData.email}
-                        onChange={handleChange} placeholder="you@example.com"
-                        required className="cp-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="cp-field">
-                    <label className="cp-label">Subject</label>
-                    <input
-                      type="text" name="subject" value={formData.subject}
-                      onChange={handleChange} placeholder="What's this about?"
-                      required className="cp-input"
-                    />
-                  </div>
-
-                  <div className="cp-field">
-                    <label className="cp-label">Message</label>
-                    <textarea
-                      name="message" value={formData.message}
-                      onChange={handleChange} rows={5}
-                      placeholder="Tell us what's on your mind…"
-                      required className="cp-textarea"
-                    />
-                  </div>
-
-                  <button type="submit" disabled={submitting} className="cp-submit-btn">
-                    <span className="cp-submit-inner">
-                      {submitting
-                        ? <><span className="cp-spinner" /> Sending…</>
-                        : <><Send size={14} /> Send Message</>
-                      }
-                    </span>
-                    <span className="cp-submit-shimmer" />
-                  </button>
-                </form>
+          {/* ── CTA ── */}
+          <section className="ct-cta-section">
+            <div className="ct-container ct-cta-inner">
+              <div>
+                <h2 className="ct-cta-title">Ready to Shop?</h2>
+                <p className="ct-cta-sub">Visit us in store or browse our full collection online.</p>
               </div>
-
-              {/* Sidebar */}
-              <div className="cp-sidebar">
-
-                {/* Hours */}
-                <div className="cp-sidebar-card dark">
-                  <div className="cp-sidebar-card-header">
-                    <h3 className="cp-sidebar-title">Business Hours</h3>
-                  </div>
-                  <div className="cp-hours-list">
-                    {[
-                      ['Mon – Fri', '8:00 AM – 6:00 PM'],
-                      ['Saturday',  '9:00 AM – 5:00 PM'],
-                      ['Sunday',    '10:00 AM – 4:00 PM'],
-                    ].map(([day, hrs]) => (
-                      <div key={day} className="cp-hours-row">
-                        <span className="cp-hours-day">{day}</span>
-                        <span className="cp-hours-time">{hrs}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-
-                {/* Mini CTA */}
-                
-
+              <div className="ct-cta-btns">
+                <Link href="/products">
+                  <button className="ct-btn primary">
+                    <span className="ct-btn-inner">
+                      <span>Shop Now</span>
+                      <span className="ct-btn-arrow">→</span>
+                    </span>
+                    <span className="ct-btn-shimmer" />
+                  </button>
+                </Link>
+                <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
+                  <button className="ct-btn ghost">
+                    <span className="ct-btn-inner">Chat on WhatsApp</span>
+                  </button>
+                </a>
               </div>
             </div>
           </section>
 
         </main>
-
-        {/* ── FLOATING WHATSAPP ── */}
-        <button onClick={handleWhatsAppClick} className="cp-whatsapp-fab" title="Chat on WhatsApp">
-          <MessageCircle size={24} />
-          <span className="cp-wa-pulse" aria-hidden="true" />
-        </button>
 
         <Footer />
       </div>
@@ -214,330 +188,216 @@ export default function ContactPage() {
   )
 }
 
-const contactStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Josefin+Sans:wght@200;300;400&display=swap');
-
+const styles = `
   :root {
-    --cp-pink:    #FF0080;
-    --cp-magenta: #CC0066;
-    --cp-deep:    #990044;
-    --cp-gold:    #E8C87A;
-    --cp-gold-lt: #F5DFA0;
+    --ct-pink:    #FF0080;
+    --ct-magenta: #CC0066;
+    --ct-deep:    #990044;
+    --ct-gold:    #E8C87A;
+    --ct-gold-lt: #F5DFA0;
   }
 
-  .cp-root { display: flex; flex-direction: column; min-height: 100vh; background: #fff; }
-  .cp-main { flex: 1; }
-  .cp-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .ct-root { display: flex; flex-direction: column; min-height: 100vh; background: #fff; }
+  .ct-main { flex: 1; }
+  .ct-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-  .cp-breadcrumb-bar {
+  .ct-breadcrumb-bar {
     background: #fdf5f9;
     border-bottom: 1px solid rgba(232,200,122,0.18);
     padding: 12px 0;
   }
 
   /* ── HERO ── */
-  .cp-hero {
+  .ct-hero {
     position: relative;
     background: linear-gradient(160deg, #1a0010 0%, #2d0020 50%, #1a0010 100%);
-    padding: 64px 24px 56px;
+    padding: 72px 24px 64px;
     text-align: center;
     overflow: hidden;
   }
-  .cp-hero-orb {
-    position: absolute; width: 360px; height: 360px;
+  .ct-hero-orb {
+    position: absolute; width: 380px; height: 380px;
     border-radius: 50%; pointer-events: none; opacity: 0.12;
   }
-  .cp-hero-orb.left  { top: -100px; left: -80px;  background: radial-gradient(circle, var(--cp-pink),    transparent 70%); }
-  .cp-hero-orb.right { bottom: -80px; right: -80px; background: radial-gradient(circle, var(--cp-magenta), transparent 70%); }
-  .cp-hero-inner { position: relative; z-index: 1; }
+  .ct-hero-orb.left  { top: -100px; left: -80px;   background: radial-gradient(circle, var(--ct-pink),    transparent 70%); }
+  .ct-hero-orb.right { bottom: -80px; right: -80px; background: radial-gradient(circle, var(--ct-magenta), transparent 70%); }
+  .ct-hero-inner { position: relative; z-index: 1; }
 
-  .cp-eyebrow {
-    display: inline-flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  .ct-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px;
   }
-  .cp-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--cp-gold); opacity: 0.6; }
-  .cp-eyebrow-text {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400; font-size: 12px; letter-spacing: 0.32em;
-    text-transform: uppercase; color: var(--cp-gold);
+  .ct-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--ct-gold); opacity: 0.7; }
+  .ct-eyebrow-text {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--ct-gold);
   }
-  .cp-hero-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: clamp(2.4rem, 5vw, 4rem);
-    color: white; margin: 0 0 14px; line-height: 1.05;
+
+  .ct-hero-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(2.4rem, 5vw, 4rem); color: white;
+    margin: 0 0 16px; line-height: 1.05;
   }
-  .cp-hero-title em { font-style: italic; color: var(--cp-gold-lt); }
-  .cp-divider { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px; }
-  .cp-div-line { display: block; width: 52px; height: 1px; background: linear-gradient(90deg, transparent, var(--cp-gold)); }
-  .cp-div-line:last-child { background: linear-gradient(270deg, transparent, var(--cp-gold)); }
-  .cp-div-gem { font-size: 9px; color: var(--cp-gold); }
-  .cp-hero-sub {
+  .ct-hero-title em { font-style: italic; color: var(--ct-gold-lt); }
+
+  .ct-divider { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .ct-div-line { display: block; width: 56px; height: 1px; background: linear-gradient(90deg, transparent, var(--ct-gold)); }
+  .ct-div-line:last-child { background: linear-gradient(270deg, transparent, var(--ct-gold)); }
+  .ct-div-gem { font-size: 9px; color: var(--ct-gold); }
+
+  .ct-hero-sub {
     font-family: 'Josefin Sans', sans-serif; font-weight: 400;
     font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.75);
+    max-width: 480px; margin: 0 auto;
   }
 
-  /* ── CONTACT CARDS ── */
-  .cp-cards-section {
-    padding: 48px 0 0;
-    background: white;
-  }
-  .cp-cards-grid {
+  /* ── SECTION ── */
+  .ct-section { padding: 64px 0; background: white; }
+
+  .ct-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: start;
   }
-  @media (min-width: 768px) { .cp-cards-grid { grid-template-columns: repeat(4, 1fr); } }
-
-  .cp-contact-card {
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-    background: white; border: 1px solid rgba(232,200,122,0.2); border-radius: 10px;
-    padding: 24px 16px 20px; text-decoration: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
-    position: relative; overflow: hidden;
-    animation: cpFadeUp 0.45s ease backwards;
-  }
-  @keyframes cpFadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .cp-contact-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(232,200,122,0.5);
-    box-shadow: 0 10px 32px rgba(153,0,68,0.1);
+  @media (min-width: 768px) {
+    .ct-grid { grid-template-columns: 1fr 1.4fr; gap: 56px; }
   }
 
-  .cp-card-icon {
-    width: 48px; height: 48px; border-radius: 50%;
+  .ct-section-label {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 12px; letter-spacing: 0.38em; text-transform: uppercase;
+    color: var(--ct-magenta); margin-bottom: 10px;
+  }
+  .ct-section-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem); color: #1a0010;
+    margin: 0 0 28px; line-height: 1.1;
+  }
+
+  /* Contact list */
+  .ct-contact-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; }
+
+  .ct-contact-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(232,200,122,0.15);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .ct-contact-item:last-child { border-bottom: none; }
+  a.ct-contact-item:hover { opacity: 0.8; }
+  .ct-contact-item.static { cursor: default; }
+
+  .ct-icon-ring {
+    width: 40px; height: 40px; border-radius: 50%; shrink: 0;
+    background: linear-gradient(135deg, var(--ct-magenta), var(--ct-pink));
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 12px; color: white;
-    transition: box-shadow 0.3s ease;
+    color: white; flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(255,0,128,0.28);
   }
-  .accent-blue    .cp-card-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4px 14px rgba(59,130,246,0.3); }
-  .accent-green   .cp-card-icon { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
-  .accent-magenta .cp-card-icon { background: linear-gradient(135deg, var(--cp-magenta), var(--cp-pink)); box-shadow: 0 4px 14px rgba(255,0,128,0.3); }
-  .accent-gold    .cp-card-icon { background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 14px rgba(217,119,6,0.3); }
-
-  .cp-contact-card:hover .cp-card-icon { box-shadow: 0 6px 20px rgba(153,0,68,0.25); }
-
-  .cp-card-title {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
-    font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--cp-magenta); margin: 0 0 5px;
+  .ct-icon-ring.green {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    box-shadow: 0 4px 14px rgba(37,211,102,0.28);
   }
-  .cp-card-detail {
+
+  .ct-contact-label {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ct-gold); margin: 0 0 3px;
+  }
+  .ct-contact-value {
     font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 14px; letter-spacing: 0.04em; color: #1A0010; margin: 0;
+    font-size: 15px; color: #1a0010; margin: 0;
   }
-  .cp-card-bar {
-    height: 2px; width: 0; background: linear-gradient(90deg, var(--cp-gold), var(--cp-pink));
-    border-radius: 1px; margin-top: 14px;
-    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  .ct-contact-sub {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 12px; color: #888; margin: 2px 0 0;
   }
-  .cp-contact-card:hover .cp-card-bar { width: 60%; }
 
-  /* ── BODY ── */
-  .cp-body-section { padding: 40px 0 72px; background: white; }
-  .cp-two-col {
-    display: grid; grid-template-columns: 1fr;
-    gap: 32px;
+  /* Socials */
+  .ct-socials { margin-top: 8px; }
+  .ct-socials-label {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ct-gold); margin-bottom: 10px;
   }
-  @media (min-width: 768px) { .cp-two-col { grid-template-columns: 1.35fr 1fr; gap: 40px; } }
-
-  /* Form card */
-  .cp-form-card {
-    background: white; border: 1px solid rgba(232,200,122,0.22);
-    border-radius: 14px; overflow: hidden;
-    box-shadow: 0 4px 24px rgba(153,0,68,0.07);
-  }
-  .cp-form-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid rgba(232,200,122,0.18);
-    background: linear-gradient(90deg, rgba(255,0,128,0.03), transparent);
-  }
-  .cp-form-gem { font-size: 8px; color: var(--cp-gold); }
-  .cp-form-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 22px; color: #1a0010; margin: 0;
-  }
-  .cp-form { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-  .cp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 480px) { .cp-form-row { grid-template-columns: 1fr; } }
-
-  .cp-field { display: flex; flex-direction: column; gap: 5px; }
-  .cp-label {
+  .ct-socials-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ct-social-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px; border: 1px solid rgba(204,0,102,0.25);
+    border-radius: 999px; text-decoration: none;
     font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--cp-magenta);
+    font-size: 12px; letter-spacing: 0.06em; color: var(--ct-magenta);
+    transition: all 0.2s;
   }
-  .cp-input, .cp-textarea {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 15px; letter-spacing: 0.03em;
-    background: #f9f9f9; border: 1px solid rgba(232,200,122,0.3);
-    border-radius: 3px; padding: 10px 14px; color: #1A0010;
-    outline: none; transition: all 0.25s ease;
-    width: 100%; box-sizing: border-box;
+  .ct-social-link:hover {
+    background: var(--ct-magenta); color: white;
+    border-color: var(--ct-magenta);
   }
-  .cp-input::placeholder, .cp-textarea::placeholder { color: #bbb; }
-  .cp-input:focus, .cp-textarea:focus {
-    border-color: var(--cp-magenta);
-    background: white;
-    box-shadow: 0 0 0 3px rgba(204,0,102,0.07);
-  }
-  .cp-textarea { resize: none; }
 
-  /* Submit */
-  .cp-submit-btn {
-    position: relative; overflow: hidden; background: none;
-    border: none; padding: 0; cursor: pointer; width: 100%;
+  /* Map */
+  .ct-map-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .ct-map-caption {
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 12px; letter-spacing: 0.08em; color: #999;
   }
-  .cp-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .cp-submit-inner {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; width: 100%; padding: 14px;
-    background: linear-gradient(135deg, var(--cp-magenta) 0%, var(--cp-pink) 50%, var(--cp-magenta) 100%);
-    background-size: 200% 100%;
-    border-radius: 2px;
+
+  /* ── CTA ── */
+  .ct-cta-section {
+    background: linear-gradient(135deg, #1a0010 0%, #2d0020 50%, #1a0010 100%);
+    padding: 56px 24px;
+    border-top: 1px solid rgba(232,200,122,0.15);
+  }
+  .ct-cta-inner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 28px; text-align: center;
+  }
+  @media (min-width: 640px) {
+    .ct-cta-inner { flex-direction: row; justify-content: space-between; text-align: left; }
+  }
+  .ct-cta-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem); color: white;
+    margin: 0 0 6px; line-height: 1.1;
+  }
+  .ct-cta-sub {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); margin: 0;
+  }
+  .ct-cta-btns { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .ct-btn { position: relative; overflow: hidden; background: none; border: none; padding: 0; cursor: pointer; }
+  .ct-btn-inner {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 32px; border-radius: 2px;
     font-family: 'Josefin Sans', sans-serif; font-weight: 500;
     font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
-    color: white; transition: all 0.35s ease;
-    position: relative; z-index: 1;
+    transition: all 0.3s ease; position: relative; z-index: 1;
   }
-  .cp-submit-btn:not(:disabled):hover .cp-submit-inner {
-    background-position: 100% 0;
-    box-shadow: 0 4px 20px rgba(255,0,128,0.4);
-    transform: translateY(-1px);
+  .ct-btn.primary .ct-btn-inner {
+    background: linear-gradient(135deg, var(--ct-magenta), var(--ct-pink));
+    border: 1px solid rgba(232,200,122,0.3); color: white;
   }
-  .cp-submit-shimmer {
+  .ct-btn.primary:hover .ct-btn-inner {
+    border-color: var(--ct-gold);
+    box-shadow: 0 0 28px rgba(255,0,128,0.4), 0 6px 20px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+  .ct-btn-arrow { color: var(--ct-gold-lt); font-size: 16px; transition: transform 0.3s; }
+  .ct-btn.primary:hover .ct-btn-arrow { transform: translateX(4px); }
+  .ct-btn-shimmer {
     position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
     transform: skewX(-20deg); transition: left 0.55s ease;
   }
-  .cp-submit-btn:not(:disabled):hover .cp-submit-shimmer { left: 150%; }
-  .cp-spinner {
-    display: inline-block; width: 13px; height: 13px;
-    border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
-    border-radius: 50%; animation: cpSpin 0.7s linear infinite;
+  .ct-btn.primary:hover .ct-btn-shimmer { left: 150%; }
+  .ct-btn.ghost .ct-btn-inner {
+    border: 1px solid rgba(232,200,122,0.35); border-radius: 2px;
+    color: rgba(255,255,255,0.75); transition: all 0.3s ease;
   }
-  @keyframes cpSpin { to { transform: rotate(360deg); } }
-
-  /* ── SIDEBAR ── */
-  .cp-sidebar { display: flex; flex-direction: column; gap: 18px; }
-
-  .cp-sidebar-card {
-    border-radius: 12px; overflow: hidden;
-    border: 1px solid rgba(232,200,122,0.18);
-  }
-  .cp-sidebar-card.dark {
-    background: linear-gradient(160deg, #1a0010, #2d0020);
-  }
-  .cp-sidebar-card.light {
-    background: white;
-  }
-
-  .cp-sidebar-card-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 14px 20px 12px;
-    border-bottom: 1px solid rgba(232,200,122,0.12);
-  }
-  .cp-sidebar-card-header.light {
-    border-bottom-color: rgba(232,200,122,0.2);
-    background: linear-gradient(90deg, rgba(255,0,128,0.02), transparent);
-  }
-  .cp-sidebar-icon { color: var(--cp-gold); flex-shrink: 0; }
-  .cp-sidebar-gem  { font-size: 7px; color: var(--cp-gold); }
-  .cp-sidebar-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 19px; color: white; margin: 0;
-  }
-  .cp-sidebar-title.dark { color: #1a0010; }
-
-  /* Hours */
-  .cp-hours-list { padding: 12px 20px 16px; display: flex; flex-direction: column; gap: 0; }
-  .cp-hours-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .cp-hours-row:last-child { border-bottom: none; }
-  .cp-hours-day {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 12px; letter-spacing: 0.1em; color: var(--cp-gold);
-    text-transform: uppercase;
-  }
-  .cp-hours-time {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 14px; color: rgba(255,255,255,0.75); letter-spacing: 0.04em;
-  }
-
-  /* FAQ */
-  .cp-faq-list { padding: 14px 20px 18px; display: flex; flex-direction: column; gap: 14px; }
-  .cp-faq-item { border-bottom: 1px solid rgba(232,200,122,0.12); padding-bottom: 14px; }
-  .cp-faq-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .cp-faq-q {
-    font-family: 'Cormorant Garamond', serif; font-weight: 600;
-    font-size: 15px; color: #1a0010; margin: 0 0 4px;
-  }
-  .cp-faq-a {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; color: #888; letter-spacing: 0.04em;
-    line-height: 1.65; margin: 0;
-  }
-
-  /* Mini CTA */
-  .cp-mini-cta {
-    background: linear-gradient(135deg, #1a0010, #2d0020);
-    border: 1px solid rgba(232,200,122,0.2);
-    border-radius: 12px; padding: 20px 20px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; flex-wrap: wrap;
-  }
-  .cp-mini-cta-text {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; letter-spacing: 0.1em; color: rgba(255,255,255,0.55);
-    margin: 0;
-  }
-  .cp-mini-cta-btn {
-    position: relative; overflow: hidden; background: none; border: none; padding: 0; cursor: pointer;
-  }
-  .cp-mini-cta-btn .cp-submit-inner {
-    padding: 10px 24px; font-size: 10px; letter-spacing: 0.25em;
-    background: linear-gradient(135deg, var(--cp-magenta), var(--cp-pink));
-    background-size: 200% 100%;
-    border: 1px solid rgba(232,200,122,0.3);
-    border-radius: 2px; justify-content: center;
-  }
-  .cp-mini-cta-btn:hover .cp-submit-inner {
-    background-position: 100% 0;
-    border-color: var(--cp-gold);
-    box-shadow: 0 4px 16px rgba(255,0,128,0.3);
-    transform: translateY(-1px);
-  }
-  .cp-cta-arrow { font-size: 14px; color: var(--cp-gold-lt); transition: transform 0.3s; }
-  .cp-mini-cta-btn:hover .cp-cta-arrow { transform: translateX(3px); }
-
-  /* ── WHATSAPP FAB ── */
-  .cp-whatsapp-fab {
-    position: fixed; bottom: 24px; right: 24px; z-index: 50;
-    width: 56px; height: 56px; border-radius: 50%;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: white;
-    box-shadow: 0 6px 24px rgba(34,197,94,0.4), 0 2px 8px rgba(0,0,0,0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: visible;
-  }
-  .cp-whatsapp-fab:hover {
-    transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 10px 32px rgba(34,197,94,0.55), 0 4px 12px rgba(0,0,0,0.2);
-  }
-  .cp-wa-pulse {
-    position: absolute;
-    width: 56px; height: 56px; border-radius: 50%;
-    border: 2px solid rgba(34,197,94,0.5);
-    animation: cpWaPulse 2s ease-out infinite;
-  }
-  @keyframes cpWaPulse {
-    0%   { transform: scale(1);   opacity: 0.8; }
-    100% { transform: scale(1.7); opacity: 0; }
+  .ct-btn.ghost:hover .ct-btn-inner {
+    border-color: rgba(232,200,122,0.7); color: white;
+    background: rgba(255,255,255,0.05);
   }
 `

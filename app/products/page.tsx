@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Star, Search, Filter, Grid, List, SlidersHorizontal, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -13,7 +14,19 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 import ActiveRatingDisplay from '@/components/active-rating-display'
 
+// Wrap in Suspense so useSearchParams doesn't break static generation
 export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsPageInner />
+    </Suspense>
+  )
+}
+
+function ProductsPageInner() {
+  const searchParams = useSearchParams()
+  // ?filter=flashDeals | featured | bestseller
+  const filterParam = searchParams.get('filter')
   const [products, setProducts] = useState<IProduct[]>([])
   const [dealProducts, setDealProducts] = useState<IProduct[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,12 +39,27 @@ export default function ProductsPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [showDeals, setShowDeals] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<string | null>(filterParam)
+
+  // Build the API query string from active filter
+  const buildFilterQuery = (f: string | null) => {
+    if (f === 'flashDeals') return 'flashDeals=true'
+    if (f === 'featured')   return 'featured=true'
+    if (f === 'bestseller') return 'bestseller=true'
+    return 'catalog=true'
+  }
+
+  const filterLabel: Record<string, string> = {
+    flashDeals: '🔥 Flash Deals',
+    featured:   '⭐ Featured',
+    bestseller: '🏆 Best Sellers',
+  }
 
   useEffect(() => {
     fetchProducts()
     fetchDealProducts()
     fetchCategories()
-  }, [])
+  }, [activeFilter]) // re-fetch when filter changes
 
   const fetchCategories = async () => {
     try {
@@ -61,7 +89,8 @@ export default function ProductsPage() {
     try {
       loadMore ? setLoadingMore(true) : setLoading(true)
       const currentPage = loadMore ? page : 1
-      const response = await fetch(`/api/products?catalog=true&page=${currentPage}&limit=12`)
+      const filterQuery = buildFilterQuery(activeFilter)
+      const response = await fetch(`/api/products?${filterQuery}&page=${currentPage}&limit=12`)
       if (response.ok) {
         const data = await response.json()
         if (loadMore) {
@@ -136,6 +165,27 @@ export default function ProductsPage() {
         <main className="pp-main">
           <div className="pp-container">
             <Breadcrumb items={breadcrumbItems} />
+
+            {/* Active filter badge from pill links */}
+            {activeFilter && filterLabel[activeFilter] && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '12px 0' }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 14px', borderRadius: 999,
+                  background: 'rgba(204,0,102,0.08)',
+                  border: '1px solid rgba(204,0,102,0.3)',
+                  fontFamily: 'Josefin Sans, sans-serif', fontSize: 12,
+                  letterSpacing: '0.08em', color: '#CC0066',
+                }}>
+                  {filterLabel[activeFilter]}
+                  <button
+                    onClick={() => setActiveFilter(null)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1, color: '#CC0066', fontSize: 14 }}
+                    aria-label="Clear filter"
+                  >×</button>
+                </span>
+              </div>
+            )}
 
             {/* ── HOT DEALS STRIP ── */}
             {dealProducts.length > 0 && (

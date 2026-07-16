@@ -27,6 +27,8 @@ export interface IUser {
   isActive: boolean
   role: 'customer' | 'admin' | 'super_admin'
   permissions?: string[] // New granular permissions system
+  posRole?: 'cashier' | 'senior_cashier' | 'supervisor' | 'manager' | 'administrator'
+  posOutletId?: mongoose.Types.ObjectId
   // Google OAuth fields
   googleId?: string
   profileImage?: string
@@ -162,6 +164,14 @@ const UserSchema = new mongoose.Schema<IUser>({
     type: String,
     trim: true
   }],
+  posRole: {
+    type: String,
+    enum: ['cashier', 'senior_cashier', 'supervisor', 'manager', 'administrator'],
+  },
+  posOutletId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PosOutlet',
+  },
   // Google OAuth fields
   googleId: {
     type: String,

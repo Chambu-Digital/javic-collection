@@ -3,8 +3,10 @@ import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/ui/custom-toast'
 import GoogleOAuthProvider from '@/components/providers/google-oauth-provider'
-import WhatsAppFloat from '@/components/whatsapp-float'
+import WhatsAppFloatWrapper from '@/components/whatsapp-float-wrapper'
+import { DirectionsFloatButton } from '@/components/shop-map'
 import CampaignRenderer from '@/components/campaign-renderer'
+import { SwRegistration } from '@/components/service-worker-registration'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({ 
@@ -28,6 +30,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'KO8RUPFOnU-K9AlHfBWRRcuYQG6jIrs9yihNFWfJ-yY',
   },
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
@@ -42,8 +45,10 @@ export default function RootLayout({
           <ToastProvider>
             {children}
             <CampaignRenderer />
-            <WhatsAppFloat />
+            <WhatsAppFloatWrapper />
+            <DirectionsFloatButton />
             <Analytics />
+            <SwRegistration />
           </ToastProvider>
         </GoogleOAuthProvider>
       </body>

@@ -1,57 +1,123 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Zap, Clock, Flame, ShoppingCart } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Flame, Star, Award, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { IProduct } from '@/models/Product'
 import { getProductDisplayImage, getProductDisplayPrice } from '@/lib/product-utils'
 
-export default function FlashDealsSection() {
-  const [timeLeft, setTimeLeft] = useState(3600)
-  const [deals, setDeals] = useState<IProduct[]>([])
-  const [loading, setLoading] = useState(true)
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 3600))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
+type SectionMode = 'flash' | 'bestseller' | 'featured' | 'mixed'
 
-  useEffect(() => {
-    fetchFlashDeals()
-  }, [])
+interface EnrichedProduct extends IProduct {
+  _sectionMode: SectionMode
+}
 
-  const fetchFlashDeals = async () => {
-    try {
-      const response = await fetch('/api/products?flashDeals=true&limit=4')
-      if (response.ok) {
-        const data = await response.json()
-        setDeals(data.products)
-      }
-    } catch (error) {
-      console.error('Error fetching flash deals:', error)
-    } finally {
-      setLoading(false)
-    }
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+async function fetchByFilter(param: string, limit = 8): Promise<IProduct[]> {
+  try {
+    const res = await fetch(`/api/products?${param}=true&limit=${limit}`)
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.products || []
+  } catch {
+    return []
   }
+}
 
-  const hours = Math.floor(timeLeft / 3600)
-  const minutes = Math.floor((timeLeft % 3600) / 60)
-  const seconds = timeLeft % 60
+function tag(products: IProduct[], mode: SectionMode): EnrichedProduct[] {
+  return products.map(p => ({ ...p, _sectionMode: mode }))
+}
 
-  const displayDeals = deals
+// ─── Component ───────────────────────────────────────────────────────────────
 
-  // Don't render the section at all when there are no real flash deals
-  if (!loading && deals.length === 0) return null
+export default function FlashDealsSection() {
+  const [products, setProducts]   = useState<EnrichedProduct[]>([])
+  const [mode, setMode]           = useState<SectionMode>('flash')
+  const [loading, setLoading]     = useState(true)
+  // Track which other collections exist so we can show section pills
+  const [hasFeatured, setHasFeatured]     = useState(false)
+  const [hasBestseller, setHasBestseller] = useState(false)
+
+  useEffect(() => {
+    ;(async () => {
+      setLoading(true)
+
+      // Fetch all three in parallel — flash deal wins; others fill in
+      const [flash, bestseller, featured] = await Promise.all([
+        fetchByFilter('flashDeals', 8),
+        fetchByFilter('bestseller', 8),
+        fetchByFilter('featured', 8),
+      ])
+
+      // Always track what else is available for section pills
+      setHasBestseller(bestseller.length > 0)
+      setHasFeatured(featured.length > 0)
+
+      if (flash.length > 0) {
+        setProducts(tag(flash, 'flash'))
+        setMode('flash')
+      } else if (bestseller.length > 0 && featured.length > 0) {
+        // Mix — mark each so we can show the right pill
+        const mixed = [
+          ...tag(bestseller, 'bestseller'),
+          ...tag(featured, 'featured'),
+        ]
+        // De-duplicate by _id
+        const seen = new Set<string>()
+        const deduped = mixed.filter(p => {
+          const id = String(p._id)
+          if (seen.has(id)) return false
+          seen.add(id)
+          return true
+        })
+        setProducts(deduped.slice(0, 8))
+        setMode('mixed')
+      } else if (bestseller.length > 0) {
+        setProducts(tag(bestseller, 'bestseller'))
+        setMode('bestseller')
+      } else if (featured.length > 0) {
+        setProducts(tag(featured, 'featured'))
+        setMode('featured')
+      } else {
+        setProducts([])
+      }
+
+      setLoading(false)
+    })()
+  }, [])
+
+  if (!loading && products.length === 0) return null
+
+  const sectionTitle = {
+    flash:      'Flash Deals',
+    bestseller: 'Best Sellers',
+    featured:   'Featured',
+    mixed:      'Top Picks',
+  }[mode]
+
+  const ctaHref = {
+    flash:      '/products?filter=flashDeals',
+    bestseller: '/products?filter=bestseller',
+    featured:   '/products?filter=featured',
+    mixed:      '/products',
+  }[mode]
+
+  const ctaLabel = {
+    flash:      'View All Deals',
+    bestseller: 'View All Best Sellers',
+    featured:   'View All Featured',
+    mixed:      'View All Products',
+  }[mode]
+
+  const SectionIcon = mode === 'flash' ? Flame : mode === 'bestseller' ? Award : Star
 
   return (
     <>
       <style>{flashStyles}</style>
       <section className="jfd-section">
-
-        {/* Background decorative elements */}
         <div className="jfd-bg-orb left" />
         <div className="jfd-bg-orb right" />
 
@@ -60,52 +126,24 @@ export default function FlashDealsSection() {
           {/* ── HEADER ── */}
           <div className="jfd-header">
             <div className="jfd-header-left">
-              {/* Eyebrow */}
-              {/* <div className="jfd-eyebrow">
-                <span className="jfd-eyebrow-gem">◆</span>
-                <span className="jfd-eyebrow-text">Limited Time Offer</span>
-                <span className="jfd-eyebrow-gem">◆</span>
-              </div> */}
-
               <div className="jfd-title-row">
-                <div className="jfd-flame-wrap">
-                  <Flame className="jfd-flame-icon" />
+                <div className={`jfd-flame-wrap ${mode !== 'flash' ? 'alt' : ''}`}>
+                  <SectionIcon className="jfd-flame-icon" />
                 </div>
-                <h2 className="jfd-title">Flash Deals</h2>
+                <h2 className="jfd-title">{sectionTitle}</h2>
               </div>
-
               <div className="jfd-title-underline" />
             </div>
-
-            {/* Timer */}
-            {/* <div className="jfd-timer-wrap">
-              <div className="jfd-timer-label">
-                <Clock size={12} />
-                <span>Ends in</span>
-              </div>
-              <div className="jfd-timer-blocks">
-                <div className="jfd-time-block">
-                  <span className="jfd-time-num">{String(hours).padStart(2, '0')}</span>
-                  <span className="jfd-time-unit">HRS</span>
-                </div>
-                <span className="jfd-time-sep">:</span>
-                <div className="jfd-time-block">
-                  <span className="jfd-time-num">{String(minutes).padStart(2, '0')}</span>
-                  <span className="jfd-time-unit">MIN</span>
-                </div>
-                <span className="jfd-time-sep">:</span>
-                <div className="jfd-time-block">
-                  <span className="jfd-time-num" key={seconds}>{String(seconds).padStart(2, '0')}</span>
-                  <span className="jfd-time-unit">SEC</span>
-                </div>
-              </div>
-            </div> */}
           </div>
 
           {/* ── DIVIDER ── */}
-       
+          <div className="jfd-divider">
+            <div className="jfd-divider-line" />
+            <span className="jfd-divider-gem">◆</span>
+            <div className="jfd-divider-line" />
+          </div>
 
-          {/* ── DEALS GRID ── */}
+          {/* ── GRID ── */}
           <div className="jfd-grid">
             {loading
               ? Array(4).fill(0).map((_, i) => (
@@ -118,90 +156,116 @@ export default function FlashDealsSection() {
                     </div>
                   </div>
                 ))
-              : displayDeals.slice(0, 4).map((deal, index) => {
-                  const dealId = deal._id
-                  const dealName = deal.name
-                  const dealImage = getProductDisplayImage(deal)
-                  const dealSlug = deal.slug
-                  const { price, oldPrice } = getProductDisplayPrice(deal)
-                  const dealPrice = price
-                  const dealOldPrice = oldPrice
-                  const dealDiscount = deal.flashDealDiscount || 20
-                  const savings = dealOldPrice ? dealOldPrice - dealPrice : 0
+              : products.slice(0, 4).map((product, index) => {
+                  const { price, oldPrice } = getProductDisplayPrice(product)
+                  const savings   = oldPrice ? oldPrice - price : 0
+                  const discount  = product.flashDealDiscount || (oldPrice ? Math.round((savings / oldPrice) * 100) : 0)
+                  const isFlash   = product._sectionMode === 'flash'
+
+                  // Pill config for non-flash products
+                  const pill = product._sectionMode === 'bestseller'
+                    ? { label: 'Best Seller', href: '/products?filter=bestseller', cls: 'bestseller' }
+                    : product._sectionMode === 'featured'
+                    ? { label: 'Featured', href: '/products?filter=featured', cls: 'featured' }
+                    : null
 
                   return (
-                    <Link
-                      key={dealId}
-                      href={`/product/${dealSlug}`}
-                      className="jfd-card"
-                      style={{ animationDelay: `${index * 0.08}s` }}
-                    >
-                      {/* Image */}
-                      <div className="jfd-card-img-wrap">
-                        <img src={dealImage} alt={dealName} className="jfd-card-img" />
+                    <div key={String(product._id)} className="jfd-card-wrap" style={{ animationDelay: `${index * 0.08}s` }}>
+                      <Link href={`/product/${product.slug}`} className="jfd-card">
 
-                        {/* Overlay */}
-                        <div className="jfd-card-overlay" />
+                        {/* Image */}
+                        <div className="jfd-card-img-wrap">
+                          <img
+                            src={getProductDisplayImage(product)}
+                            alt={product.name}
+                            className="jfd-card-img"
+                          />
+                          <div className="jfd-card-overlay" />
 
-                        {/* Discount badge */}
-                        <div className="jfd-badge">
-                          <span className="jfd-badge-num">-{dealDiscount}%</span>
-                          <span className="jfd-badge-label">OFF</span>
+                          {/* Badge — discount % for flash, label for others */}
+                          {isFlash && discount > 0 && (
+                            <div className="jfd-badge">
+                              <span className="jfd-badge-num">-{discount}%</span>
+                              <span className="jfd-badge-label">OFF</span>
+                            </div>
+                          )}
+
+                          <div className="jfd-corner tl" />
+                          <div className="jfd-corner br" />
+
+                          <div className="jfd-quick-cart">
+                            <ShoppingCart size={16} />
+                          </div>
                         </div>
 
-                        {/* Gold corners */}
-                        <div className="jfd-corner tl" />
-                        <div className="jfd-corner br" />
+                        {/* Body */}
+                        <div className="jfd-card-body">
+                          <p className="jfd-card-cat">{product.category}</p>
+                          <h3 className="jfd-card-name">{product.name}</h3>
 
-                        {/* Quick cart icon */}
-                        <div className="jfd-quick-cart">
-                          <ShoppingCart size={16} />
-                        </div>
-                      </div>
+                          <div className="jfd-price-row">
+                            <span className="jfd-price-sale">KSH {price.toLocaleString()}</span>
+                            {oldPrice != null && oldPrice > 0 && (
+                              <span className="jfd-price-orig">KSH {oldPrice.toLocaleString()}</span>
+                            )}
+                          </div>
 
-                      {/* Body */}
-                      <div className="jfd-card-body">
-                        <p className="jfd-card-cat">{deal.category}</p>
-                        <h3 className="jfd-card-name">{dealName}</h3>
+                          {isFlash && savings > 0 && (
+                            <p className="jfd-savings">You save KSH {savings.toLocaleString()}</p>
+                          )}
 
-                        <div className="jfd-price-row">
-                          <span className="jfd-price-sale">KSH {dealPrice.toLocaleString()}</span>
-                          {dealOldPrice && (
-                            <span className="jfd-price-orig">KSH {dealOldPrice.toLocaleString()}</span>
+                          {isFlash && (
+                            <div className="jfd-progress-wrap">
+                              <div className="jfd-progress-track">
+                                <div
+                                  className="jfd-progress-fill"
+                                  style={{ width: `${Math.max(15, 80 - index * 15)}%` }}
+                                />
+                              </div>
+                              <span className="jfd-progress-label">
+                                {Math.max(2, 12 - index * 3)} left
+                              </span>
+                            </div>
                           )}
                         </div>
 
-                        {savings > 0 && (
-                          <p className="jfd-savings">You save KSH {savings.toLocaleString()}</p>
-                        )}
+                        <div className="jfd-card-bar" />
+                      </Link>
 
-                        {/* Progress bar — visual urgency */}
-                        <div className="jfd-progress-wrap">
-                          <div className="jfd-progress-track">
-                            <div
-                              className="jfd-progress-fill"
-                              style={{ width: `${Math.max(15, 80 - index * 15)}%` }}
-                            />
-                          </div>
-                          <span className="jfd-progress-label">
-                            {Math.max(2, 12 - index * 3)} left
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Bottom bar */}
-                      <div className="jfd-card-bar" />
-                    </Link>
+                      {/* Pill filter button — only for non-flash cards */}
+                      {pill && (
+                        <Link href={pill.href} className={`jfd-pill ${pill.cls}`}>
+                          {pill.label} →
+                        </Link>
+                      )}
+                    </div>
                   )
                 })}
           </div>
 
+          {/* ── SECTION PILLS — shown when flash is active but other collections also exist ── */}
+          {mode === 'flash' && (hasFeatured || hasBestseller) && (
+            <div className="jfd-section-pills">
+              <span className="jfd-section-pills-label">Also browse:</span>
+              {hasFeatured && (
+                <Link href="/products?filter=featured" className="jfd-pill featured">
+                  ⭐ Featured
+                </Link>
+              )}
+              {hasBestseller && (
+                <Link href="/products?filter=bestseller" className="jfd-pill bestseller">
+                  🏆 Best Sellers
+                </Link>
+              )}
+            </div>
+          )}
+
           {/* ── CTA ── */}
           <div className="jfd-footer">
-            <Link href="/products">
+            <Link href={ctaHref}>
               <button className="jfd-cta-btn">
                 <span className="jfd-cta-inner">
-                  <span>View All Deals</span>
+                  <span>{ctaLabel}</span>
                   <span className="jfd-cta-arrow"></span>
                 </span>
                 <span className="jfd-cta-shimmer" />
@@ -215,6 +279,8 @@ export default function FlashDealsSection() {
   )
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const flashStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Josefin+Sans:wght@200;300;400&display=swap');
 
@@ -226,505 +292,270 @@ const flashStyles = `
     --jfd-gold-lt: #F5DFA0;
   }
 
-  /* ── SECTION ── */
   .jfd-section {
     position: relative;
     padding: 64px 24px 72px;
     overflow: hidden;
     background: linear-gradient(160deg, #1a0010 0%, #2d0020 40%, #1a0010 100%);
   }
-
-  /* Ambient orbs */
   .jfd-bg-orb {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    border-radius: 50%;
-    pointer-events: none;
-    opacity: 0.18;
+    position: absolute; width: 400px; height: 400px;
+    border-radius: 50%; pointer-events: none; opacity: 0.18;
   }
-  .jfd-bg-orb.left {
-    top: -100px; left: -100px;
-    background: radial-gradient(circle, var(--jfd-pink), transparent 70%);
-  }
-  .jfd-bg-orb.right {
-    bottom: -100px; right: -100px;
-    background: radial-gradient(circle, var(--jfd-magenta), transparent 70%);
-  }
+  .jfd-bg-orb.left  { top: -100px; left: -100px;   background: radial-gradient(circle, var(--jfd-pink),    transparent 70%); }
+  .jfd-bg-orb.right { bottom: -100px; right: -100px; background: radial-gradient(circle, var(--jfd-magenta), transparent 70%); }
+  .jfd-inner { position: relative; max-width: 1200px; margin: 0 auto; z-index: 1; }
 
-  .jfd-inner {
-    position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
-    z-index: 1;
-  }
-
-  /* ── HEADER ── */
-  .jfd-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .jfd-header-left {}
-
-  /* Eyebrow */
-  .jfd-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .jfd-eyebrow-text {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--jfd-gold);
-  }
-  .jfd-eyebrow-gem {
-    font-size: 7px;
-    color: var(--jfd-gold);
-    opacity: 0.6;
-  }
-
-  /* Title */
-  .jfd-title-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
+  /* Header */
+  .jfd-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+  .jfd-title-row { display: flex; align-items: center; gap: 14px; }
   .jfd-flame-wrap {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    width: 44px; height: 44px; border-radius: 50%;
     background: linear-gradient(135deg, var(--jfd-pink), var(--jfd-deep));
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     box-shadow: 0 0 20px rgba(255,0,128,0.4);
     animation: jfdPulse 2s ease-in-out infinite;
   }
+  .jfd-flame-wrap.alt {
+    background: linear-gradient(135deg, var(--jfd-gold), var(--jfd-magenta));
+    box-shadow: 0 0 20px rgba(232,200,122,0.4);
+  }
   @keyframes jfdPulse {
     0%, 100% { box-shadow: 0 0 20px rgba(255,0,128,0.4); }
-    50% { box-shadow: 0 0 36px rgba(255,0,128,0.7); }
+    50%       { box-shadow: 0 0 36px rgba(255,0,128,0.7); }
   }
-  .jfd-flame-icon {
-    width: 22px;
-    height: 22px;
-    color: white;
-  }
+  .jfd-flame-icon { width: 22px; height: 22px; color: white; }
   .jfd-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    font-size: clamp(2.25rem, 4vw, 3.5rem);
-    color: white;
-    letter-spacing: 0.02em;
-    line-height: 1;
-    margin: 0;
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(2.25rem, 4vw, 3.5rem); color: white;
+    letter-spacing: 0.02em; line-height: 1; margin: 0;
   }
   .jfd-title-underline {
-    margin-top: 10px;
-    height: 2px;
-    width: 120px;
+    margin-top: 10px; height: 2px; width: 120px;
     background: linear-gradient(90deg, var(--jfd-gold), var(--jfd-pink), transparent);
     border-radius: 1px;
   }
 
-  /* ── TIMER ── */
-  .jfd-timer-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-  }
-  .jfd-timer-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-  }
-  .jfd-timer-blocks {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .jfd-time-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(232,200,122,0.25);
-    border-radius: 6px;
-    padding: 8px 14px;
-    min-width: 54px;
-  }
-  .jfd-time-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    font-size: 26px;
-    color: white;
-    line-height: 1;
-    animation: jfdFlip 0.3s ease;
-  }
-  @keyframes jfdFlip {
-    from { transform: translateY(-4px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-  .jfd-time-unit {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 8px;
-    letter-spacing: 0.2em;
-    color: var(--jfd-gold);
-    margin-top: 2px;
-  }
-  .jfd-time-sep {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    color: var(--jfd-gold);
-    line-height: 1;
-    opacity: 0.7;
-    margin-bottom: 14px;
-  }
+  /* Divider */
+  .jfd-divider { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; }
+  .jfd-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,200,122,0.3), transparent); }
+  .jfd-divider-gem { font-size: 8px; color: var(--jfd-gold); opacity: 0.6; }
 
-  /* ── DIVIDER ── */
-  .jfd-divider {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 36px;
-  }
-  .jfd-divider-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(232,200,122,0.4), transparent);
-  }
-  .jfd-divider-line:last-child {
-    background: linear-gradient(270deg, rgba(232,200,122,0.4), transparent);
-  }
-  .jfd-divider-diamond {
-    color: var(--jfd-gold);
-    font-size: 12px;
-    opacity: 0.7;
-  }
-
-  /* ── GRID ── */
+  /* Grid */
   .jfd-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    margin-bottom: 40px;
   }
-  @media (min-width: 1024px) {
-    .jfd-grid { grid-template-columns: repeat(4, 1fr); }
-  }
+  @media (min-width: 768px) { .jfd-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
 
-  /* ── CARD ── */
-  .jfd-card {
-    display: block;
-    text-decoration: none;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(232,200,122,0.15);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s ease, border-color 0.3s ease;
-    position: relative;
+  /* Card wrapper — holds the card + optional pill */
+  .jfd-card-wrap {
+    display: flex; flex-direction: column; gap: 8px;
     animation: jfdFadeUp 0.5s ease backwards;
   }
   @keyframes jfdFadeUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card */
+  .jfd-card {
+    display: flex; flex-direction: column;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(232,200,122,0.15);
+    border-radius: 12px; overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    flex: 1;
   }
   .jfd-card:hover {
     transform: translateY(-6px);
     border-color: rgba(232,200,122,0.45);
-    box-shadow:
-      0 0 0 1px rgba(232,200,122,0.2),
-      0 16px 48px rgba(0,0,0,0.4),
-      0 0 30px rgba(255,0,128,0.12);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(232,200,122,0.2);
   }
 
   /* Image */
-  .jfd-card-img-wrap {
-    position: relative;
-    height: 180px;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(255,0,128,0.08), rgba(153,0,68,0.05));
-  }
-  .jfd-card-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
-  }
-  .jfd-card:hover .jfd-card-img { transform: scale(1.07); }
-
+  .jfd-card-img-wrap { position: relative; aspect-ratio: 1; overflow: hidden; background: #0d0008; }
+  .jfd-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block; }
+  .jfd-card:hover .jfd-card-img { transform: scale(1.06); }
   .jfd-card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(26,0,16,0.6) 100%);
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.55) 100%);
   }
 
   /* Discount badge */
   .jfd-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: linear-gradient(135deg, var(--jfd-magenta), var(--jfd-pink));
-    border-radius: 4px 4px 4px 0;
-    padding: 4px 9px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(255,0,128,0.4);
-  }
-  .jfd-badge::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    border-left: 5px solid var(--jfd-deep);
-    border-bottom: 5px solid transparent;
-  }
-  .jfd-badge-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    font-size: 16px;
-    color: white;
+    position: absolute; top: 10px; left: 10px;
+    background: linear-gradient(135deg, var(--jfd-pink), var(--jfd-magenta));
+    border-radius: 6px; padding: 5px 8px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: 0 3px 10px rgba(255,0,128,0.5);
     line-height: 1;
   }
-  .jfd-badge-label {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 7px;
-    letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.8);
-  }
+  .jfd-badge-num { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 15px; color: white; }
+  .jfd-badge-label { font-family: 'Josefin Sans', sans-serif; font-weight: 300; font-size: 8px; letter-spacing: 0.2em; color: rgba(255,255,255,0.85); }
 
   /* Gold corners */
   .jfd-corner {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    position: absolute; width: 14px; height: 14px;
+    border-color: rgba(232,200,122,0.6); border-style: solid;
   }
-  .jfd-card:hover .jfd-corner { opacity: 1; }
-  .jfd-corner.tl { top: 8px; right: 8px; border-top: 1.5px solid var(--jfd-gold); border-right: 1.5px solid var(--jfd-gold); }
-  .jfd-corner.br { bottom: 8px; right: 8px; border-bottom: 1.5px solid var(--jfd-gold); border-right: 1.5px solid var(--jfd-gold); }
+  .jfd-corner.tl { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
+  .jfd-corner.br { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
 
   /* Quick cart */
   .jfd-quick-cart {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    position: absolute; bottom: 10px; right: 10px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    color: white; opacity: 0;
+    transition: opacity 0.2s ease;
   }
-  .jfd-card:hover .jfd-quick-cart {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .jfd-card:hover .jfd-quick-cart { opacity: 1; }
 
   /* Card body */
-  .jfd-card-body {
-    padding: 14px 16px 16px;
-  }
+  .jfd-card-body { padding: 14px 14px 10px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
   .jfd-card-cat {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--jfd-gold);
-    margin: 0 0 6px;
-    opacity: 0.9;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--jfd-gold); margin: 0;
   }
   .jfd-card-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 600;
-    font-size: 18px;
-    color: white;
-    line-height: 1.3;
-    margin: 0 0 10px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    transition: color 0.2s;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: clamp(14px, 2vw, 17px); color: white;
+    margin: 0; line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .jfd-card:hover .jfd-card-name { color: var(--jfd-gold-lt); }
-
-  .jfd-price-row {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-  }
+  .jfd-price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .jfd-price-sale {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    font-size: 20px;
-    color: var(--jfd-pink);
-    line-height: 1;
+    font-family: 'Cormorant Garamond', serif; font-weight: 700;
+    font-size: clamp(16px, 2.5vw, 20px); color: var(--jfd-gold-lt);
   }
   .jfd-price-orig {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 300;
-    font-size: 11px;
-    text-decoration: line-through;
-    color: rgba(255,255,255,0.35);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 11px; color: rgba(255,255,255,0.35); text-decoration: line-through;
   }
   .jfd-savings {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    color: rgba(232,200,122,0.85);
-    margin: 0 0 12px;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 11px; color: #7fffb0; letter-spacing: 0.06em; margin: 0;
   }
 
   /* Progress bar */
-  .jfd-progress-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .jfd-progress-wrap { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
   .jfd-progress-track {
-    flex: 1;
-    height: 3px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
+    flex: 1; height: 3px; border-radius: 2px;
+    background: rgba(255,255,255,0.12); overflow: hidden;
   }
   .jfd-progress-fill {
-    height: 100%;
+    height: 100%; border-radius: 2px;
     background: linear-gradient(90deg, var(--jfd-gold), var(--jfd-pink));
-    border-radius: 2px;
-    transition: width 0.8s ease;
+    transition: width 0.6s ease;
   }
   .jfd-progress-label {
-    font-family: 'Josefin Sans', sans-serif;
-    font-weight: 400;
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.6);
-    white-space: nowrap;
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); white-space: nowrap;
   }
 
   /* Bottom bar */
   .jfd-card-bar {
     height: 2px;
-    background: linear-gradient(90deg, var(--jfd-gold), var(--jfd-pink));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    background: linear-gradient(90deg, var(--jfd-gold), var(--jfd-pink), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s ease;
   }
   .jfd-card:hover .jfd-card-bar { transform: scaleX(1); }
 
-  /* ── SKELETON ── */
-  .jfd-skeleton {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid rgba(232,200,122,0.1);
-    background: rgba(255,255,255,0.03);
+  /* Section-level pills (shown below grid when flash is active + other collections exist) */
+  .jfd-section-pills {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(232,200,122,0.12);
   }
-  .jfd-skeleton-img {
-    height: 180px;
-    background: rgba(255,255,255,0.06);
-    animation: jfdShimmer 1.4s ease-in-out infinite;
-  }
-  .jfd-skeleton-body { padding: 14px 16px; }
-  .jfd-skeleton-line {
-    height: 10px;
-    border-radius: 5px;
-    background: rgba(255,255,255,0.07);
-    margin-bottom: 8px;
-    animation: jfdShimmer 1.4s ease-in-out infinite;
-    width: 50%;
-  }
-  .jfd-skeleton-line.wide { width: 80%; height: 14px; }
-  .jfd-skeleton-line.short { width: 40%; }
-  @keyframes jfdShimmer {
-    0%, 100% { opacity: 0.4; }
-    50%       { opacity: 0.9; }
+  .jfd-section-pills-label {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
   }
 
-  /* ── CTA ── */
-  .jfd-footer { text-align: center; }
-  .jfd-cta-btn {
-    position: relative;
-    overflow: hidden;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-  }
-  .jfd-cta-inner {
+  /* Pill filter buttons */
+  .jfd-pill {
     display: inline-flex;
+    align-self: flex-start;
     align-items: center;
-    gap: 12px;
-    padding: 15px 44px;
-    border: 1px solid rgba(232,200,122,0.4);
-    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-    border-radius: 2px;
-    transition: all 0.35s ease;
-    position: relative;
-    z-index: 1;
-  }
-  .jfd-cta-btn:hover .jfd-cta-inner {
-    background: linear-gradient(135deg, var(--jfd-magenta), var(--jfd-pink));
-    border-color: var(--jfd-gold);
-    box-shadow: 0 0 40px rgba(255,0,128,0.35), 0 8px 32px rgba(0,0,0,0.3);
-    transform: translateY(-2px);
-  }
-  .jfd-cta-inner span {
+    padding: 5px 14px;
+    border-radius: 999px;
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    letter-spacing: 0.28em;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid;
+  }
+  .jfd-pill.bestseller {
+    color: var(--jfd-gold);
+    border-color: rgba(232,200,122,0.4);
+    background: rgba(232,200,122,0.08);
+  }
+  .jfd-pill.bestseller:hover {
+    background: rgba(232,200,122,0.2);
+    border-color: var(--jfd-gold);
+    color: var(--jfd-gold-lt);
+  }
+  .jfd-pill.featured {
+    color: var(--jfd-pink);
+    border-color: rgba(255,0,128,0.35);
+    background: rgba(255,0,128,0.08);
+  }
+  .jfd-pill.featured:hover {
+    background: rgba(255,0,128,0.18);
+    border-color: var(--jfd-pink);
     color: white;
   }
-  .jfd-cta-zap {
-    color: var(--jfd-gold);
-    flex-shrink: 0;
+
+  /* Skeleton */
+  .jfd-skeleton { border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.04); border: 1px solid rgba(232,200,122,0.1); animation: jfdShimmer 1.4s ease-in-out infinite; }
+  @keyframes jfdShimmer { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .jfd-skeleton-img { aspect-ratio: 1; background: rgba(255,255,255,0.07); }
+  .jfd-skeleton-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .jfd-skeleton-line { height: 10px; border-radius: 4px; background: rgba(255,255,255,0.07); }
+  .jfd-skeleton-line.wide { width: 80%; }
+  .jfd-skeleton-line.short { width: 45%; }
+
+  /* CTA footer */
+  .jfd-footer { display: flex; justify-content: center; margin-top: 40px; }
+  .jfd-cta-btn {
+    position: relative; overflow: hidden; background: none; border: none; padding: 0; cursor: pointer;
   }
-  .jfd-cta-arrow {
-    color: var(--jfd-gold-lt) !important;
-    font-size: 16px;
-    transition: transform 0.3s ease;
+  .jfd-cta-inner {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 14px 40px; border-radius: 2px;
+    background: linear-gradient(135deg, var(--jfd-magenta), var(--jfd-pink));
+    border: 1px solid rgba(232,200,122,0.3);
+    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
+    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: white; position: relative; z-index: 1;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .jfd-cta-btn:hover .jfd-cta-arrow { transform: translateX(4px); }
+  .jfd-cta-btn:hover .jfd-cta-inner {
+    border-color: var(--jfd-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,0,128,0.4);
+  }
+  .jfd-cta-arrow { color: var(--jfd-gold-lt); font-size: 16px; transition: transform 0.3s; }
+  .jfd-cta-btn:hover .jfd-cta-arrow { transform: translateX(5px); }
   .jfd-cta-shimmer {
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.55s ease;
+    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: skewX(-20deg); transition: left 0.55s ease;
   }
   .jfd-cta-btn:hover .jfd-cta-shimmer { left: 150%; }
 `

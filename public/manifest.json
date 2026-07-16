@@ -1,0 +1,41 @@
+{
+  "name": "Javic Collection POS",
+  "short_name": "Javic POS",
+  "description": "Point of Sale system for Javic Collection",
+  "start_url": "/pos",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#990044",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "shopping"],
+  "shortcuts": [
+    {
+      "name": "Make Sale",
+      "short_name": "Sale",
+      "description": "Start a new sale",
+      "url": "/pos/make-sale",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Reports",
+      "short_name": "Reports",
+      "description": "View sales reports",
+      "url": "/pos/reports",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

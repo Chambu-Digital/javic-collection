@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     const category = searchParams.get('category')
     const flashDeals = searchParams.get('flashDeals') === 'true'
+    const isFeatured = searchParams.get('featured') === 'true'
+    const isBestseller = searchParams.get('bestseller') === 'true'
     const catalog = searchParams.get('catalog') === 'true'
     const includeInactive = searchParams.get('includeInactive') === 'true'
     const page = parseInt(searchParams.get('page') || '1')
@@ -24,6 +26,13 @@ export async function GET(request: NextRequest) {
     // Only show active products unless specifically requested
     if (!includeInactive) {
       query.isActive = true
+    }
+
+    // For special collection filters, also require the product to be in stock
+    // so out-of-stock items never appear in flash deals, featured, or bestseller sections
+    if (flashDeals || isFeatured || isBestseller) {
+      query.inStock = true
+      query.stockQuantity = { $gt: 0 }
     }
     
     // Search functionality
@@ -44,6 +53,16 @@ export async function GET(request: NextRequest) {
     // Flash deals filter
     if (flashDeals) {
       query.isFlashDeal = true
+    }
+
+    // Featured filter
+    if (isFeatured) {
+      query.isFeatured = true
+    }
+
+    // Bestseller filter
+    if (isBestseller) {
+      query.isBestseller = true
     }
     
     // Calculate pagination
