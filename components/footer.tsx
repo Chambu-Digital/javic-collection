@@ -76,6 +76,7 @@ export default function Footer() {
                 <div>
                   <p className="jf-contact-label">Call Us</p>
                   <p className="jf-contact-value">+254 706 512 984</p>
+                  <p className="jf-contact-sub">+254 723 277 306</p>
                 </div>
               </a>
 
@@ -86,6 +87,7 @@ export default function Footer() {
                 <div>
                   <p className="jf-contact-label">WhatsApp</p>
                   <p className="jf-contact-value">+254 706 512 984</p>
+                  <p className="jf-contact-sub">+254 723 277 306</p>
                 </div>
               </a>
 

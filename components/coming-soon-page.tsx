@@ -43,13 +43,13 @@ export default function ComingSoonPage() {
             <Phone className="w-5 h-5" />
             <span>+254 706 512 984</span>
           </a>
+          <a href="tel:+254723277306" className="flex items-center gap-2 hover:text-purple-400 transition-colors">
+            <Phone className="w-5 h-5" />
+            <span>+254 723 277 306</span>
+          </a>
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5" />
-            <span className="text-center text-sm">Biashara Street, Mombasa</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            <span className="text-center text-sm">Shop at Marikiti, Mombasa</span>
+            <span className="text-center text-sm">Biashara Street, Marikiti — Mombasa</span>
           </div>
         </div>
 

@@ -71,6 +71,7 @@ export default function ContactPage() {
                     <div>
                       <p className="ct-contact-label">Call Us</p>
                       <p className="ct-contact-value">+254 706 512 984</p>
+                      <p className="ct-contact-sub">+254 723 277 306</p>
                     </div>
                   </a>
 
@@ -87,6 +88,7 @@ export default function ContactPage() {
                     <div>
                       <p className="ct-contact-label">WhatsApp</p>
                       <p className="ct-contact-value">+254 706 512 984</p>
+                      <p className="ct-contact-sub">+254 723 277 306</p>
                     </div>
                   </a>
 

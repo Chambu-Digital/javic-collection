@@ -67,7 +67,7 @@ export default function PosShell({ children }: { children: React.ReactNode }) {
         <PosHeader
           cashierName={`${user.firstName} ${user.lastName}`.trim() || user.email?.split('@')[0] || 'Cashier'}
           cashierRole={user.posRole || user.role}
-          outletName="Main Store - Nairobi"
+          outletName="Marikiti Shop — Biashara Street, Mombasa"
           status="online"
           onMenuOpen={() => setSidebarOpen(true)}
           onLogout={handleLogout}

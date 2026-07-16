@@ -110,11 +110,18 @@ export default function TrackOrderPage() {
               <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <h3 className="font-semibold text-gray-900 mb-1">Order Not Found</h3>
               <p className="text-gray-500 text-sm mb-4">Check your order number or WhatsApp number and try again.</p>
-              <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm">
-                  <Phone className="w-4 h-4 mr-2" />Contact Us on WhatsApp
-                </Button>
-              </a>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm">
+                    <Phone className="w-4 h-4 mr-2" />WhatsApp: 0706 512 984
+                  </Button>
+                </a>
+                <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm">
+                    <Phone className="w-4 h-4 mr-2" />WhatsApp: 0723 277 306
+                  </Button>
+                </a>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -174,10 +181,15 @@ export default function TrackOrderPage() {
             </Card>
 
             {order.status === 'pending' && (
-              <div className="text-center">
+              <div className="text-center flex flex-wrap gap-2 justify-center">
                 <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline">
                     <Phone className="w-4 h-4 mr-2" />Ask about your order on WhatsApp
+                  </Button>
+                </a>
+                <a href="https://wa.me/254723277306" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline">
+                    <Phone className="w-4 h-4 mr-2" />Alt: 0723 277 306
                   </Button>
                 </a>
               </div>

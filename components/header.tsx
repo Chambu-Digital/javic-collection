@@ -103,6 +103,10 @@ export default function Header() {
               <Phone size={13} />
               <span>+254 706 512 984</span>
             </a>
+            <span className="javic-topbar-sep">·</span>
+            <a href="tel:+254723277306" className="javic-topbar-phone">
+              <span>+254 723 277 306</span>
+            </a>
             <span className="javic-topbar-ornament">✦</span>
             <span className="javic-topbar-text">Comfort Meets Style</span>
             <span className="javic-topbar-ornament">✦</span>
@@ -367,6 +371,10 @@ export default function Header() {
                     <Phone size={14} />
                     +254 706 512 984
                   </a>
+                  <span className="javic-mobile-phone-sep">·</span>
+                  <a href="tel:+254723277306" className="javic-mobile-phone">
+                    +254 723 277 306
+                  </a>
                 </div>
               </div>
             </div>
@@ -434,6 +442,16 @@ const headerStyles = `
     color: var(--jh-gold);
     font-size: 9px;
     opacity: 0.8;
+  }
+  .javic-topbar-sep {
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    padding: 0 2px;
+  }
+  .javic-mobile-phone-sep {
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    padding: 0 4px;
   }
   .javic-topbar-phone {
     display: flex;

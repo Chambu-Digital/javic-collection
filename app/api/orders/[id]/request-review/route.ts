@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth'
 import crypto from 'crypto'
 
 const BUSINESS_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
+const BUSINESS_WHATSAPP_ALT = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_ALT || '254723277306'
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

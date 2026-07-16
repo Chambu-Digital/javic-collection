@@ -25,7 +25,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: 'JAVIC COLLECTION - Premium Lingerie, Sleepwear & Innerwear | +254 706 512 984',
-  description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, perfect fits. Experience comfort and style. Call +254 706 512 984.',
+  description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, perfect fits. Experience comfort and style. Call +254 706 512 984 or +254 723 277 306.',
   generator: 'v0.app',
   verification: {
     google: 'KO8RUPFOnU-K9AlHfBWRRcuYQG6jIrs9yihNFWfJ-yY',

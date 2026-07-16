@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const WHATSAPP_NUMBER = "254706512984";
+const WHATSAPP_NUMBER = "254706512984"
+const WHATSAPP_NUMBER_ALT = "254723277306";
 
 const QUICK_REPLIES = [
   { label: "Innerwear",    text: "Hi! I'd like to browse your innerwear collection 👙" },
