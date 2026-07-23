@@ -13,7 +13,15 @@ import { POS_NAVIGATION } from '@/lib/pos/navigation'
 export default function PosShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { user, isLoaded, logout, checkAuth } = usePosAuthStore()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false) // starts closed; opens on desktop after mount
+
+  useEffect(() => {
+    // Open sidebar by default on desktop (≥1024px), keep closed on mobile
+    const openOnDesktop = () => setSidebarOpen(window.innerWidth >= 1024)
+    openOnDesktop()
+    window.addEventListener('resize', openOnDesktop)
+    return () => window.removeEventListener('resize', openOnDesktop)
+  }, [])
 
   // Validate the pos-token cookie on every shell mount
   useEffect(() => {
@@ -59,11 +67,14 @@ export default function PosShell({ children }: { children: React.ReactNode }) {
         onLogout={handleLogout}
       />
 
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-64' : 'ml-0'
-        }`}
-      >
+      {/*
+        On desktop the sidebar is `static` (in flow) so NO margin-left is needed —
+        the sidebar already occupies its 256 px column.
+        On mobile the sidebar is `fixed` (out of flow) so we also need no margin —
+        the content fills the full width and the sidebar overlays it.
+        The old `lg:ml-64` was doubling the space on desktop.
+      */}
+      <div className="flex-1 flex flex-col min-w-0">
         <PosHeader
           cashierName={`${user.firstName} ${user.lastName}`.trim() || user.email?.split('@')[0] || 'Cashier'}
           cashierRole={user.posRole || user.role}
@@ -73,7 +84,7 @@ export default function PosShell({ children }: { children: React.ReactNode }) {
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto min-w-0">{children}</main>
       </div>
     </div>
   )

@@ -1,19 +1,15 @@
-'use client'
+import type { Metadata } from 'next'
+import PosClientLayout from './client-layout'
 
-import dynamic from 'next/dynamic'
-
-// Render the entire POS shell only on the client — this eliminates all
-// hydration mismatches caused by zustand/persist reading from localStorage
-// and any router.push calls that would happen during SSR.
-const PosShell = dynamic(() => import('@/components/pos/pos-shell'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600" />
-    </div>
-  ),
-})
+// Metadata only applies when on the POS subdomain.
+// The manifest and SW registration are scoped here so the main
+// javic.co.ke site never gets the PWA install prompt.
+export const metadata: Metadata = {
+  title: 'Javic Collection POS',
+  description: 'Point of Sale terminal for Javic Collection staff',
+  manifest: '/manifest.json',
+}
 
 export default function PosLayout({ children }: { children: React.ReactNode }) {
-  return <PosShell>{children}</PosShell>
+  return <PosClientLayout>{children}</PosClientLayout>
 }

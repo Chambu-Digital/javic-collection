@@ -105,7 +105,19 @@ export const usePosCartStore = create<PosCartStore>()(
 
       setOutlet: (outletId) => set({ outletId }),
       setDeviceId: (deviceId) => set({ deviceId }),
-      setPricingMode: (mode) => set({ pricingMode: mode }),
+      setPricingMode: (mode) =>
+        set(state => ({
+          pricingMode: mode,
+          // Recalculate actualUnitPrice for every item when switching modes
+          items: state.items.map(item => {
+            const unitPrice =
+              mode === 'wholesale' && item.wholesaleUnitPrice && item.wholesaleUnitPrice > 0
+                ? item.wholesaleUnitPrice
+                : item.retailUnitPrice
+            const updated = { ...item, actualUnitPrice: unitPrice, pricingMode: mode }
+            return { ...updated, ...calcLineTotals(updated) }
+          }),
+        })),
 
       addItem: (newItem) => {
         const totals = calcLineTotals(newItem)

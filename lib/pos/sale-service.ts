@@ -113,7 +113,7 @@ export async function completePosSale(
           throw new SaleValidationError(`Product not found: ${item.productId}`)
         }
 
-        const variant = getVariantInfo(product, item.selectedImageIndex)
+        const variant = getVariantInfo(product, item.selectedImageIndex, item.selectedSize)
         const sizes = variant.sizes
         if (sizes.length > 0 && !item.selectedSize) {
           throw new SaleValidationError(`Size required for ${product.name}`)
@@ -167,7 +167,7 @@ export async function completePosSale(
           totalPrice: fromMinorUnits(lineSubtotalMinor),
         })
 
-        await deductInventory(product, item.selectedImageIndex, item.quantity, session)
+        await deductInventory(product, item.selectedImageIndex, item.quantity, item.selectedSize, session)
       }
 
       let cartDiscountMinor = 0
@@ -376,15 +376,38 @@ async function deductInventory(
   product: InstanceType<typeof Product>,
   imageIndex: number,
   quantity: number,
+  selectedSize: string | undefined,
   session: mongoose.ClientSession
 ) {
   const images = product.images || []
-  if (images.length > 0 && images[imageIndex]?.stock !== undefined) {
-    images[imageIndex].stock = Math.max(0, (images[imageIndex].stock || 0) - quantity)
-    product.stockQuantity = images.reduce((s, img) => s + (img.stock || 0), 0)
+  const img = images[imageIndex]
+
+  if (img) {
+    // Per-size stock deduction — most accurate path
+    if (selectedSize && img.sizeStock && img.sizeStock instanceof Map) {
+      const current = (img.sizeStock.get(selectedSize) as number) ?? 0
+      img.sizeStock.set(selectedSize, Math.max(0, current - quantity))
+      // Recalculate image-level stock from sizeStock totals
+      let total = 0
+      img.sizeStock.forEach((v: number) => { total += v })
+      img.stock = total
+    } else if (img.stock !== undefined) {
+      // Flat per-image stock
+      img.stock = Math.max(0, (img.stock || 0) - quantity)
+    }
+
+    // Recalculate product-level stock as sum of all image stocks
+    const allHaveStock = images.every(i => i.stock !== undefined)
+    if (allHaveStock) {
+      product.stockQuantity = images.reduce((s, i) => s + (i.stock || 0), 0)
+    } else {
+      product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - quantity)
+    }
   } else {
+    // No image — deduct from product total directly
     product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - quantity)
   }
+
   product.inStock = product.stockQuantity > 0
   await product.save({ session })
 
@@ -394,9 +417,10 @@ async function deductInventory(
     channel: 'pos',
     productId: product._id as any,
     productName: product.name,
+    variantImageUrl: img?.url,
+    size: selectedSize,
     quantity,
     totalMinor: 0,
-    variantImageUrl: images[imageIndex]?.url,
     session,
   })
 }

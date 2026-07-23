@@ -4,6 +4,10 @@ import Product from '@/models/Product'
 import { requirePosAuth, handlePosAuthError } from '@/lib/pos/auth'
 import { getProductSearchStock, isProductAvailable, getAllVariants } from '@/lib/pos/product-pricing'
 
+// Force dynamic — never cache this route so stock counts are always live
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     await requirePosAuth(request)
@@ -65,6 +69,8 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
         hasMore: page * limit < total,
       },
+    }, {
+      headers: { 'Cache-Control': 'no-store, max-age=0' },
     })
   } catch (error) {
     const authErr = handlePosAuthError(error)

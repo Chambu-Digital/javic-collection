@@ -2,13 +2,13 @@ import mongoose from 'mongoose'
 
 export interface IProductImage {
   url: string
-  // Per-image overrides — all optional, fall back to product defaults if absent
   price?: number              // retail price override
   wholesalePrice?: number     // wholesale price override
   wholesaleThreshold?: number // wholesale min qty override
-  stock?: number              // stock override for this specific design
-  sizes?: string[]            // available sizes override for this design
-  sku?: string                // optional SKU for this design
+  stock?: number              // total stock for this design (sum of sizeStock if present)
+  sizes?: string[]            // convenience list derived from sizeStock keys when sizeStock is set
+  sizeStock?: Record<string, number> // per-size stock: { S: 5, M: 8, L: 3 }
+  sku?: string
 }
 
 export interface IProduct {
@@ -17,17 +17,15 @@ export interface IProduct {
   slug: string
   description: string
 
-  // Pricing
   price: number
   oldPrice?: number
   wholesalePrice?: number
   wholesaleThreshold?: number
 
-  // Images — each image is a selectable design; customer picks one when ordering
-  // price is an optional per-image override; falls back to product.price if absent
+  // Each image is a selectable design variant
   images: IProductImage[]
 
-  // Sizes — flat list e.g. ['S','M','L','XL'] or ['Free Size']
+  // Product-level default sizes (used when an image has no sizeStock/sizes override)
   sizes: string[]
 
   category: string
@@ -55,13 +53,11 @@ const ProductSchema = new mongoose.Schema<IProduct>({
   slug: { type: String, required: true, unique: true, lowercase: true },
   description: { type: String, required: true },
 
-  // Pricing
   price: { type: Number, required: true, min: 0 },
   oldPrice: { type: Number, min: 0 },
   wholesalePrice: { type: Number, min: 0 },
   wholesaleThreshold: {
-    type: Number,
-    min: 0,
+    type: Number, min: 0,
     validate: {
       validator: function (this: IProduct, value: number): boolean {
         if (this.wholesalePrice && this.wholesalePrice > 0) return value >= 1
@@ -71,36 +67,36 @@ const ProductSchema = new mongoose.Schema<IProduct>({
     },
   },
 
-  // Images — each entry is a design variant with optional overrides
   images: [{
-    url: { type: String, required: true },
-    price: { type: Number, min: 0 },
-    wholesalePrice: { type: Number, min: 0 },
-    wholesaleThreshold: { type: Number, min: 0 },
-    stock: { type: Number, min: 0 },
-    sizes: [{ type: String, trim: true }],
-    sku: { type: String, trim: true },
+    url:               { type: String, required: true },
+    price:             { type: Number, min: 0 },
+    wholesalePrice:    { type: Number, min: 0 },
+    wholesaleThreshold:{ type: Number, min: 0 },
+    stock:             { type: Number, min: 0 },
+    sizes:             [{ type: String, trim: true }],
+    // Per-size stock map — stored as a plain object in MongoDB
+    sizeStock:         { type: Map, of: Number, default: undefined },
+    sku:               { type: String, trim: true },
   }],
 
-  // Sizes
   sizes: [{ type: String, trim: true }],
 
-  category: { type: String, required: true },
-  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
-  inStock: { type: Boolean, default: true },
-  stockQuantity: { type: Number, default: 0, min: 0 },
-  rating: { type: Number, default: 0, min: 0, max: 5 },
-  reviews: { type: Number, default: 0, min: 0 },
+  category:     { type: String, required: true },
+  categoryId:   { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  inStock:      { type: Boolean, default: true },
+  stockQuantity:{ type: Number, default: 0, min: 0 },
+  rating:       { type: Number, default: 0, min: 0, max: 5 },
+  reviews:      { type: Number, default: 0, min: 0 },
   isNewProduct: { type: Boolean, default: false },
   isBestseller: { type: Boolean, default: false },
-  isFeatured: { type: Boolean, default: false },
-  isFlashDeal: { type: Boolean, default: false },
+  isFeatured:   { type: Boolean, default: false },
+  isFlashDeal:  { type: Boolean, default: false },
   flashDealDiscount: { type: Number, min: 0, max: 100 },
   ingredients: String,
-  usage: String,
-  benefits: [String],
-  tags: [String],
-  isActive: { type: Boolean, default: true },
+  usage:       String,
+  benefits:    [String],
+  tags:        [String],
+  isActive:    { type: Boolean, default: true },
 }, { timestamps: true })
 
 ProductSchema.pre('save', function (next) {

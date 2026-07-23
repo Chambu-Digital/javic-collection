@@ -12,13 +12,29 @@ export interface PosVariantInfo {
   inStock: boolean
 }
 
-export function getVariantInfo(product: IProduct, imageIndex: number): PosVariantInfo {
+export function getVariantInfo(product: IProduct, imageIndex: number, selectedSize?: string): PosVariantInfo {
   const image = product.images?.[imageIndex]
   const retailPrice = image?.price ?? product.price
   const wholesalePrice = image?.wholesalePrice ?? product.wholesalePrice
   const wholesaleThreshold = image?.wholesaleThreshold ?? product.wholesaleThreshold
-  const stock = image?.stock ?? product.stockQuantity ?? 0
-  const sizes = image?.sizes?.length ? image.sizes : (product.sizes ?? [])
+
+  // Resolve sizes — prefer sizeStock keys, then image.sizes, then product.sizes
+  const sizeStockMap = image?.sizeStock as Record<string, number> | undefined
+  const sizes = sizeStockMap && Object.keys(sizeStockMap).length > 0
+    ? Object.keys(sizeStockMap)
+    : image?.sizes?.length
+    ? image.sizes
+    : (product.sizes ?? [])
+
+  // Resolve stock — if we have a selected size and a sizeStock map, use the per-size qty
+  let stock: number
+  if (selectedSize && sizeStockMap && selectedSize in sizeStockMap) {
+    stock = sizeStockMap[selectedSize] ?? 0
+  } else if (image?.stock != null) {
+    stock = image.stock
+  } else {
+    stock = product.stockQuantity ?? 0
+  }
 
   return {
     imageIndex,

@@ -25,11 +25,13 @@ interface PaymentModalProps {
     availableCredit: number
     outstandingBalance: number
   }
+  error?: string | null
+  onErrorDismiss?: () => void
   onConfirm: (payments: PaymentAllocation[], cashReceived?: number) => void
   onCancel: () => void
 }
 
-export default function PaymentModal({ totalAmount, customer, onConfirm, onCancel }: PaymentModalProps) {
+export default function PaymentModal({ totalAmount, customer, error, onErrorDismiss, onConfirm, onCancel }: PaymentModalProps) {
   const [paymentMode, setPaymentMode] = useState<'single' | 'split'>('single')
   const [singleMethod, setSingleMethod] = useState<'cash' | 'mpesa' | 'credit'>('cash')
   const [splitPayments, setSplitPayments] = useState<PaymentAllocation[]>([])
@@ -83,6 +85,22 @@ export default function PaymentModal({ totalAmount, customer, onConfirm, onCance
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Error banner — shown when the sale API returns an error */}
+          {error && (
+            <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="flex-1 text-sm text-red-700 font-medium">{error}</div>
+              {onErrorDismiss && (
+                <button
+                  type="button"
+                  onClick={onErrorDismiss}
+                  className="text-red-400 hover:text-red-600 mt-0.5 shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Amount Summary */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex justify-between items-center">

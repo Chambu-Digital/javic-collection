@@ -74,68 +74,56 @@ export interface ILedgerEntry {
 
 const LedgerEntrySchema = new mongoose.Schema<ILedgerEntry>(
   {
+    // entryNumber is generated in createLedgerEntry() before saving so it is
+    // always present and unique even inside Mongoose transactions.
     entryNumber: { type: String, required: true, unique: true },
-    eventType: { type: String, required: true },
+    eventType:   { type: String, required: true },
     source: {
       type: String,
       enum: ['website', 'pos', 'admin', 'system'],
       required: true,
     },
-    channel: { type: String, enum: ['online', 'pos', 'admin'] },
-    outletId: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
-    outletName: String,
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    userName: String,
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    channel:      { type: String, enum: ['online', 'pos', 'admin'] },
+    outletId:     { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
+    outletName:   String,
+    userId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    userName:     String,
+    customerId:   { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     customerName: String,
-    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-    orderNumber: String,
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    productName: String,
+    orderId:      { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+    orderNumber:  String,
+    productId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    productName:  String,
     variantImageUrl: String,
-    size: String,
-    quantity: Number,
-    debitMinor: Number,
-    creditMinor: Number,
-    totalMinor: { type: Number, required: true },
+    size:         String,
+    quantity:     Number,
+    debitMinor:   Number,
+    creditMinor:  Number,
+    totalMinor:   { type: Number, required: true },
     paymentMethod: String,
     paymentBreakdown: [{
-      method: String,
+      method:     String,
       amountMinor: Number,
-      reference: String,
+      reference:  String,
     }],
     referenceNumber: String,
-    notes: String,
+    notes:        String,
     previousValue: String,
-    newValue: String,
-    deviceId: String,
-    wasOffline: { type: Boolean, default: false },
+    newValue:     String,
+    deviceId:     String,
+    wasOffline:   { type: Boolean, default: false },
     syncStatus: {
       type: String,
       enum: ['synced', 'pending', 'conflict'],
       default: 'synced',
     },
     relatedEntryId: { type: mongoose.Schema.Types.ObjectId, ref: 'LedgerEntry' },
-    reversalOf: { type: mongoose.Schema.Types.ObjectId, ref: 'LedgerEntry' },
-    isReversal: { type: Boolean, default: false },
-    metadata: mongoose.Schema.Types.Mixed,
+    reversalOf:     { type: mongoose.Schema.Types.ObjectId, ref: 'LedgerEntry' },
+    isReversal:     { type: Boolean, default: false },
+    metadata:       mongoose.Schema.Types.Mixed,
   },
   { timestamps: true }
 )
-
-LedgerEntrySchema.pre('save', async function (next) {
-  if (!this.entryNumber) {
-    const date = new Date()
-    const stamp = date.toISOString().slice(0, 10).replace(/-/g, '')
-    const last = await mongoose.model('LedgerEntry').findOne({
-      entryNumber: new RegExp(`^LED${stamp}`),
-    }).sort({ entryNumber: -1 })
-    let seq = 1
-    if (last) seq = parseInt(last.entryNumber.slice(-5)) + 1
-    this.entryNumber = `LED${stamp}${seq.toString().padStart(5, '0')}`
-  }
-  next()
-})
 
 LedgerEntrySchema.index({ createdAt: -1 })
 LedgerEntrySchema.index({ eventType: 1, createdAt: -1 })

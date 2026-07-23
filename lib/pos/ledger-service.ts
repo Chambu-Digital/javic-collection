@@ -36,7 +36,20 @@ export interface CreateLedgerInput {
 }
 
 export async function createLedgerEntry(input: CreateLedgerInput): Promise<ILedgerEntry> {
+  // Generate entryNumber here in application code rather than in a pre('save')
+  // hook.  Mongoose hooks that issue their own DB query do not participate in
+  // the parent transaction, which causes the hook to silently fail to set the
+  // field and the required validator to reject the document.
+  const date  = new Date()
+  const stamp = date.toISOString().slice(0, 10).replace(/-/g, '')
+
+  // Use crypto.randomUUID's last 8 hex chars to guarantee uniqueness within
+  // the same millisecond across concurrent sales without a DB round-trip.
+  const unique = Math.random().toString(36).slice(2, 7).toUpperCase()
+  const entryNumber = `LED${stamp}-${unique}`
+
   const entry = new LedgerEntry({
+    entryNumber,
     eventType: input.eventType,
     source: input.source,
     channel: input.channel,

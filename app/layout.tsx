@@ -4,9 +4,8 @@ import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/ui/custom-toast'
 import GoogleOAuthProvider from '@/components/providers/google-oauth-provider'
 import WhatsAppFloatWrapper from '@/components/whatsapp-float-wrapper'
-import { DirectionsFloatButton } from '@/components/shop-map'
+import DirectionsFloatWrapper from '@/components/directions-float-wrapper'
 import CampaignRenderer from '@/components/campaign-renderer'
-import { SwRegistration } from '@/components/service-worker-registration'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({ 
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'KO8RUPFOnU-K9AlHfBWRRcuYQG6jIrs9yihNFWfJ-yY',
   },
-  manifest: '/manifest.json',
+  // manifest intentionally omitted — PWA install is POS-only (pos.javic.co.ke)
 }
 
 export default function RootLayout({
@@ -46,9 +45,8 @@ export default function RootLayout({
             {children}
             <CampaignRenderer />
             <WhatsAppFloatWrapper />
-            <DirectionsFloatButton />
+            <DirectionsFloatWrapper />
             <Analytics />
-            <SwRegistration />
           </ToastProvider>
         </GoogleOAuthProvider>
       </body>
