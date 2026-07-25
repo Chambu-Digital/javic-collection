@@ -52,13 +52,26 @@ export async function GET(request: NextRequest) {
       Product.countDocuments(query),
     ])
 
-    const enriched = products.map(p => ({
-      ...p,
-      stock:    getProductSearchStock(p as any),
-      available: isProductAvailable(p as any),
-      lowStock:  getProductSearchStock(p as any) > 0 && getProductSearchStock(p as any) <= 5,
-      variants:  getAllVariants(p as any),
-    }))
+    const enriched = products.map(p => {
+      const stock = getProductSearchStock(p as any)
+      
+      // Log for debugging
+      console.log('[API Stock Debug]', {
+        productId: p._id,
+        productName: p.name,
+        databaseStockQuantity: p.stockQuantity,
+        calculatedStock: stock,
+        apiResponseStock: stock
+      })
+      
+      return {
+        ...p,
+        stock: stock,
+        available: isProductAvailable(p as any),
+        lowStock: stock > 0 && stock <= 5,
+        variants: getAllVariants(p as any),
+      }
+    })
 
     return NextResponse.json({
       products: enriched,

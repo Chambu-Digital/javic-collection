@@ -31,6 +31,14 @@ export default function PosProductCard({ product, pricingMode, onSelect }: PosPr
     ? product.wholesalePrice
     : product.price
 
+  // Log for debugging - verify frontend receives correct stock
+  console.log('[Frontend Stock Debug]', {
+    productId: product._id,
+    productName: product.name,
+    apiStockValue: product.stock,
+    renderedStockValue: product.stock
+  })
+
   return (
     <div
       className={`bg-card border border-border rounded-lg overflow-hidden flex flex-col cursor-pointer ${

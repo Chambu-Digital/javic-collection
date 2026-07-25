@@ -70,7 +70,7 @@ const PosHeldOrderItemSchema = new mongoose.Schema({
   lineSubtotalMinor: { type: Number, required: true },
   lineTotalMinor: { type: Number, required: true },
   pricingMode: { type: String, enum: ['retail', 'wholesale'], default: 'retail' },
-  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   addedAt: { type: Date, default: Date.now },
 })
 
@@ -94,7 +94,7 @@ const PosHeldOrderSchema = new mongoose.Schema<IPosHeldOrder>(
     cashierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     cashierName: { type: String, required: true },
     outletId: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet', required: true },
-    outletName: { type: String, required: true },
+    outletName: { type: String },
     deviceId: String,
     wasOffline: { type: Boolean, default: false },
     clientId: String,
@@ -109,20 +109,6 @@ const PosHeldOrderSchema = new mongoose.Schema<IPosHeldOrder>(
   },
   { timestamps: true }
 )
-
-PosHeldOrderSchema.pre('save', async function (next) {
-  if (!this.holdNumber) {
-    const date = new Date()
-    const stamp = date.toISOString().slice(0, 10).replace(/-/g, '')
-    const last = await mongoose.model('PosHeldOrder').findOne({
-      holdNumber: new RegExp(`^HLD${stamp}`),
-    }).sort({ holdNumber: -1 })
-    let seq = 1
-    if (last) seq = parseInt(last.holdNumber.slice(-4)) + 1
-    this.holdNumber = `HLD${stamp}${seq.toString().padStart(4, '0')}`
-  }
-  next()
-})
 
 PosHeldOrderSchema.index({ status: 1, createdAt: -1 })
 PosHeldOrderSchema.index({ cashierId: 1 })

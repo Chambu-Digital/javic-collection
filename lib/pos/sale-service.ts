@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import connectDB from '@/lib/mongodb'
 import Product from '@/models/Product'
 import Order, { IOrder, IPaymentAllocation } from '@/models/Order'
-import PosOutlet from '@/models/PosOutlet'
+import Outlet from '@/models/Outlet'
 import CustomerCreditAccount from '@/models/CustomerCreditAccount'
 import CreditTransaction from '@/models/CreditTransaction'
 import User from '@/models/User'
@@ -94,7 +94,7 @@ export async function completePosSale(
         }
       }
 
-      const outlet = await PosOutlet.findById(input.outletId).session(session)
+      const outlet = await Outlet.findById(input.outletId).session(session)
       if (!outlet || !outlet.isActive) {
         throw new SaleValidationError('Invalid or inactive outlet')
       }

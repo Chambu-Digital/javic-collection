@@ -86,14 +86,20 @@ export function resolveUnitPrice(
 }
 
 export function getProductSearchStock(product: IProduct): number {
-  if (product.images?.length) {
-    const variantStock = product.images.reduce(
-      (sum, img) => sum + (img.stock ?? 0),
-      0
-    )
-    if (variantStock > 0) return variantStock
-  }
-  return product.stockQuantity ?? 0
+  // Use product.stockQuantity as the primary source of truth
+  const mainStock = product.stockQuantity ?? 0
+  
+  // Log for debugging
+  console.log('[Stock Debug]', {
+    productId: product._id,
+    productName: product.name,
+    databaseStockQuantity: mainStock,
+    imageStocks: product.images?.map(img => ({ url: img.url, stock: img.stock })),
+    calculatedStock: mainStock
+  })
+  
+  // Always return the main stockQuantity - this is the source of truth
+  return mainStock
 }
 
 export function isProductAvailable(product: IProduct): boolean {

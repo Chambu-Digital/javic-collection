@@ -11,6 +11,8 @@ import PosProductCard, { PosProductCardProduct } from '@/components/pos/pos-prod
 import VariantSelector from '@/components/pos/variant-selector'
 import PaymentModal from '@/components/pos/payment-modal'
 import BarcodeScanner from '@/components/pos/barcode-scanner'
+import HeldOrdersDrawer from '@/components/pos/held-orders-drawer'
+import CustomerPicker from '@/components/pos/customer-picker'
 import { usePosCartStore } from '@/lib/pos/cart-store'
 import { formatKES } from '@/lib/pos/money'
 import { usePosAuthStore } from '@/lib/pos/pos-auth-store'
@@ -39,6 +41,10 @@ export default function MakeSalePage() {
   const [showPaymentModal, setShowPaymentModal]       = useState(false)
   const [showBarcodeScanner, setShowBarcodeScanner]   = useState(false)
   const [showHeldOrders, setShowHeldOrders]           = useState(false)
+  const [showHoldModal, setShowHoldModal]             = useState(false)
+  const [holdReason, setHoldReason]                   = useState('')
+  const [holdingOrder, setHoldingOrder]               = useState(false)
+  const [showCustomerPicker, setShowCustomerPicker]   = useState(false)
   const [cartDiscountInput, setCartDiscountInput]     = useState('')
   const [saleComplete, setSaleComplete]               = useState(false)
   const [lastReceipt, setLastReceipt]                 = useState<any>(null)
@@ -50,7 +56,8 @@ export default function MakeSalePage() {
     items, pricingMode, customer,
     setPricingMode, addItem, updateItem, removeItem,
     getSubtotalMinor, getTotalDiscountMinor, getTotalMinor,
-    setCartDiscount, clearCart, setOutlet,
+    setCartDiscount, clearCart, setOutlet, setCustomer,
+    cartDiscountType, cartDiscountValue, cartDiscountReason,
   } = usePosCartStore()
 
   const subtotal = getSubtotalMinor() / 100
@@ -111,6 +118,22 @@ export default function MakeSalePage() {
       })
       const data = await res.json()
       const incoming = data.products || []
+      
+      // Log for debugging - verify API response
+      if (incoming.length > 0) {
+        console.log('[Fetch Products Debug]', {
+          searchQuery: debouncedSearch,
+          selectedCategory,
+          productsCount: incoming.length,
+          sampleProducts: incoming.slice(0, 3).map(p => ({
+            id: p._id,
+            name: p.name,
+            stock: p.stock,
+            stockQuantity: p.stockQuantity
+          }))
+        })
+      }
+      
       setProducts(resetPage ? incoming : prev => [...prev, ...incoming])
       setHasMore(data.pagination?.hasMore ?? false)
       setTotalProducts(data.pagination?.total ?? incoming.length)
@@ -187,6 +210,68 @@ export default function MakeSalePage() {
     const v = parseFloat(cartDiscountInput)
     if (!isNaN(v) && v >= 0) setCartDiscount('fixed', v, 'Manual discount')
     else setCartDiscount(undefined, undefined, undefined)
+  }
+
+  // ── Hold order ──
+  const handleHoldOrder = async () => {
+    if (!outletId) {
+      alert('POS outlet not configured. Please refresh and try again.')
+      return
+    }
+    setHoldingOrder(true)
+    try {
+      const res = await fetch('/api/pos/held-orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId:          item.productId,
+            productName:        item.productName,
+            itemCode:           item.itemCode,
+            sku:                item.sku,
+            selectedImageIndex: item.selectedImageIndex,
+            selectedImageUrl:   item.selectedImageUrl,
+            selectedSize:       item.selectedSize,
+            quantity:           item.quantity,
+            retailUnitPrice:    item.retailUnitPrice,
+            wholesaleUnitPrice: item.wholesaleUnitPrice,
+            originalUnitPrice:  item.originalUnitPrice,
+            actualUnitPrice:    item.actualUnitPrice,
+            lineDiscountMinor:  item.lineDiscountMinor,
+            lineSubtotalMinor:  item.lineSubtotalMinor,
+            lineTotalMinor:     item.lineTotalMinor,
+            pricingMode:        item.pricingMode,
+            addedBy:            user?.id,
+            addedAt:            new Date().toISOString(),
+          })),
+          pricingMode:        pricingMode,
+          cartDiscountType:   cartDiscountType,
+          cartDiscountValue:  cartDiscountValue,
+          cartDiscountMinor:  getTotalDiscountMinor(),
+          cartDiscountReason: cartDiscountReason,
+          customerId:         customer?.id,
+          customerName:       customer?.name,
+          customerPhone:      customer?.phone,
+          subtotalMinor:      getSubtotalMinor(),
+          totalDiscountMinor: getTotalDiscountMinor(),
+          totalMinor:         getTotalMinor(),
+          holdReason:         holdReason.trim() || undefined,
+          outletId,
+          deviceId: typeof window !== 'undefined'
+            ? (localStorage.getItem('javic-pos-device-id') || 'unknown')
+            : 'unknown',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to hold order')
+      clearCart()
+      setHoldReason('')
+      setShowHoldModal(false)
+    } catch (err: any) {
+      alert('Failed to hold order: ' + err.message)
+    } finally {
+      setHoldingOrder(false)
+    }
   }
 
   // ── Payment ──
@@ -808,13 +893,37 @@ export default function MakeSalePage() {
           </div>
 
           {/* Customer row */}
-          <button
-            className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => {/* TODO: customer picker */}}
-          >
-            <User className="h-4 w-4 shrink-0" />
-            <span className="truncate">{customer?.name ?? 'Add customer (optional)'}</span>
-          </button>
+          <div className="relative">
+            <button
+              className={`w-full flex items-center gap-2 text-sm transition-colors ${
+                customer
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              onClick={() => setShowCustomerPicker(v => !v)}
+            >
+              <User className="h-4 w-4 shrink-0" />
+              <span className="truncate flex-1 text-left">
+                {customer?.name ?? 'Add customer (optional)'}
+              </span>
+              {customer && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={e => { e.stopPropagation(); setCustomer(null) }}
+                  className="text-muted-foreground hover:text-destructive text-xs px-1 shrink-0"
+                >
+                  ×
+                </span>
+              )}
+            </button>
+
+            {showCustomerPicker && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-20">
+                <CustomerPicker onClose={() => setShowCustomerPicker(false)} />
+              </div>
+            )}
+          </div>
 
           {/* Complete sale button */}
           <Button
@@ -828,7 +937,14 @@ export default function MakeSalePage() {
 
           {items.length > 0 && (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1 text-xs">Hold Order</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => setShowHoldModal(true)}
+              >
+                Hold Order
+              </Button>
               <Button variant="ghost" size="sm" className="text-xs text-destructive hover:text-destructive" onClick={clearCart}>Clear</Button>
             </div>
           )}
@@ -866,6 +982,71 @@ export default function MakeSalePage() {
         onClose={() => setShowBarcodeScanner(false)}
         onScan={barcode => { setSearchQuery(barcode); setShowBarcodeScanner(false) }}
       />
+
+      {/* ── Held Orders Drawer ── */}
+      <HeldOrdersDrawer
+        open={showHeldOrders}
+        onClose={() => setShowHeldOrders(false)}
+        onResumed={() => {
+          setShowHeldOrders(false)
+          setShowCart(true) // open the cart panel so cashier sees the resumed items
+        }}
+      />
+
+      {/* ── Hold Order Modal ── */}
+      {showHoldModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="px-5 py-4 border-b">
+              <h2 className="font-semibold">Hold Order</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                The cart will be saved and can be resumed later.
+              </p>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Reason <span className="text-muted-foreground">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={holdReason}
+                  onChange={e => setHoldReason(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !holdingOrder && handleHoldOrder()}
+                  placeholder="e.g. Customer went to get cash"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  autoFocus
+                />
+              </div>
+              <div className="text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+                {items.length} item{items.length !== 1 ? 's' : ''} · Total {formatKES(total)}
+              </div>
+            </div>
+            <div className="flex gap-2 px-5 py-3 border-t">
+              <button
+                onClick={() => { setShowHoldModal(false); setHoldReason('') }}
+                disabled={holdingOrder}
+                className="flex-1 py-2 border rounded-md text-sm font-medium text-gray-700 hover:bg-muted disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleHoldOrder}
+                disabled={holdingOrder}
+                className="flex-1 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {holdingOrder && (
+                  <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                )}
+                Hold Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

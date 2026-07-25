@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
-import PosOutlet from '@/models/PosOutlet'
+import Outlet from '@/models/Outlet'
 import PosSettings from '@/models/PosSettings'
 import User from '@/models/User'
 import { requirePosAuth, handlePosAuthError } from '@/lib/pos/auth'
@@ -11,13 +11,16 @@ export async function GET(request: NextRequest) {
     const { user, checker } = await requirePosAuth(request)
     await connectDB()
 
-    let outlets = await PosOutlet.find({ isActive: true }).lean()
+    // Use the single Outlet model — the same one the settings page manages
+    let outlets = await Outlet.find({ isActive: true }).lean()
     if (!outlets.length) {
-      const defaultOutlet = await PosOutlet.create({
-        name: 'Main Shop',
-        code: 'MAIN',
+      // Auto-create a default outlet so the POS is always operable
+      const defaultOutlet = await Outlet.create({
+        outletId: 'MAIN',
+        name:     'Main Shop',
+        location: 'Biashara Street, Marikiti — Mombasa',
+        phone:    '+254 706 512 984',
         isActive: true,
-        isDefault: true,
       })
       outlets = [defaultOutlet.toObject()]
     }
@@ -26,8 +29,7 @@ export async function GET(request: NextRequest) {
     const dbUser = await User.findById(user.id).select('posRole posOutletId firstName lastName').lean()
 
     const defaultOutlet =
-      outlets.find(o => o._id?.toString() === dbUser?.posOutletId?.toString()) ||
-      outlets.find(o => o.isDefault) ||
+      outlets.find(o => o._id?.toString() === (dbUser as any)?.posOutletId?.toString()) ||
       outlets[0]
 
     return NextResponse.json({
@@ -43,7 +45,6 @@ export async function GET(request: NextRequest) {
         name: `${user.firstName} ${user.lastName}`,
         role: checker.getPosRole(),
         roleLabel: checker.getPosRoleLabel(),
-        permissions: checker.getAllPermissions(),
         posPermissions: Object.values(POS_PERMISSIONS).filter(p => checker.hasPosPermission(p as any)),
       },
     })
