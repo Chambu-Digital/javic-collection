@@ -7,6 +7,7 @@ import { IProductImage } from '@/models/Product'
 interface ImageEditModalProps {
   image: IProductImage | null
   imageIndex: number
+  allImages: IProductImage[]  // NEW: All images to show group members
   open: boolean
   // Product-level defaults shown as placeholders
   defaultPrice?: number
@@ -15,6 +16,7 @@ interface ImageEditModalProps {
   defaultSizes?: string[]
   onSave: (index: number, updated: IProductImage) => void
   onClose: () => void
+  onUngroup?: (index: number) => void  // NEW: Callback to ungroup image
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -37,6 +39,7 @@ function getTotalStock(sizeStock: Record<string, number>): number {
 export default function ImageEditModal({
   image,
   imageIndex,
+  allImages,
   open,
   defaultPrice,
   defaultWholesalePrice,
@@ -44,6 +47,7 @@ export default function ImageEditModal({
   defaultSizes = [],
   onSave,
   onClose,
+  onUngroup,
 }: ImageEditModalProps) {
   // Local editable state — isolated from parent until Save is clicked
   const [price, setPrice]                         = useState<string>('')
@@ -175,6 +179,11 @@ export default function ImageEditModal({
                 <h2 className="text-sm font-semibold text-gray-900">
                   Edit Image {imageIndex + 1}
                   {indexBadge(imageIndex)}
+                  {image.groupId && (
+                    <span className="ml-2 text-xs font-normal bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
+                      Grouped
+                    </span>
+                  )}
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Overrides apply to this image only — blank = use product default
@@ -189,6 +198,40 @@ export default function ImageEditModal({
               <X className="h-5 w-5" />
             </button>
           </div>
+
+          {/* Group members display */}
+          {image.groupId && (
+            <div className="px-5 py-3 bg-purple-50 border-b border-purple-100">
+              <p className="text-xs font-semibold text-purple-800 mb-2">Group Members</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {allImages
+                  .map((img, originalIndex) => ({ img, originalIndex }))
+                  .filter(({ img, originalIndex }) => img.groupId === image.groupId && originalIndex !== imageIndex)
+                  .map(({ img, originalIndex }) => (
+                    <div key={originalIndex} className="relative group flex-shrink-0">
+                      <img
+                        src={img.url}
+                        alt={`Group member ${originalIndex}`}
+                        className="w-12 h-12 rounded-lg object-cover border border-purple-200"
+                      />
+                      {onUngroup && (
+                        <button
+                          type="button"
+                          onClick={() => onUngroup(originalIndex)}
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow"
+                          title="Remove from group"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                {allImages.filter((img, i) => img.groupId === image.groupId && i !== imageIndex).length === 0 && (
+                  <p className="text-xs text-purple-600 italic">No other images in this group</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Scrollable body */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, EyeOff, Search } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { IProduct } from '@/models/Product'
 import { getProductDisplayImage, getProductDisplayPrice } from '@/lib/product-utils'
+import * as XLSX from 'xlsx'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<IProduct[]>([])
@@ -15,6 +16,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<string[]>([])
   const [rowsPerPage, setRowsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -28,6 +30,29 @@ export default function ProductsPage() {
       if (response.ok) {
         const data = await response.json()
         setProducts(data.products || [])
+        
+        // Debug: Log specific product with price issue
+        const targetProduct = data.products?.find((p: any) => p._id === '6a54160f2dbf0b3b508645b3')
+        if (targetProduct) {
+          console.log('Target product (6a54160f2dbf0b3b508645b3) debug:', {
+            id: targetProduct._id,
+            name: targetProduct.name,
+            price: targetProduct.price,
+            priceType: typeof targetProduct.price,
+            oldPrice: targetProduct.oldPrice,
+            wholesalePrice: targetProduct.wholesalePrice
+          })
+        }
+        
+        // Also log first product for comparison
+        if (data.products && data.products.length > 0) {
+          console.log('First product for comparison:', {
+            id: data.products[0]._id,
+            name: data.products[0].name,
+            price: data.products[0].price,
+            priceType: typeof data.products[0].price
+          })
+        }
       } else {
         console.error('Failed to fetch products:', response.status)
       }
@@ -88,6 +113,47 @@ export default function ProductsPage() {
     }
   }
 
+  const downloadProductsExcel = async () => {
+    setExporting(true)
+    try {
+      const response = await fetch('/api/products/export-excel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: categoryFilter || undefined,
+          search: searchTerm || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Export error:', error)
+        throw new Error(error.error || error.details || 'Failed to download Excel')
+      }
+
+      // Get filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition')
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/)
+      const filename = filenameMatch ? filenameMatch[1] : 'Javic_Products_Export.xlsx'
+
+      // Download file
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Error downloading Excel:', error)
+      alert('Failed to download Excel file. Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -130,7 +196,16 @@ export default function ProductsPage() {
             Manage your product inventory, pricing, and availability.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none gap-2 flex">
+          <Button 
+            variant="outline" 
+            onClick={downloadProductsExcel} 
+            disabled={exporting}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {exporting ? 'Preparing Excel...' : 'Download Products Excel'}
+          </Button>
           <Link href="/admin/products/new">
             <Button className="flex items-center gap-2">
               <Plus className="h-4 w-4" />

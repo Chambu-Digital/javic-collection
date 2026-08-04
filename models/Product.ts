@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 export interface IProductImage {
   url: string
+  groupId?: string           // NEW: Identifies which images belong to same visual group (front/back/side views)
   price?: number              // retail price override
   wholesalePrice?: number     // wholesale price override
   wholesaleThreshold?: number // wholesale min qty override
@@ -16,6 +17,7 @@ export interface IProduct {
   name: string
   slug: string
   description: string
+  sku?: string  // Product-level SKU for export/import stability
 
   price: number
   oldPrice?: number
@@ -52,6 +54,7 @@ const ProductSchema = new mongoose.Schema<IProduct>({
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, unique: true, lowercase: true },
   description: { type: String, required: true },
+  sku: { type: String, trim: true, index: true },
 
   price: { type: Number, required: true, min: 0 },
   oldPrice: { type: Number, min: 0 },
@@ -68,6 +71,7 @@ const ProductSchema = new mongoose.Schema<IProduct>({
   },
 
   images: [{
+    groupId:           { type: String, trim: true },
     url:               { type: String, required: true },
     price:             { type: Number, min: 0 },
     wholesalePrice:    { type: Number, min: 0 },

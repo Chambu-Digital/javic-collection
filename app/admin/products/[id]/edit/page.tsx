@@ -9,11 +9,13 @@ import { IProduct, IProductImage } from '@/models/Product'
 import { ICategory } from '@/models/Category'
 import ImageEditModal from '@/components/admin/image-edit-modal'
 import QuickCategoryModal from '@/components/admin/quick-category-modal'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function imageBadge(img: IProductImage): string {
   const parts: string[] = []
+  if (img.groupId) parts.push('Grouped')
   if (img.sizeStock && Object.keys(img.sizeStock).length) {
     const total = Object.values(img.sizeStock).reduce((s, v) => s + v, 0)
     parts.push(`${total} in stock (${Object.keys(img.sizeStock).join(', ')})`)
@@ -40,6 +42,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   // Modal state
   const [editModalIndex, setEditModalIndex]       = useState<number | null>(null)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showGroupDialog, setShowGroupDialog]     = useState(false)
+  const [groupSourceIndex, setGroupSourceIndex] = useState<number | null>(null)
+  const [groupTargetIndex, setGroupTargetIndex] = useState<number | null>(null)
+
+  // Drag state for image grouping
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
   const [newTag, setNewTag]   = useState('')
   const [newSize, setNewSize] = useState('')
@@ -162,10 +170,87 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }
 
   const handleImageSave = (index: number, updated: IProductImage) => {
-    setFormData(prev => ({
+    setFormData(prev => (({
       ...prev,
       images: prev.images.map((img, i) => i === index ? updated : img),
-    }))
+    })))
+  }
+
+  // ── Image Grouping ─────────────────────────────────────────────────────────────
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setGroupTargetIndex(index)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault()
+    if (draggedIndex === null || draggedIndex === targetIndex) return
+    
+    setGroupSourceIndex(draggedIndex)
+    setGroupTargetIndex(targetIndex)
+    setShowGroupDialog(true)
+    setDraggedIndex(null)
+  }
+
+  const handleCreateGroup = () => {
+    if (groupSourceIndex === null || groupTargetIndex === null) return
+    
+    const newGroupId = `group-${Date.now()}`
+    const sourceImage = formData.images[groupSourceIndex]
+    const targetImage = formData.images[groupTargetIndex]
+    
+    // If target already has a group, use that groupId
+    const existingGroupId = targetImage.groupId
+    const finalGroupId = existingGroupId || newGroupId
+    
+    setFormData(prev => (({
+      ...prev,
+      images: prev.images.map((img, i) => {
+        if (i === groupSourceIndex) {
+          return { ...img, groupId: finalGroupId }
+        }
+        if (i === groupTargetIndex && !existingGroupId) {
+          return { ...img, groupId: finalGroupId }
+        }
+        return img
+      }),
+    })))
+    
+    setShowGroupDialog(false)
+    setGroupSourceIndex(null)
+    setGroupTargetIndex(null)
+  }
+
+  const handleUngroup = (index: number) => {
+    setFormData(prev => (({
+      ...prev,
+      images: prev.images.map((img, i) => {
+        if (i === index) {
+          return { ...img, groupId: undefined }
+        }
+        return img
+      }),
+    })))
+  }
+
+  // Get representative images (first image from each group)
+  const getRepresentativeImages = () => {
+    const groups = formData.images.reduce((acc, img, index) => {
+      const groupId = img.groupId || `ungrouped-${index}`
+      if (!acc[groupId]) {
+        acc[groupId] = { image: img, index, count: 0 }
+      }
+      acc[groupId].count++
+      return acc
+    }, {} as Record<string, { image: IProductImage; index: number; count: number }>)
+    
+    return Object.values(groups).map(({ image, index, count }) => ({ image, index, count }))
   }
 
   // ── Tags / sizes ──────────────────────────────────────────────────────────────
@@ -406,29 +491,39 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold mb-1">Product Images</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Each image is a selectable design variant. Click the <strong>edit</strong> icon to set per-image
-            stock (including per-size), pricing, and SKU.
+            Each image is a selectable design variant. Drag one image onto another to group them (front/back/side views). 
+            Click the <strong>edit</strong> icon to set per-image stock (including per-size), pricing, and SKU.
           </p>
 
           {formData.images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
-              {formData.images.map((img, index) => {
-                const badge = imageBadge(img)
+              {getRepresentativeImages().map(({ image, index, count }) => {
+                const badge = imageBadge(image)
+                const isGrouped = !!image.groupId
                 return (
                   <div key={index} className="group relative">
-                    <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group-hover:border-blue-400 transition-all">
-                      <img src={img.url} alt={`Design ${index + 1}`} className="h-full w-full object-cover" />
+                    <div 
+                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                        isGrouped ? 'border-purple-400' : 'border-gray-200 group-hover:border-blue-400'
+                      } ${groupTargetIndex === index ? 'border-green-400 scale-105' : ''}`}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onClick={() => setEditModalIndex(index)}
+                    >
+                      <img src={image.url} alt={`Design ${index + 1}`} className="h-full w-full object-cover" />
 
                       {/* Remove */}
                       <button type="button"
-                        onClick={() => removeImage(index)}
+                        onClick={(e) => { e.stopPropagation(); removeImage(index) }}
                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow">
                         <X className="h-3 w-3" />
                       </button>
 
                       {/* Edit */}
                       <button type="button"
-                        onClick={() => setEditModalIndex(index)}
+                        onClick={(e) => { e.stopPropagation(); setEditModalIndex(index) }}
                         className="absolute bottom-1 right-1 bg-white/90 text-gray-700 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white shadow"
                         title="Edit image settings">
                         <Pencil className="h-3 w-3" />
@@ -441,6 +536,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         </div>
                       )}
 
+                      {/* Group count indicator */}
+                      {isGrouped && count > 1 && (
+                        <div className="absolute top-1 right-10 bg-purple-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
+                          {count} images
+                        </div>
+                      )}
+
                       {/* Override summary */}
                       {badge && (
                         <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-xs font-medium text-center py-0.5 px-1 leading-tight truncate">
@@ -448,12 +550,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         </div>
                       )}
                     </div>
-
-                    <button type="button"
-                      onClick={() => setEditModalIndex(index)}
-                      className="mt-1 w-full text-xs text-blue-600 hover:text-blue-800 text-center hover:underline">
-                      Edit settings
-                    </button>
                   </div>
                 )
               })}
@@ -472,16 +568,18 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 <p className="text-sm text-blue-600">Uploading images...</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-                <label className="cursor-pointer">
-                  <span className="text-blue-600 hover:text-blue-500 font-medium text-sm">Click to upload</span>
-                  <span className="text-gray-500 text-sm"> or drag and drop</span>
-                  <input type="file" className="sr-only" multiple accept="image/*"
-                    onChange={handleImageUpload} disabled={imageUploading} />
-                </label>
-                <p className="text-xs text-gray-500">PNG, JPG, WebP up to 10MB · First image is the main image</p>
-              </div>
+              <label className="cursor-pointer">
+                <div className="space-y-2">
+                  <Upload className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                  <div>
+                    <span className="text-blue-600 hover:text-blue-500 font-medium text-sm">Click to upload</span>
+                    <span className="text-gray-500 text-sm"> or drag and drop</span>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, WebP up to 10MB · First image is the main image</p>
+                </div>
+                <input type="file" className="sr-only" multiple accept="image/*"
+                  onChange={handleImageUpload} disabled={imageUploading} />
+              </label>
             )}
           </div>
         </div>
@@ -567,6 +665,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       <ImageEditModal
         open={editModalIndex !== null}
         image={editModalIndex !== null ? formData.images[editModalIndex] : null}
+        allImages={formData.images}
         imageIndex={editModalIndex ?? 0}
         defaultPrice={formData.price || undefined}
         defaultWholesalePrice={formData.wholesalePrice || undefined}
@@ -574,6 +673,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         defaultSizes={formData.sizes}
         onSave={handleImageSave}
         onClose={() => setEditModalIndex(null)}
+        onUngroup={handleUngroup}
       />
 
       {/* ── Quick Category Modal ── */}
@@ -582,6 +682,43 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         onClose={() => setShowCategoryModal(false)}
         onCreated={handleCategoryCreated}
       />
+
+      {/* ── Image Grouping Dialog ── */}
+      <Dialog open={showGroupDialog} onOpenChange={setShowGroupDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Group Images Together?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">
+              Do you want to group these images together? This means they will be treated as the same variant 
+              (e.g., front and back views of the same design). Customers will see all images in the group, but 
+              selecting any will choose the same item.
+            </p>
+            <div className="mt-4 flex gap-4">
+              {groupSourceIndex !== null && (
+                <img 
+                  src={formData.images[groupSourceIndex].url} 
+                  alt="Source" 
+                  className="w-20 h-20 object-cover rounded border"
+                />
+              )}
+              <span className="text-2xl">→</span>
+              {groupTargetIndex !== null && (
+                <img 
+                  src={formData.images[groupTargetIndex].url} 
+                  alt="Target" 
+                  className="w-20 h-20 object-cover rounded border"
+                />
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowGroupDialog(false)}>Cancel</Button>
+            <Button onClick={handleCreateGroup}>Group Images</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

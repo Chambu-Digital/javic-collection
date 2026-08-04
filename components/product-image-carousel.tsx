@@ -18,18 +18,68 @@ export default function ProductImageCarousel({
   basePrice,
 }: ProductImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(selectedImageIndex)
+  const [groupViewIndex, setGroupViewIndex] = useState(0) // For viewing different angles within a group
 
   useEffect(() => {
     setCurrentIndex(selectedImageIndex)
+    setGroupViewIndex(0)
   }, [selectedImageIndex])
+
+  // Group images by groupId
+  const groupedImages = images.reduce((acc, img, index) => {
+    const groupId = img.groupId || `ungrouped-${index}`
+    if (!acc[groupId]) {
+      acc[groupId] = { images: [], indices: [] }
+    }
+    acc[groupId].images.push(img)
+    acc[groupId].indices.push(index)
+    return acc
+  }, {} as Record<string, { images: IProductImage[], indices: number[] }>)
+
+  const groupIds = Object.keys(groupedImages)
+  const currentGroupId = images[currentIndex]?.groupId || `ungrouped-${currentIndex}`
+  const currentGroup = groupedImages[currentGroupId]
+  const groupImages = currentGroup?.images || []
+  const groupIndices = currentGroup?.indices || []
 
   const handleChange = (newIndex: number) => {
     setCurrentIndex(newIndex)
+    setGroupViewIndex(0)
     onImageChange?.(newIndex)
   }
 
-  const prev = () => handleChange((currentIndex - 1 + images.length) % images.length)
-  const next = () => handleChange((currentIndex + 1) % images.length)
+  const handleGroupViewChange = (newGroupViewIndex: number) => {
+    setGroupViewIndex(newGroupViewIndex)
+    // Don't trigger onImageChange for group view changes - they're the same variant
+  }
+
+  const prev = () => {
+    if (groupImages.length > 1) {
+      // Navigate within group
+      handleGroupViewChange((groupViewIndex - 1 + groupImages.length) % groupImages.length)
+    } else {
+      // Navigate between groups
+      const currentGroupIndex = groupIds.indexOf(currentGroupId)
+      const prevGroupIndex = (currentGroupIndex - 1 + groupIds.length) % groupIds.length
+      const prevGroupId = groupIds[prevGroupIndex]
+      const prevIndex = groupedImages[prevGroupId].indices[0]
+      handleChange(prevIndex)
+    }
+  }
+
+  const next = () => {
+    if (groupImages.length > 1) {
+      // Navigate within group
+      handleGroupViewChange((groupViewIndex + 1) % groupImages.length)
+    } else {
+      // Navigate between groups
+      const currentGroupIndex = groupIds.indexOf(currentGroupId)
+      const nextGroupIndex = (currentGroupIndex + 1) % groupIds.length
+      const nextGroupId = groupIds[nextGroupIndex]
+      const nextIndex = groupedImages[nextGroupId].indices[0]
+      handleChange(nextIndex)
+    }
+  }
 
   if (!images || images.length === 0) {
     return (
@@ -39,7 +89,9 @@ export default function ProductImageCarousel({
     )
   }
 
-  const currentUrl = images[currentIndex]?.url || '/placeholder.svg'
+  // Get the current image to display (considering group view)
+  const currentImage = groupImages[groupViewIndex] || images[currentIndex]
+  const currentUrl = currentImage?.url || '/placeholder.svg'
 
   // Check if any image has a price override — used to decide whether to show badges
   const hasAnyPriceOverride = images.some(img => img.price !== undefined && img.price !== null)
@@ -67,34 +119,52 @@ export default function ProductImageCarousel({
           </>
         )}
 
+        {/* Group indicator */}
+        {groupImages.length > 1 && (
+          <div className="absolute top-3 left-3 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            {groupViewIndex + 1} / {groupImages.length}
+          </div>
+        )}
+
         {/* Price badge on main image when there's an override */}
-        {images[currentIndex]?.price !== undefined && images[currentIndex]?.price !== null && (
+        {currentImage?.price !== undefined && currentImage?.price !== null && (
           <div className="absolute bottom-3 right-3 bg-primary text-primary-foreground text-sm font-bold px-3 py-1 rounded-full shadow">
-            KSH {images[currentIndex].price!.toLocaleString()}
+            KSH {currentImage.price!.toLocaleString()}
           </div>
         )}
       </div>
 
-      {/* Thumbnails */}
-      {images.length > 1 && (
+      {/* Thumbnails - show one per group */}
+      {groupIds.length > 1 && (
         <div className="grid grid-cols-4 gap-2">
-          {images.map((image, index) => {
-            const hasOverride = image.price !== undefined && image.price !== null
+          {groupIds.map((groupId, groupIndex) => {
+            const group = groupedImages[groupId]
+            const groupFirstImage = group.images[0]
+            const groupFirstIndex = group.indices[0]
+            const hasOverride = groupFirstImage.price !== undefined && groupFirstImage.price !== null
+            const isSelected = currentGroupId === groupId
+
             return (
               <button
-                key={index}
-                onClick={() => handleChange(index)}
+                key={groupId}
+                onClick={() => handleChange(groupFirstIndex)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition bg-white ${
-                  index === currentIndex
+                  isSelected
                     ? 'border-primary'
                     : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <img
-                  src={image.url || '/placeholder.svg'}
-                  alt={`Design ${index + 1}`}
+                  src={groupFirstImage.url || '/placeholder.svg'}
+                  alt={`Design ${groupIndex + 1}`}
                   className="w-full h-full object-contain p-1"
                 />
+                {/* Group indicator badge */}
+                {group.images.length > 1 && (
+                  <div className="absolute top-1 left-1 bg-purple-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+                    {group.images.length}
+                  </div>
+                )}
                 {/* Per-image price badge on thumbnail */}
                 {hasAnyPriceOverride && (
                   <div className={`absolute bottom-0 inset-x-0 text-center text-xs font-semibold py-0.5 ${
@@ -103,7 +173,7 @@ export default function ProductImageCarousel({
                       : 'bg-black/40 text-white'
                   }`}>
                     {hasOverride
-                      ? `KSH ${image.price!.toLocaleString()}`
+                      ? `KSH ${groupFirstImage.price!.toLocaleString()}`
                       : basePrice
                         ? `KSH ${basePrice.toLocaleString()}`
                         : ''}

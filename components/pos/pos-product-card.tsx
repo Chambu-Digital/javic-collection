@@ -10,7 +10,7 @@ export interface PosProductCardProduct {
   _id: string
   name: string
   slug?: string
-  images?: { url: string; sku?: string; stock?: number }[]
+  images?: { url: string; sku?: string; stock?: number; groupId?: string }[]
   price: number
   wholesalePrice?: number
   stock?: number
@@ -25,7 +25,20 @@ interface PosProductCardProps {
 }
 
 export default function PosProductCard({ product, pricingMode, onSelect }: PosProductCardProps) {
-  const image = product.images?.[0]?.url || '/placeholder.svg'
+  // Get the first image from each group for display
+  const images = product.images || []
+  const groupedImages = images.reduce((acc, img, index) => {
+    const groupId = img.groupId || `ungrouped-${index}`
+    if (!acc[groupId]) {
+      acc[groupId] = img
+    }
+    return acc
+  }, {} as Record<string, any>)
+  
+  const uniqueImages = Object.values(groupedImages)
+  const image = uniqueImages[0]?.url || images[0]?.url || '/placeholder.svg'
+  const isGrouped = images.length > uniqueImages.length
+  
   const outOfStock = !product.available
   const displayPrice = pricingMode === 'wholesale' && product.wholesalePrice
     ? product.wholesalePrice
@@ -68,6 +81,11 @@ export default function PosProductCard({ product, pricingMode, onSelect }: PosPr
         )}
         {pricingMode === 'wholesale' && product.wholesalePrice && !outOfStock && (
           <Badge className="absolute top-2 left-2 bg-blue-600 text-white text-xs">WS</Badge>
+        )}
+        {isGrouped && !outOfStock && (
+          <Badge className="absolute top-2 left-2 bg-purple-600 text-white text-xs">
+            {uniqueImages.length > 1 ? `${uniqueImages.length} variants` : 'Grouped'}
+          </Badge>
         )}
       </div>
 

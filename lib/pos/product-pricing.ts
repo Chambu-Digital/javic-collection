@@ -53,7 +53,18 @@ export function getAllVariants(product: IProduct): PosVariantInfo[] {
   if (!product.images?.length) {
     return [getVariantInfo(product, 0)]
   }
-  return product.images.map((_, i) => getVariantInfo(product, i))
+  
+  // Group images by groupId and return only one variant per group
+  const groupedImages = product.images.reduce((acc, img, index) => {
+    const groupId = img.groupId || `ungrouped-${index}`
+    if (!acc[groupId]) {
+      acc[groupId] = { image: img, index }
+    }
+    return acc
+  }, {} as Record<string, { image: IProductImage; index: number }>)
+  
+  // Get the first image from each group as the representative variant
+  return Object.values(groupedImages).map(({ image, index }) => getVariantInfo(product, index))
 }
 
 export function resolveUnitPrice(
