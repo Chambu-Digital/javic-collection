@@ -44,6 +44,17 @@ export default function ProductsPage() {
           })
         }
         
+        // Debug: Check if any products have the price issue (should be 2000 but showing 20000)
+        const suspiciousProducts = data.products?.filter((p: any) => p.price >= 19000 && p.price <= 21000)
+        if (suspiciousProducts?.length > 0) {
+          console.log('Products with prices around 20000:', suspiciousProducts.map((p: any) => ({
+            id: p._id,
+            name: p.name,
+            price: p.price,
+            priceType: typeof p.price
+          })))
+        }
+        
         // Also log first product for comparison
         if (data.products && data.products.length > 0) {
           console.log('First product for comparison:', {
@@ -254,6 +265,17 @@ export default function ProductsPage() {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
               
+              // Debug specific price values that seem wrong
+              if (product.name && (product.name.toLowerCase().includes('vneck') || product.name.toLowerCase().includes('v-neck') || product.price >= 19000 || price >= 19000)) {
+                console.log(`🐛 MOBILE Product with suspicious price: ${product.name}`, {
+                  productId: product._id,
+                  productPriceProperty: product.price,
+                  getProductDisplayPriceResult: { price, oldPrice },
+                  priceType: typeof price,
+                  rawProductPriceType: typeof product.price
+                })
+              }
+              
               return (
                 <div key={product._id} className="p-4">
                   <div className="flex gap-4">
@@ -298,7 +320,7 @@ export default function ProductsPage() {
                         <p className="font-medium text-gray-900">{product.category}</p>
                         <p className="text-lg font-bold text-gray-900">
                           KSH {price}
-                          {oldPrice && (
+                          {oldPrice != null && oldPrice > 0 && (
                             <span className="text-sm font-normal text-gray-400 line-through ml-2">
                               KSH {oldPrice}
                             </span>
@@ -364,6 +386,17 @@ export default function ProductsPage() {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
               
+              // Debug specific price values that seem wrong
+              if (product.name && (product.name.toLowerCase().includes('vneck') || product.name.toLowerCase().includes('v-neck') || product.price >= 19000 || price >= 19000)) {
+                console.log(`🐛 Product with suspicious price: ${product.name}`, {
+                  productId: product._id,
+                  productPriceProperty: product.price,
+                  getProductDisplayPriceResult: { price, oldPrice },
+                  priceType: typeof price,
+                  rawProductPriceType: typeof product.price
+                })
+              }
+              
               return (
                 <li key={product._id}>
                   <div className="px-4 py-4 flex items-center justify-between">
@@ -400,7 +433,7 @@ export default function ProductsPage() {
                         </div>
                         <p className="text-sm text-gray-500 mt-1">
                           {product.category} • KSH {price}
-                          {oldPrice && (
+                          {oldPrice != null && oldPrice > 0 && (
                             <span className="line-through text-gray-400 ml-2">
                               KSH {oldPrice}
                             </span>

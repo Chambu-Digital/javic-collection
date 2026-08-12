@@ -56,21 +56,36 @@ export async function POST(request: NextRequest) {
     
     const productsWithSKUs = await Promise.all(
       products.map(async (product) => {
+        let needsSave = false
+        
         if (!product.sku) {
           // Generate SKU using the same logic as export
           const { generateSKU, ensureUniqueSKU } = await import('@/lib/excel-export-utils')
           const proposedSKU = generateSKU(product.slug, product.name)
           const uniqueSKU = ensureUniqueSKU(proposedSKU, existingSKUs)
           
-          // Save to database
           product.sku = uniqueSKU
           existingSKUs.push(uniqueSKU)
+          needsSave = true
+        }
+        
+        // Fix wholesale threshold validation issues
+        if (product.wholesalePrice && product.wholesalePrice > 0) {
+          if (!product.wholesaleThreshold || product.wholesaleThreshold < 1) {
+            product.wholesaleThreshold = 1
+            needsSave = true
+          }
+        }
+        
+        // Save to database if changes were made
+        if (needsSave) {
           await product.save()
         }
+        
         return product
       })
     )
-    console.log('SKUs generated and saved')
+    console.log('SKUs generated and validation issues fixed')
     
     // Generate Excel rows
     console.log('Generating Excel rows...')

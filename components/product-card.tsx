@@ -125,7 +125,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             <div className="pcard-list-bottom">
               <div className="pcard-price-row">
                 <span className="pcard-price">KSH {product.price.toLocaleString()}</span>
-                {product.oldPrice && <span className="pcard-old">KSH {product.oldPrice.toLocaleString()}</span>}
+                {product.oldPrice != null && product.oldPrice > 0 && <span className="pcard-old">KSH {product.oldPrice.toLocaleString()}</span>}
               </div>
 
               <div className="pcard-list-actions">
@@ -243,7 +243,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             {/* Price */}
             <div className="pcard-price-row">
               <span className="pcard-price">KSH {product.price.toLocaleString()}</span>
-              {product.oldPrice && <span className="pcard-old">KSH {product.oldPrice.toLocaleString()}</span>}
+              {product.oldPrice != null && product.oldPrice > 0 && <span className="pcard-old">KSH {product.oldPrice.toLocaleString()}</span>}
             </div>
 
             {/* Stock */}

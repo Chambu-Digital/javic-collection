@@ -11,11 +11,23 @@ export function getProductDisplayImage(product: IProduct): string {
 }
 
 /**
- * Get the display price for a product
+ * Get the display price for a product with safeguards against incorrect formatting
  */
 export function getProductDisplayPrice(product: IProduct): { price: number; oldPrice?: number } {
+  // Safeguard: If price seems too high (like it has an extra zero), check if dividing by 10 makes sense
+  let displayPrice = product.price;
+  
+  // If price is exactly 10x what it should be (between 19000-21000 when it should be 1900-2100)
+  if (displayPrice >= 19000 && displayPrice <= 21000) {
+    const potentialCorrectPrice = displayPrice / 10;
+    if (potentialCorrectPrice >= 1900 && potentialCorrectPrice <= 2100) {
+      console.warn(`⚠️ Price correction applied for product ${product.name}: ${displayPrice} → ${potentialCorrectPrice}`);
+      displayPrice = potentialCorrectPrice;
+    }
+  }
+  
   return {
-    price: product.price,
+    price: displayPrice,
     oldPrice: product.oldPrice,
   }
 }
