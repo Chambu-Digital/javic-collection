@@ -109,6 +109,14 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
     return activeImage()?.stock ?? product.stockQuantity ?? 0
   }
 
+  // Check if any stock exists across all branches
+  const isInStock = (): boolean => {
+    if (!product) return false
+    // For MVP, use product-level stockQuantity as a proxy
+    // In production, this would query BranchStock for total across branches
+    return effectiveStock() > 0
+  }
+
   // ── Add to cart ─────────────────────────────────────────────────────────────
 
   const handleAddToCart = () => {
@@ -122,10 +130,9 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       return
     }
 
-    // Extract URL from the IProductImage object
-    const selectedImageUrl = images.length > 0
-      ? (images[selectedImageIndex]?.url ?? '/placeholder.svg')
-      : '/placeholder.svg'
+    // Extract URL and identity from the IProductImage object
+    const selectedImage = images[selectedImageIndex]
+    const selectedImageUrl = selectedImage?.url ?? '/placeholder.svg'
 
     setAddingToCart(true)
 
@@ -139,6 +146,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       quantity,
       selectedSize: selectedSize || undefined,
       selectedImage: images.length > 1 ? selectedImageUrl : undefined,
+      imageIndex: selectedImageIndex,
+      sku: selectedImage?.sku,
+      groupId: selectedImage?.groupId,
+      branchId: (product as any).branchId?.toString() || undefined, // Product's branch
     })
 
     setTimeout(() => {
@@ -336,8 +347,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
               {/* Stock */}
               <div className="mb-6">
-                <span className={`text-sm font-semibold ${stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
-                  {stock > 0 ? `✓ ${stock} in Stock` : 'Out of Stock'}
+                <span className={`text-sm font-semibold ${isInStock() ? 'text-green-600' : 'text-destructive'}`}>
+                  {isInStock() ? '✓ In Stock' : 'Out of Stock'}
                 </span>
               </div>
 
@@ -397,11 +408,11 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               <div className="space-y-3 mb-6">
                 <Button
                   onClick={handleAddToCart}
-                  disabled={addingToCart || stock === 0}
+                  disabled={addingToCart || !isInStock()}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg font-semibold disabled:opacity-50"
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  {addingToCart ? 'Adding...' : stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  {addingToCart ? 'Adding...' : !isInStock() ? 'Out of Stock' : 'Add to Cart'}
                 </Button>
 
                 <Button

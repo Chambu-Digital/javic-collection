@@ -203,7 +203,7 @@ export default function AdminLayout({
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
+      <div className="lg:pl-64">
         {/* Top bar */}
         <div className="sticky top-0 z-10 shrink-0 flex h-16 bg-white shadow">
           <Button
@@ -253,7 +253,7 @@ export default function AdminLayout({
         </div>
 
         {/* Page content */}
-        <main className="flex-1">
+        <main>
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               {children}

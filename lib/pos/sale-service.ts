@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import connectDB from '@/lib/mongodb'
 import Product from '@/models/Product'
+import Branch from '@/models/Branch'
 import Order, { IOrder, IPaymentAllocation } from '@/models/Order'
 import Outlet from '@/models/Outlet'
 import CustomerCreditAccount from '@/models/CustomerCreditAccount'
@@ -18,9 +19,12 @@ import {
 } from '@/lib/pos/money'
 import { createLedgerEntry } from '@/lib/pos/ledger-service'
 import { createAuditEntry } from '@/lib/pos/audit-service'
+import { deductBranchStock, getBranchStock } from '@/lib/branch-inventory'
 
 export interface SaleCartItemInput {
   productId: string
+  branchId: string  // Which branch's inventory to deduct from
+  vendorId: string  // NEW: Which vendor's inventory to deduct from
   selectedImageIndex: number
   selectedSize?: string
   quantity: number
@@ -113,6 +117,25 @@ export async function completePosSale(
           throw new SaleValidationError(`Product not found: ${item.productId}`)
         }
 
+        // Verify branch exists and is active
+        const branch = await Branch.findById(item.branchId).session(session)
+        if (!branch) {
+          throw new SaleValidationError(`Branch not found for ${product.name}`)
+        }
+        if (!branch.isActive) {
+          throw new SaleValidationError(`Cannot sell from inactive branch: ${branch.name}`)
+        }
+
+        // Verify vendor exists and is active
+        const Vendor = mongoose.model('Vendor')
+        const vendor = await Vendor.findById(item.vendorId).session(session)
+        if (!vendor) {
+          throw new SaleValidationError(`Vendor not found for ${product.name}`)
+        }
+        if (!vendor.isActive) {
+          throw new SaleValidationError(`Cannot sell from inactive vendor: ${vendor.name}`)
+        }
+
         const variant = getVariantInfo(product, item.selectedImageIndex, item.selectedSize)
         const sizes = variant.sizes
         if (sizes.length > 0 && !item.selectedSize) {
@@ -122,9 +145,18 @@ export async function completePosSale(
           throw new SaleValidationError(`Variant required for ${product.name}`)
         }
 
-        if (variant.stock < item.quantity) {
+        // Check branch-specific and vendor-specific stock
+        const branchStock = await getBranchStock(
+          item.branchId,
+          item.productId,
+          item.selectedImageIndex,
+          item.selectedSize,
+          item.vendorId  // NEW: Include vendor
+        )
+
+        if (branchStock < item.quantity) {
           throw new SaleValidationError(
-            `Insufficient stock for ${product.name}. Available: ${variant.stock}`
+            `Insufficient stock for ${product.name} at ${branch.name}. Available: ${branchStock}`
           )
         }
 
@@ -149,6 +181,17 @@ export async function completePosSale(
         totalLineDiscountMinor += lineDiscountMinor
         subtotalMinor += lineSubtotalMinor
 
+        // Deduct from vendor-specific branch stock
+        const stockResult = await deductBranchStock(
+          item.branchId,
+          item.productId,
+          item.vendorId,  // NEW: Include vendor
+          item.selectedImageIndex,
+          item.selectedSize,
+          item.quantity,
+          session
+        )
+
         orderItems.push({
           productId: product._id as any,
           productName: product.name,
@@ -165,17 +208,41 @@ export async function completePosSale(
           lineDiscount: fromMinorUnits(lineDiscountMinor),
           pricingMode: pricing.isWholesale ? 'wholesale' : 'retail',
           totalPrice: fromMinorUnits(lineSubtotalMinor),
+          // Branch tracking
+          branchId: branch._id as any,
+          branchCode: branch.branchCode,
+          branchStockId: stockResult.stockIdentifier,
+          // Vendor tracking
+          vendorId: vendor._id as any,
+          vendorCode: vendor.vendorCode,
         })
 
+        // Also update product-level stock for backward compatibility
         await deductInventory(product, item.selectedImageIndex, item.quantity, item.selectedSize, session)
       }
 
       let cartDiscountMinor = 0
-      if (input.cartDiscountType === 'percent' && input.cartDiscountValue) {
-        cartDiscountMinor = subtotalMinor - applyPercentDiscountMinor(subtotalMinor, input.cartDiscountValue)
-      } else if (input.cartDiscountType === 'fixed' && input.cartDiscountValue) {
-        cartDiscountMinor = toMinorUnits(input.cartDiscountValue)
+      
+      // Check if cart contains items from multiple branches
+      const uniqueBranches = new Set(input.items.map(item => item.branchId))
+      const isMultiBranch = uniqueBranches.size > 1
+
+      // Enforce discount rules based on branch composition
+      if (isMultiBranch && (input.cartDiscountType || input.cartDiscountValue)) {
+        throw new SaleValidationError(
+          'General cart discount is not allowed for multi-branch carts. Please apply discounts to individual items instead.'
+        )
       }
+
+      // Apply cart discount only if single-branch cart
+      if (!isMultiBranch) {
+        if (input.cartDiscountType === 'percent' && input.cartDiscountValue) {
+          cartDiscountMinor = subtotalMinor - applyPercentDiscountMinor(subtotalMinor, input.cartDiscountValue)
+        } else if (input.cartDiscountType === 'fixed' && input.cartDiscountValue) {
+          cartDiscountMinor = toMinorUnits(input.cartDiscountValue)
+        }
+      }
+      
       cartDiscountMinor = Math.min(cartDiscountMinor, subtotalMinor)
 
       const totalDiscountMinor = totalLineDiscountMinor + cartDiscountMinor
@@ -325,6 +392,33 @@ export async function completePosSale(
         deviceId: input.deviceId,
         session,
       })
+
+      // Create inventory removal ledger entries per branch
+      for (const item of orderItems) {
+        if (item.branchId) {
+          await createLedgerEntry({
+            eventType: 'inventory_removed',
+            source: 'pos',
+            channel: 'pos',
+            outletId: outlet._id as any,
+            outletName: outlet.name,
+            branchId: item.branchId,
+            branchCode: item.branchCode,
+            branchStockId: item.branchStockId,
+            productId: item.productId,
+            productName: item.productName,
+            variantImageUrl: item.selectedImage,
+            size: item.selectedSize,
+            quantity: item.quantity,
+            totalMinor: toMinorUnits(item.totalPrice),
+            orderId: order._id as any,
+            orderNumber: order.orderNumber,
+            wasOffline: input.wasOffline || false,
+            deviceId: input.deviceId,
+            session,
+          })
+        }
+      }
 
       for (const alloc of paymentAllocations) {
         const eventType =
@@ -534,6 +628,23 @@ export class SaleValidationError extends Error {
     super(message)
     this.name = 'SaleValidationError'
   }
+}
+
+/**
+ * Check if cart contains items from multiple branches
+ * Used by UI to determine if general cart discount should be disabled
+ */
+export function isMultiBranchCart(items: SaleCartItemInput[]): boolean {
+  const uniqueBranches = new Set(items.map(item => item.branchId))
+  return uniqueBranches.size > 1
+}
+
+/**
+ * Get list of unique branches in cart
+ */
+export function getCartBranches(items: SaleCartItemInput[]): string[] {
+  const uniqueBranches = new Set(items.map(item => item.branchId))
+  return Array.from(uniqueBranches)
 }
 
 export { validatePayments, resolvePaymentMethod, buildReceipt }

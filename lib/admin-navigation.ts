@@ -15,6 +15,8 @@ import {
   Upload,
   Megaphone,
   UsersRound,
+  Building2,
+  Store,
   LucideIcon
 } from 'lucide-react'
 import { PERMISSIONS, Permission, PermissionChecker } from './permissions'
@@ -127,6 +129,20 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     href: '/admin/campaigns',
     icon: Megaphone,
     permissions: [PERMISSIONS.CAMPAIGNS_VIEW],
+    notificationKey: null,
+  },
+  {
+    name: 'Branches',
+    href: '/admin/branches',
+    icon: Building2,
+    permissions: [PERMISSIONS.SETTINGS_VIEW],
+    notificationKey: null,
+  },
+  {
+    name: 'Vendors',
+    href: '/admin/vendors',
+    icon: Store,
+    permissions: [PERMISSIONS.SETTINGS_VIEW],
     notificationKey: null,
   },
   {

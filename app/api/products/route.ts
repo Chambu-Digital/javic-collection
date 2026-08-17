@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Product from '@/models/Product'
 import Category from '@/models/Category'
+import Branch from '@/models/Branch'
+import BranchStock from '@/models/BranchStock'
+import mongoose from 'mongoose'
 
 export async function GET(request: NextRequest) {
   try {
@@ -133,11 +136,146 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Create new product
-    const product = new Product(body)
-    await product.save()
+    // Validate branch selection
+    if (!body.branchId) {
+      return NextResponse.json(
+        { error: 'Branch selection is required' },
+        { status: 400 }
+      )
+    }
     
-    return NextResponse.json(product, { status: 201 })
+    // Validate vendor selection
+    if (!body.vendorId) {
+      return NextResponse.json(
+        { error: 'Vendor selection is required' },
+        { status: 400 }
+      )
+    }
+    
+    // Verify branch exists and is active
+    const branch = await Branch.findById(body.branchId)
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: 'Invalid or inactive branch selected' },
+        { status: 400 }
+      )
+    }
+    
+    // Verify vendor exists and is active
+    const Vendor = (await import('@/models/Vendor')).default
+    const vendor = await Vendor.findById(body.vendorId)
+    if (!vendor || !vendor.isActive) {
+      return NextResponse.json(
+        { error: 'Invalid or inactive vendor selected' },
+        { status: 400 }
+      )
+    }
+    
+    // Create product and branch stock in a transaction
+    const session = await mongoose.startSession()
+    
+    try {
+      await session.withTransaction(async () => {
+        // Create product
+        const product = new Product(body)
+        await product.save({ session })
+        
+        // Create BranchStock records for the selected branch and vendor
+        const productSku = body.sku || `PROD${product._id.toString().slice(-6)}`
+        
+        // Handle per-image stock and per-size stock
+        if (body.images && body.images.length > 0) {
+          for (let imageIndex = 0; imageIndex < body.images.length; imageIndex++) {
+            const image = body.images[imageIndex]
+            const imageSku = image.sku || productSku
+            
+            // Handle size-specific stock
+            if (image.sizeStock && typeof image.sizeStock === 'object') {
+              const sizeStockMap = image.sizeStock as Record<string, number>
+              for (const [size, quantity] of Object.entries(sizeStockMap)) {
+                if (quantity > 0) {
+                  const stockIdentifier = (BranchStock as any).generateStockIdentifier(
+                    imageSku,
+                    branch.branchCode,
+                    imageIndex,
+                    size
+                  )
+                  
+                  const branchStock = new BranchStock({
+                    productId: product._id,
+                    branchId: branch._id,
+                    vendorId: body.vendorId,
+                    imageIndex,
+                    selectedSize: size,
+                    stockIdentifier,
+                    quantity
+                  })
+                  
+                  await branchStock.save({ session })
+                }
+              }
+            } 
+            // Handle image-level stock without size breakdown
+            else if (image.stock !== undefined && image.stock > 0) {
+              const stockIdentifier = (BranchStock as any).generateStockIdentifier(
+                imageSku,
+                branch.branchCode,
+                imageIndex
+              )
+              
+              const branchStock = new BranchStock({
+                productId: product._id,
+                branchId: branch._id,
+                vendorId: body.vendorId,
+                imageIndex,
+                stockIdentifier,
+                quantity: image.stock
+              })
+              
+              await branchStock.save({ session })
+            }
+          }
+        }
+        
+        // If product has overall stockQuantity but no image-level stock, create a default record
+        // Use initialStock if provided, otherwise fall back to stockQuantity
+        const initialStock = body.initialStock || body.stockQuantity || 0
+        if (initialStock > 0) {
+          const hasImageStock = body.images && body.images.some(img => 
+            (img.stock && img.stock > 0) || 
+            (img.sizeStock && Object.keys(img.sizeStock).length > 0)
+          )
+          
+          if (!hasImageStock) {
+            const stockIdentifier = (BranchStock as any).generateStockIdentifier(
+              productSku,
+              branch.branchCode,
+              0
+            )
+            
+            const branchStock = new BranchStock({
+              productId: product._id,
+              branchId: branch._id,
+              imageIndex: 0,
+              stockIdentifier,
+              quantity: initialStock
+            })
+            
+            await branchStock.save({ session })
+          }
+        }
+      })
+      
+      // Fetch the created product to return
+      const product = await Product.findOne({ slug: body.slug })
+      return NextResponse.json(product, { status: 201 })
+      
+    } catch (transactionError) {
+      await session.abortTransaction()
+      throw transactionError
+    } finally {
+      session.endSession()
+    }
     
   } catch (error: any) {
     console.error('Error creating product:', error)
@@ -150,7 +288,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: 'Failed to create product' },
+      { error: error.message || 'Failed to create product' },
       { status: 500 }
     )
   }

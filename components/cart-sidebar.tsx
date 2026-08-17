@@ -61,6 +61,7 @@ export default function CartSidebar({ children }: CartSidebarProps) {
       price: item.price,
       image: item.selectedImage || item.image,
       selectedImage: item.selectedImage,
+      imageIndex: item.imageIndex,  // Add imageIndex
       selectedSize: item.selectedSize,
       variantDetails: {
         type: item.selectedSize ? 'size' : 'default',

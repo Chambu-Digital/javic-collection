@@ -31,17 +31,13 @@ export default function CartPage() {
     // Format cart items for order recording
     const orderItems = cartItems.map(item => ({
       productId: item.id,
-      name: `${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}`,
-      quantity: item.quantity,
-      price: item.price,
-      image: item.selectedImage || item.image,
+      name: item.name,
+      image: item.image,
       selectedImage: item.selectedImage,
+      imageIndex: item.imageIndex,
       selectedSize: item.selectedSize,
-      variantDetails: item.selectedSize ? {
-        type: 'size',
-        value: item.selectedSize,
-        sku: 'default'
-      } : undefined
+      quantity: item.quantity,
+      price: item.price
     }))
 
     try {

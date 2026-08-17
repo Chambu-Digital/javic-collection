@@ -20,6 +20,15 @@ export interface IOrderItem {
   pricingMode?: 'retail' | 'wholesale'
   totalPrice: number
   reviewed?: boolean
+  // Branch inventory tracking
+  branchId?: mongoose.Types.ObjectId
+  branchCode?: string
+  branchStockId?: string
+  // Vendor tracking (NEW)
+  vendorId?: mongoose.Types.ObjectId
+  vendorCode?: string
+  // Image variant tracking
+  groupId?: string
 }
 
 export interface IPaymentAllocation {
@@ -118,7 +127,16 @@ const OrderItemSchema = new mongoose.Schema({
   cartDiscountAllocation: { type: Number, default: 0, min: 0 },
   pricingMode: { type: String, enum: ['retail', 'wholesale'] },
   totalPrice: { type: Number, required: true, min: 0 },
-  reviewed: { type: Boolean, default: false }
+  reviewed: { type: Boolean, default: false },
+  // Branch inventory tracking
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
+  branchCode: { type: String, trim: true },
+  branchStockId: { type: String, trim: true },
+  // Vendor tracking (NEW)
+  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
+  vendorCode: { type: String, trim: true },
+  // Image variant tracking
+  groupId: { type: String, trim: true }
 })
 
 const PaymentAllocationSchema = new mongoose.Schema({

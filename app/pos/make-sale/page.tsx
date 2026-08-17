@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Search, Camera, Clock, User, Package,
   Loader2, X, ChevronDown, Minus, Plus, Tag, ShoppingCart,
+  Building2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,6 +51,11 @@ export default function MakeSalePage() {
   const [lastReceipt, setLastReceipt]                 = useState<any>(null)
   const [saleError, setSaleError]                     = useState<string | null>(null)
   const [outletId, setOutletId]                       = useState<string | null>(null)
+  
+  // NEW: Branch context state
+  const [branches, setBranches]                       = useState<Array<{ _id: string; name: string; branchCode: string }>>([])
+  const [selectedBranchId, setSelectedBranchId]       = useState<string>('')
+  const [selectedBranchCode, setSelectedBranchCode]   = useState<string>('')
 
   // ── Cart ──
   const {
@@ -58,6 +64,8 @@ export default function MakeSalePage() {
     getSubtotalMinor, getTotalDiscountMinor, getTotalMinor,
     setCartDiscount, clearCart, setOutlet, setCustomer,
     cartDiscountType, cartDiscountValue, cartDiscountReason,
+    isMultiBranchCart, isMultiVendorCart,
+    currentBranchId, setCurrentBranch,
   } = usePosCartStore()
 
   const subtotal = getSubtotalMinor() / 100
@@ -81,6 +89,26 @@ export default function MakeSalePage() {
       .then(d => setCategories(d.categories || []))
       .catch(() => setCategories([]))
       .finally(() => setLoadingCategories(false))
+  }, [])
+
+  // ── Load branches ──
+  useEffect(() => {
+    fetch('/api/admin/branches')
+      .then(r => r.json())
+      .then(d => {
+        const activeBranches = (d.branches || []).filter((b: any) => b.isActive)
+        setBranches(activeBranches)
+        
+        // Auto-select main branch or first branch
+        if (activeBranches.length > 0) {
+          const mainBranch = activeBranches.find((b: any) => b.isMainBranch)
+          const branchToSelect = mainBranch || activeBranches[0]
+          setSelectedBranchId(branchToSelect._id)
+          setSelectedBranchCode(branchToSelect.branchCode)
+          setCurrentBranch(branchToSelect._id, branchToSelect.branchCode)
+        }
+      })
+      .catch(() => setBranches([]))
   }, [])
 
   // ── Load POS session (gets the real default outlet) ──
@@ -177,6 +205,30 @@ export default function MakeSalePage() {
     setBarcodeInput('')
   }
 
+  // Handle branch change
+  const handleBranchChange = (branchId: string) => {
+    const branch = branches.find(b => b._id === branchId)
+    if (branch) {
+      setSelectedBranchId(branch._id)
+      setSelectedBranchCode(branch.branchCode)
+      setCurrentBranch(branch._id, branch.branchCode)
+      
+      // Warn if cart has items from different branch
+      if (items.length > 0 && items.some(item => item.branchId !== branch._id)) {
+        if (confirm('Changing branch will clear the current cart. Continue?')) {
+          clearCart()
+        } else {
+          // Revert selection
+          const currentBranch = branches.find(b => b._id === currentBranchId)
+          if (currentBranch) {
+            setSelectedBranchId(currentBranch._id)
+            setSelectedBranchCode(currentBranch.branchCode)
+          }
+        }
+      }
+    }
+  }
+
   // ── Product select → open variant modal ──
   const handleProductSelect = (product: PosProductCardProduct) => {
     setSelectedProduct(product)
@@ -190,9 +242,11 @@ export default function MakeSalePage() {
     quantity: number; retailUnitPrice: number; wholesaleUnitPrice?: number
     originalUnitPrice: number; actualUnitPrice: number
     pricingMode: 'retail' | 'wholesale'
+    branchId: string; branchCode: string; branchStockId: string
+    vendorId: string; vendorCode: string
   }) => {
     addItem({
-      id: `${item.productId}-${item.selectedImageIndex}-${item.selectedSize || ''}-${Date.now()}`,
+      id: `${item.productId}-${item.selectedImageIndex}-${item.selectedSize || ''}-${item.branchId}-${item.vendorId}-${Date.now()}`,
       productId: item.productId, productName: item.productName,
       itemCode: item.sku, sku: item.sku,
       selectedImageIndex: item.selectedImageIndex, selectedImageUrl: item.selectedImageUrl,
@@ -200,6 +254,8 @@ export default function MakeSalePage() {
       retailUnitPrice: item.retailUnitPrice, wholesaleUnitPrice: item.wholesaleUnitPrice,
       originalUnitPrice: item.originalUnitPrice, actualUnitPrice: item.actualUnitPrice,
       pricingMode: item.pricingMode, addedBy: user?.id,
+      branchId: item.branchId, branchCode: item.branchCode, branchStockId: item.branchStockId,
+      vendorId: item.vendorId, vendorCode: item.vendorCode,
     })
     setShowVariantSelector(false)
     setSelectedProduct(null)
@@ -243,6 +299,11 @@ export default function MakeSalePage() {
             pricingMode:        item.pricingMode,
             addedBy:            user?.id,
             addedAt:            new Date().toISOString(),
+            branchId:           item.branchId,
+            branchCode:         item.branchCode,
+            branchStockId:      item.branchStockId,
+            vendorId:           item.vendorId,  // NEW: Preserve vendor
+            vendorCode:         item.vendorCode,  // NEW: Preserve vendor code
           })),
           pricingMode:        pricingMode,
           cartDiscountType:   cartDiscountType,
@@ -293,6 +354,8 @@ export default function MakeSalePage() {
         body: JSON.stringify({
           items: items.map(item => ({
             productId: item.productId,
+            branchId: item.branchId,
+            vendorId: item.vendorId,  // NEW: Include vendor
             selectedImageIndex: item.selectedImageIndex,
             selectedSize: item.selectedSize,
             quantity: item.quantity,
@@ -301,6 +364,9 @@ export default function MakeSalePage() {
             priceOverride: item.priceOverride,
           })),
           pricingMode,
+          cartDiscountType,
+          cartDiscountValue,
+          cartDiscountReason,
           customerId: customer?.id,
           customerName: customer?.name,
           customerPhone: customer?.phone,
@@ -609,6 +675,37 @@ export default function MakeSalePage() {
       ════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden p-3 sm:p-5">
 
+        {/* NEW: Branch selector at top */}
+        <div className="mb-4 bg-white border-2 border-primary/20 rounded-lg p-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Current Branch</label>
+              <select
+                value={selectedBranchId}
+                onChange={(e) => handleBranchChange(e.target.value)}
+                className="w-full border-gray-300 rounded-md text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary"
+                disabled={branches.length === 0}
+              >
+                {branches.length === 0 && <option value="">No branches available</option>}
+                {branches.map(branch => (
+                  <option key={branch._id} value={branch._id}>
+                    {branch.name} ({branch.branchCode})
+                  </option>
+                ))}
+              </select>
+            </div>
+            {items.length > 0 && (
+              <div className="text-xs text-gray-500 hidden sm:block">
+                {items.length} item{items.length !== 1 ? 's' : ''} in cart
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-2 ml-8">
+            All products will be sold from this branch. {isMultiVendorCart() && <span className="text-primary font-medium">Multiple vendors in cart.</span>}
+          </p>
+        </div>
+
         {/* Page heading row */}
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -826,9 +923,21 @@ export default function MakeSalePage() {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.productName}</p>
-                    {item.selectedSize && (
-                      <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {item.selectedSize && (
+                        <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>
+                      )}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Building2 className="h-3 w-3" />
+                        <span>{item.branchCode}</span>
+                      </div>
+                      {item.vendorCode && (
+                        <div className="flex items-center gap-1 text-xs text-primary/70">
+                          <span>•</span>
+                          <span>{item.vendorCode}</span>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm font-semibold text-primary">
                       {formatKES(item.actualUnitPrice)}
                     </p>
@@ -869,14 +978,22 @@ export default function MakeSalePage() {
           {/* Cart discount input — matches screenshot */}
           <div className="flex items-center justify-between text-sm gap-2">
             <span className="text-muted-foreground shrink-0">Cart Discount:</span>
-            <Input
-              value={cartDiscountInput}
-              onChange={e => setCartDiscountInput(e.target.value)}
-              onBlur={applyCartDiscount}
-              onKeyDown={e => e.key === 'Enter' && applyCartDiscount()}
-              placeholder="Discount"
-              className="h-7 text-sm text-right w-28"
-            />
+            <div className="relative">
+              <Input
+                value={cartDiscountInput}
+                onChange={e => setCartDiscountInput(e.target.value)}
+                onBlur={applyCartDiscount}
+                onKeyDown={e => e.key === 'Enter' && applyCartDiscount()}
+                placeholder="Discount"
+                disabled={isMultiBranchCart()}
+                className="h-7 text-sm text-right w-28 disabled:opacity-50"
+              />
+              {isMultiBranchCart() && (
+                <div className="absolute right-0 top-full mt-1 text-xs text-orange-600 bg-orange-50 p-1 rounded border border-orange-200 whitespace-nowrap z-10">
+                  Multi-branch cart: Use item discounts only
+                </div>
+              )}
+            </div>
           </div>
 
           {discount > 0 && (
@@ -956,6 +1073,7 @@ export default function MakeSalePage() {
         product={selectedProduct}
         open={showVariantSelector}
         pricingMode={pricingMode}
+        currentBranchId={selectedBranchId}
         onClose={() => { setShowVariantSelector(false); setSelectedProduct(null) }}
         onAdd={handleVariantAdd}
       />

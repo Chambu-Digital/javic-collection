@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb'
 import Product from '@/models/Product'
 import { requirePosAuth, handlePosAuthError } from '@/lib/pos/auth'
 import { getProductSearchStock, isProductAvailable, getAllVariants } from '@/lib/pos/product-pricing'
+import { getProductBranchStocks } from '@/lib/branch-inventory'
 
 // Force dynamic — never cache this route so stock counts are always live
 export const dynamic = 'force-dynamic'
@@ -52,24 +53,37 @@ export async function GET(request: NextRequest) {
       Product.countDocuments(query),
     ])
 
+    // Fetch branch stock for all products in batch to avoid N+1 queries
+    const productIds = products.map(p => p._id)
+    const branchStocksMap = new Map<string, any[]>()
+    
+    // Batch fetch branch stocks for all products
+    if (productIds.length > 0) {
+      const branchStocksPromises = productIds.map(productId => 
+        getProductBranchStocks(productId as any).catch(() => [])
+      )
+      
+      const branchStocksResults = await Promise.all(branchStocksPromises)
+      branchStocksResults.forEach((stocks, index) => {
+        branchStocksMap.set(productIds[index].toString(), stocks)
+      })
+    }
+
     const enriched = products.map(p => {
       const stock = getProductSearchStock(p as any)
+      const productId = p._id.toString()
+      const branchStocks = branchStocksMap.get(productId) || []
       
-      // Log for debugging
-      console.log('[API Stock Debug]', {
-        productId: p._id,
-        productName: p.name,
-        databaseStockQuantity: p.stockQuantity,
-        calculatedStock: stock,
-        apiResponseStock: stock
-      })
+      // Calculate total stock across all branches
+      const totalBranchStock = branchStocks.reduce((sum, bs) => sum + bs.quantity, 0)
       
       return {
         ...p,
-        stock: stock,
+        stock: totalBranchStock > 0 ? totalBranchStock : stock, // Use branch stock if available
         available: isProductAvailable(p as any),
-        lowStock: stock > 0 && stock <= 5,
+        lowStock: (totalBranchStock > 0 ? totalBranchStock : stock) > 0 && (totalBranchStock > 0 ? totalBranchStock : stock) <= 5,
         variants: getAllVariants(p as any),
+        branchStocks: branchStocks, // Include branch-specific stock information
       }
     })
 

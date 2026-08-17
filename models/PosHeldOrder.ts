@@ -19,6 +19,12 @@ export interface IPosHeldOrderItem {
   pricingMode: 'retail' | 'wholesale'
   addedBy: mongoose.Types.ObjectId
   addedAt: Date
+  // Branch and Vendor tracking
+  branchId?: mongoose.Types.ObjectId
+  branchCode?: string
+  branchStockId?: string
+  vendorId?: mongoose.Types.ObjectId
+  vendorCode?: string
 }
 
 export interface IPosHeldOrder {
@@ -72,6 +78,12 @@ const PosHeldOrderItemSchema = new mongoose.Schema({
   pricingMode: { type: String, enum: ['retail', 'wholesale'], default: 'retail' },
   addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   addedAt: { type: Date, default: Date.now },
+  // Branch and Vendor tracking
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
+  branchCode: String,
+  branchStockId: String,
+  vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
+  vendorCode: String,
 })
 
 const PosHeldOrderSchema = new mongoose.Schema<IPosHeldOrder>(

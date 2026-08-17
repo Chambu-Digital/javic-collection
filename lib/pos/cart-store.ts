@@ -27,6 +27,13 @@ export interface PosCartItem {
   priceOverrideReason?: string
   addedBy?: string
   addedAt: string
+  // Branch inventory tracking
+  branchId: string
+  branchCode: string
+  branchStockId: string
+  // Vendor tracking (NEW)
+  vendorId: string
+  vendorCode: string
 }
 
 export interface PosCustomer {
@@ -50,9 +57,12 @@ interface PosCartStore {
   notes: string
   outletId: string | null
   deviceId: string | null
+  currentBranchId: string | null  // NEW: Sticky branch context
+  currentBranchCode: string | null  // NEW: Branch code for display
 
   setOutlet: (outletId: string) => void
   setDeviceId: (deviceId: string) => void
+  setCurrentBranch: (branchId: string, branchCode: string) => void  // NEW
   setPricingMode: (mode: 'retail' | 'wholesale') => void
   addItem: (item: Omit<PosCartItem, 'addedAt' | 'lineDiscountMinor' | 'lineSubtotalMinor' | 'lineTotalMinor'>) => void
   updateItem: (index: number, updates: Partial<PosCartItem>) => void
@@ -76,6 +86,8 @@ interface PosCartStore {
   getTotalMinor: () => number
   getItemCount: () => number
   getTotalQuantity: () => number
+  isMultiBranchCart: () => boolean  // Now checks if items deviate from current branch
+  isMultiVendorCart: () => boolean  // NEW: Check if multiple vendors in cart
 }
 
 function calcLineTotals(item: Omit<PosCartItem, 'lineDiscountMinor' | 'lineSubtotalMinor' | 'lineTotalMinor'>) {
@@ -102,9 +114,12 @@ export const usePosCartStore = create<PosCartStore>()(
       notes: '',
       outletId: null,
       deviceId: null,
+      currentBranchId: null,
+      currentBranchCode: null,
 
       setOutlet: (outletId) => set({ outletId }),
       setDeviceId: (deviceId) => set({ deviceId }),
+      setCurrentBranch: (branchId, branchCode) => set({ currentBranchId: branchId, currentBranchCode: branchCode }),
       setPricingMode: (mode) =>
         set(state => ({
           pricingMode: mode,
@@ -127,7 +142,9 @@ export const usePosCartStore = create<PosCartStore>()(
           i =>
             i.productId === item.productId &&
             i.selectedImageIndex === item.selectedImageIndex &&
-            i.selectedSize === item.selectedSize
+            i.selectedSize === item.selectedSize &&
+            i.branchId === item.branchId &&
+            i.vendorId === item.vendorId  // NEW: Also match vendor
         )
         if (idx >= 0) {
           const updated = { ...items[idx], quantity: items[idx].quantity + item.quantity }
@@ -170,7 +187,13 @@ export const usePosCartStore = create<PosCartStore>()(
 
       loadHeldOrder: (data) =>
         set({
-          items: data.items,
+          items: data.items.map(item => ({
+            ...item,
+            // Ensure branch fields exist for backward compatibility
+            branchId: item.branchId || '',
+            branchCode: item.branchCode || '',
+            branchStockId: item.branchStockId || '',
+          })),
           pricingMode: data.pricingMode,
           cartDiscountType: data.cartDiscountType,
           cartDiscountValue: data.cartDiscountValue,
@@ -185,26 +208,56 @@ export const usePosCartStore = create<PosCartStore>()(
         const sub = get().getSubtotalMinor()
         let cartDisc = 0
         const { cartDiscountType, cartDiscountValue } = get()
-        if (cartDiscountType === 'percent' && cartDiscountValue) {
-          cartDisc = Math.round(sub * (cartDiscountValue / 100))
-        } else if (cartDiscountType === 'fixed' && cartDiscountValue) {
-          cartDisc = Math.round(cartDiscountValue * 100)
+        
+        // Only apply cart discount if not a multi-branch cart
+        if (!get().isMultiBranchCart()) {
+          if (cartDiscountType === 'percent' && cartDiscountValue) {
+            cartDisc = Math.round(sub * (cartDiscountValue / 100))
+          } else if (cartDiscountType === 'fixed' && cartDiscountValue) {
+            cartDisc = Math.round(cartDiscountValue * 100)
+          }
         }
+        
         return lineDisc + Math.min(cartDisc, sub)
       },
       getTotalMinor: () => {
         const sub = get().getSubtotalMinor()
         const { cartDiscountType, cartDiscountValue } = get()
         let cartDisc = 0
-        if (cartDiscountType === 'percent' && cartDiscountValue) {
-          cartDisc = Math.round(sub * (cartDiscountValue / 100))
-        } else if (cartDiscountType === 'fixed' && cartDiscountValue) {
-          cartDisc = Math.round(cartDiscountValue * 100)
+        
+        // Only apply cart discount if not a multi-branch cart
+        if (!get().isMultiBranchCart()) {
+          if (cartDiscountType === 'percent' && cartDiscountValue) {
+            cartDisc = Math.round(sub * (cartDiscountValue / 100))
+          } else if (cartDiscountType === 'fixed' && cartDiscountValue) {
+            cartDisc = Math.round(cartDiscountValue * 100)
+          }
         }
+        
         return Math.max(0, sub - Math.min(cartDisc, sub))
       },
       getItemCount: () => get().items.length,
       getTotalQuantity: () => get().items.reduce((s, i) => s + i.quantity, 0),
+      
+      isMultiBranchCart: () => {
+        const currentBranch = get().currentBranchId
+        const items = get().items
+        
+        // If no current branch set, check if items have different branches
+        if (!currentBranch) {
+          const uniqueBranches = new Set(items.map(item => item.branchId))
+          return uniqueBranches.size > 1
+        }
+        
+        // Check if any item deviates from current branch
+        return items.some(item => item.branchId !== currentBranch)
+      },
+
+      isMultiVendorCart: () => {
+        const items = get().items
+        const uniqueVendors = new Set(items.map(item => item.vendorId))
+        return uniqueVendors.size > 1
+      },
     }),
     { name: 'javic-pos-cart' }
   )

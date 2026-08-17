@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, Eye, EyeOff, Search, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { IProduct } from '@/models/Product'
 import { getProductDisplayImage, getProductDisplayPrice } from '@/lib/product-utils'
+import BranchSelector from '@/components/admin/branch-selector'
 import * as XLSX from 'xlsx'
 
 export default function ProductsPage() {
@@ -17,6 +18,7 @@ export default function ProductsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [exporting, setExporting] = useState(false)
+  const [selectedBranch, setSelectedBranch] = useState('all')
 
   useEffect(() => {
     fetchProducts()
@@ -228,7 +230,7 @@ export default function ProductsPage() {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -249,6 +251,12 @@ export default function ProductsPage() {
               <option key={category} value={category}>{category}</option>
             ))}
           </select>
+          <BranchSelector
+            value={selectedBranch}
+            onChange={setSelectedBranch}
+            includeAllOption={true}
+            className="w-full"
+          />
           <div className="text-sm text-gray-500 flex items-center justify-center sm:justify-start">
             <span className="text-center sm:text-left">
               Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} products
@@ -264,6 +272,10 @@ export default function ProductsPage() {
             {paginatedProducts.map((product) => {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
+              const needsRestocking = product.images.some(img =>
+                img.stock === 0 ||
+                (img.sizeStock && Object.values(img.sizeStock).some(qty => qty === 0))
+              )
               
               // Debug specific price values that seem wrong
               if (product.name && (product.name.toLowerCase().includes('vneck') || product.name.toLowerCase().includes('v-neck') || product.price >= 19000 || price >= 19000)) {
@@ -303,6 +315,11 @@ export default function ProductsPage() {
                         }`}>
                           {product.isActive ? 'Active' : 'Inactive'}
                         </span>
+                        {needsRestocking && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                            Restocking needed
+                          </span>
+                        )}
                         {product.isFeatured && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                             Featured
@@ -385,6 +402,10 @@ export default function ProductsPage() {
             {paginatedProducts.map((product) => {
               const displayImage = getProductDisplayImage(product)
               const { price, oldPrice } = getProductDisplayPrice(product)
+              const needsRestocking = product.images.some(img =>
+                img.stock === 0 ||
+                (img.sizeStock && Object.values(img.sizeStock).some(qty => qty === 0))
+              )
               
               // Debug specific price values that seem wrong
               if (product.name && (product.name.toLowerCase().includes('vneck') || product.name.toLowerCase().includes('v-neck') || product.price >= 19000 || price >= 19000)) {
@@ -420,6 +441,11 @@ export default function ProductsPage() {
                           }`}>
                             {product.isActive ? 'Active' : 'Inactive'}
                           </span>
+                          {needsRestocking && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 flex-shrink-0">
+                              Restocking needed
+                            </span>
+                          )}
                           {product.isFeatured && (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0">
                               Featured

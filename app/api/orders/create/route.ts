@@ -12,12 +12,11 @@ const orderItemSchema = z.object({
   productName: z.string(),
   productImage: z.string(),
   selectedImage: z.string().optional(),
-  variantId: z.string().optional(),
-  variantDetails: z.object({
-    type: z.string(),
-    value: z.string(),
-    sku: z.string()
-  }).optional(),
+  selectedImageIndex: z.number().optional(),
+  selectedSize: z.string().optional(),
+  sku: z.string().optional(),
+  groupId: z.string().optional(),
+  branchId: z.string().optional(),
   quantity: z.number().min(1),
   price: z.number().min(0),
   totalPrice: z.number().min(0)
@@ -85,7 +84,11 @@ export async function POST(request: NextRequest) {
         productName: item.productName,
         quantity: item.quantity,
         price: item.price,
-        totalPrice: item.totalPrice
+        totalPrice: item.totalPrice,
+        selectedImageIndex: item.selectedImageIndex,
+        selectedSize: item.selectedSize,
+        sku: item.sku,
+        groupId: item.groupId
       })
       
       const product = await Product.findById(item.productId)
@@ -96,36 +99,24 @@ export async function POST(request: NextRequest) {
         )
       }
       
-      console.log('Product pricing info:', {
-        hasVariants: product.hasVariants,
-        regularPrice: product.price,
-        wholesalePrice: product.wholesalePrice,
-        wholesaleThreshold: product.wholesaleThreshold,
-        variantCount: product.variants?.length || 0
-      })
-      
-      // Verify pricing with variant and wholesale logic
+      // Verify pricing with image variant and wholesale logic
       let expectedPrice = product.price
-      let variant = null
       
-      // If product has variants and item has variantId, get variant pricing
-      if (product.hasVariants && item.variantId && product.variants) {
-        variant = product.variants.find(v => v.id === item.variantId)
-        if (variant) {
-          expectedPrice = variant.price
-          
-          // Check if wholesale pricing applies for this variant
-          if (variant.wholesalePrice && variant.wholesaleThreshold && item.quantity >= variant.wholesaleThreshold) {
-            expectedPrice = variant.wholesalePrice
-          }
-        } else {
-          return NextResponse.json(
-            { error: `Variant not found: ${item.variantId} for ${item.productName}` },
-            { status: 400 }
-          )
+      // If item has selectedImageIndex, check for image-level price override
+      if (item.selectedImageIndex !== undefined && product.images && product.images[item.selectedImageIndex]) {
+        const selectedImage = product.images[item.selectedImageIndex]
+        if (selectedImage.price !== undefined && selectedImage.price !== null) {
+          expectedPrice = selectedImage.price
+        }
+        
+        // Check for image-level wholesale pricing
+        const wsPrice = selectedImage.wholesalePrice ?? product.wholesalePrice
+        const wsThreshold = selectedImage.wholesaleThreshold ?? product.wholesaleThreshold
+        if (wsPrice && wsThreshold && item.quantity >= wsThreshold) {
+          expectedPrice = wsPrice
         }
       } else {
-        // Simple product - check wholesale pricing on main product
+        // No image selection - use product-level pricing
         if (product.wholesalePrice && product.wholesaleThreshold && item.quantity >= product.wholesaleThreshold) {
           expectedPrice = product.wholesalePrice
         }
@@ -138,15 +129,10 @@ export async function POST(request: NextRequest) {
           itemPrice: item.price,
           expectedPrice,
           quantity: item.quantity,
-          hasVariants: product.hasVariants,
-          variantId: item.variantId,
-          variantFound: !!variant,
-          variantPrice: variant?.price,
-          variantWholesalePrice: variant?.wholesalePrice,
-          variantWholesaleThreshold: variant?.wholesaleThreshold,
-          productPrice: product.price,
-          productWholesalePrice: product.wholesalePrice,
-          productWholesaleThreshold: product.wholesaleThreshold
+          selectedImageIndex: item.selectedImageIndex,
+          selectedSize: item.selectedSize,
+          sku: item.sku,
+          groupId: item.groupId
         })
         return NextResponse.json(
           { error: `Price mismatch for ${item.productName}. Expected: ${expectedPrice}, Got: ${item.price}` },
@@ -157,7 +143,8 @@ export async function POST(request: NextRequest) {
       calculatedSubtotal += item.totalPrice
       verifiedItems.push({
         ...item,
-        productId: new mongoose.Types.ObjectId(item.productId)
+        productId: new mongoose.Types.ObjectId(item.productId),
+        branchId: item.branchId ? new mongoose.Types.ObjectId(item.branchId) : undefined
       })
     }
     

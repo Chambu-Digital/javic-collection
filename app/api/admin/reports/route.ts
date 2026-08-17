@@ -4,6 +4,7 @@ import Order from '@/models/Order'
 import Product from '@/models/Product'
 import User from '@/models/User'
 import Review from '@/models/Review'
+import BranchStock from '@/models/BranchStock'
 import { requireAdmin } from '@/lib/auth'
 import mongoose from 'mongoose'
 
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || '30' // days
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
+    const branchId = searchParams.get('branchId') // Branch filter for sale-line level reporting
     
     // Calculate date range
     let dateFilter: any = {}
@@ -38,29 +40,29 @@ export async function GET(request: NextRequest) {
     
     switch (reportType) {
       case 'sales-overview':
-        return NextResponse.json(await getSalesOverview(dateFilter))
+        return NextResponse.json(await getSalesOverview(dateFilter, branchId))
       
       case 'product-performance':
-        return NextResponse.json(await getProductPerformance(dateFilter))
+        return NextResponse.json(await getProductPerformance(dateFilter, branchId))
       
       case 'customer-analytics':
-        return NextResponse.json(await getCustomerAnalytics(dateFilter))
+        return NextResponse.json(await getCustomerAnalytics(dateFilter, branchId))
       
       case 'revenue-trends':
-        return NextResponse.json(await getRevenueTrends(dateFilter))
+        return NextResponse.json(await getRevenueTrends(dateFilter, branchId))
       
       case 'top-products':
         const limit = parseInt(searchParams.get('limit') || '10')
-        return NextResponse.json(await getTopProducts(dateFilter, limit))
+        return NextResponse.json(await getTopProducts(dateFilter, limit, branchId))
       
       case 'geographic-distribution':
-        return NextResponse.json(await getGeographicDistribution(dateFilter))
+        return NextResponse.json(await getGeographicDistribution(dateFilter, branchId))
       
       case 'order-analytics':
-        return NextResponse.json(await getOrderAnalytics(dateFilter))
+        return NextResponse.json(await getOrderAnalytics(dateFilter, branchId))
       
       default:
-        return NextResponse.json(await getDashboardSummary(dateFilter))
+        return NextResponse.json(await getDashboardSummary(dateFilter, branchId))
     }
     
   } catch (error: any) {
@@ -80,7 +82,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function getSalesOverview(dateFilter: any) {
+async function getSalesOverview(dateFilter: any, branchId?: string | null) {
+  // Build item-level filter for branch filtering
+  const itemFilter: any = {}
+  if (branchId && branchId !== 'all') {
+    itemFilter['items.branchId'] = new mongoose.Types.ObjectId(branchId)
+  }
+
   const [
     totalRevenue,
     totalOrders,
@@ -88,45 +96,66 @@ async function getSalesOverview(dateFilter: any) {
     topPaymentMethods,
     revenueByStatus
   ] = await Promise.all([
-    // Total revenue
+    // Total revenue - use unwind for branch-level filtering
     Order.aggregate([
-      { $match: { ...dateFilter, status: { $nin: ['cancelled', 'returned'] } } },
-      { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+      { $match: dateFilter },
+      { $unwind: '$items' },
+      ...(branchId && branchId !== 'all' ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }] : []),
+      { $match: { status: { $nin: ['cancelled', 'returned'] } } },
+      { $group: { _id: null, total: { $sum: '$items.totalPrice' } } }
     ]),
     
-    // Total orders
-    Order.countDocuments(dateFilter),
-    
-    // Average order value
+    // Total orders - count orders that have items from the specified branch
     Order.aggregate([
-      { $match: { ...dateFilter, status: { $nin: ['cancelled', 'returned'] } } },
-      { $group: { _id: null, avg: { $avg: '$totalAmount' } } }
+      { $match: dateFilter },
+      { $unwind: '$items' },
+      ...(branchId && branchId !== 'all' ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }] : []),
+      { $group: { _id: '$_id' } },
+      { $count: 'total' }
+    ]),
+    
+    // Average order value - use branch-filtered line items
+    Order.aggregate([
+      { $match: dateFilter },
+      { $unwind: '$items' },
+      ...(branchId && branchId !== 'all' ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }] : []),
+      { $match: { status: { $nin: ['cancelled', 'returned'] } } },
+      { $group: { _id: '$_id', orderTotal: { $sum: '$items.totalPrice' } } },
+      { $group: { _id: null, avg: { $avg: '$orderTotal' } } }
     ]),
     
     // Payment methods distribution
     Order.aggregate([
       { $match: dateFilter },
-      { $group: { _id: '$paymentMethod', count: { $sum: 1 }, revenue: { $sum: '$totalAmount' } } },
+      { $unwind: '$items' },
+      ...(branchId && branchId !== 'all' ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }] : []),
+      { $group: { _id: '$paymentMethod', count: { $sum: 1 }, revenue: { $sum: '$items.totalPrice' } } },
       { $sort: { count: -1 } }
     ]),
     
     // Revenue by order status
     Order.aggregate([
       { $match: dateFilter },
-      { $group: { _id: '$status', count: { $sum: 1 }, revenue: { $sum: '$totalAmount' } } }
+      { $unwind: '$items' },
+      ...(branchId && branchId !== 'all' ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }] : []),
+      { $group: { _id: '$status', count: { $sum: 1 }, revenue: { $sum: '$items.totalPrice' } } }
     ])
   ])
   
   return {
     totalRevenue: totalRevenue[0]?.total || 0,
-    totalOrders,
+    totalOrders: totalOrders[0]?.total || 0,
     averageOrderValue: averageOrderValue[0]?.avg || 0,
     paymentMethods: topPaymentMethods,
     revenueByStatus
   }
 }
 
-async function getProductPerformance(dateFilter: any) {
+async function getProductPerformance(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
+
   const [
     topSellingProducts,
     categoryPerformance,
@@ -137,6 +166,7 @@ async function getProductPerformance(dateFilter: any) {
     Order.aggregate([
       { $match: dateFilter },
       { $unwind: '$items' },
+      ...branchFilter,
       {
         $group: {
           _id: '$items.productId',
@@ -154,6 +184,7 @@ async function getProductPerformance(dateFilter: any) {
     Order.aggregate([
       { $match: dateFilter },
       { $unwind: '$items' },
+      ...branchFilter,
       {
         $lookup: {
           from: 'products',
@@ -182,16 +213,44 @@ async function getProductPerformance(dateFilter: any) {
       { $sort: { totalRevenue: -1 } }
     ]),
     
-    // Low stock products
-    Product.find({
-      $or: [
-        { hasVariants: false, stockQuantity: { $lte: 10 } },
-        { hasVariants: true, 'variants.stock': { $lte: 10 } }
-      ],
-      isActive: true
-    }).select('name stockQuantity variants.stock variants.value hasVariants').limit(20),
+    // Low stock products - this should use branch stock if branch is specified
+    ...(branchId && branchId !== 'all' 
+      ? [
+          BranchStock.aggregate([
+            { $match: { branchId: new mongoose.Types.ObjectId(branchId), quantity: { $lte: 10 } } },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'productId',
+                foreignField: '_id',
+                as: 'product'
+              }
+            },
+            { $unwind: '$product' },
+            { $match: { 'product.isActive': true } },
+            {
+              $group: {
+                _id: '$productId',
+                name: { $first: '$product.name' },
+                stockQuantity: { $sum: '$quantity' },
+                hasVariants: { $first: '$product.hasVariants' }
+              }
+            },
+            { $limit: 20 }
+          ])
+        ]
+      : [
+          Product.find({
+            $or: [
+              { hasVariants: false, stockQuantity: { $lte: 10 } },
+              { hasVariants: true, 'variants.stock': { $lte: 10 } }
+            ],
+            isActive: true
+          }).select('name stockQuantity variants.stock variants.value hasVariants').limit(20)
+        ]
+    ),
     
-    // Product ratings summary
+    // Product ratings summary (not affected by branch filter)
     Review.aggregate([
       { $match: { status: 'approved' } },
       {
@@ -225,12 +284,15 @@ async function getProductPerformance(dateFilter: any) {
   return {
     topSellingProducts,
     categoryPerformance,
-    lowStockProducts,
+    lowStockProducts: Array.isArray(lowStockProducts) ? lowStockProducts[0] : lowStockProducts,
     topRatedProducts: productRatings
   }
 }
 
-async function getCustomerAnalytics(dateFilter: any) {
+async function getCustomerAnalytics(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   const [
     newCustomers,
     topCustomers,
@@ -240,15 +302,17 @@ async function getCustomerAnalytics(dateFilter: any) {
     // New customers in period
     User.countDocuments({ ...dateFilter, role: 'customer' }),
     
-    // Top customers by orders and revenue
+    // Top customers by orders and revenue - use branch-filtered line items
     Order.aggregate([
       { $match: dateFilter },
+      { $unwind: '$items' },
+      ...branchFilter,
       {
         $group: {
           _id: '$userId',
           customerEmail: { $first: '$customerEmail' },
           totalOrders: { $sum: 1 },
-          totalSpent: { $sum: '$totalAmount' },
+          totalSpent: { $sum: '$items.totalPrice' },
           lastOrderDate: { $max: '$createdAt' }
         }
       },
@@ -256,14 +320,16 @@ async function getCustomerAnalytics(dateFilter: any) {
       { $limit: 10 }
     ]),
     
-    // Geographic distribution
+    // Geographic distribution - use branch-filtered line items
     Order.aggregate([
       { $match: dateFilter },
+      { $unwind: '$items' },
+      ...branchFilter,
       {
         $group: {
           _id: '$shippingAddress.county',
           orderCount: { $sum: 1 },
-          revenue: { $sum: '$totalAmount' },
+          revenue: { $sum: '$items.totalPrice' },
           uniqueCustomers: { $addToSet: '$userId' }
         }
       },
@@ -278,12 +344,19 @@ async function getCustomerAnalytics(dateFilter: any) {
       { $sort: { revenue: -1 } }
     ]),
     
-    // Customer retention (customers with multiple orders)
+    // Customer retention (customers with multiple orders) - use branch-filtered line items
     Order.aggregate([
       { $match: dateFilter },
+      { $unwind: '$items' },
+      ...branchFilter,
       {
         $group: {
-          _id: '$userId',
+          _id: { userId: '$userId', orderId: '$_id' }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.userId',
           orderCount: { $sum: 1 }
         }
       },
@@ -319,9 +392,15 @@ async function getCustomerAnalytics(dateFilter: any) {
   }
 }
 
-async function getRevenueTrends(dateFilter: any) {
+async function getRevenueTrends(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   return Order.aggregate([
-    { $match: { ...dateFilter, status: { $nin: ['cancelled', 'returned'] } } },
+    { $match: dateFilter },
+    { $unwind: '$items' },
+    ...branchFilter,
+    { $match: { status: { $nin: ['cancelled', 'returned'] } } },
     {
       $group: {
         _id: {
@@ -329,7 +408,7 @@ async function getRevenueTrends(dateFilter: any) {
           month: { $month: '$createdAt' },
           day: { $dayOfMonth: '$createdAt' }
         },
-        revenue: { $sum: '$totalAmount' },
+        revenue: { $sum: '$items.totalPrice' },
         orders: { $sum: 1 }
       }
     },
@@ -350,10 +429,14 @@ async function getRevenueTrends(dateFilter: any) {
   ])
 }
 
-async function getTopProducts(dateFilter: any, limit: number) {
+async function getTopProducts(dateFilter: any, limit: number, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   return Order.aggregate([
     { $match: dateFilter },
     { $unwind: '$items' },
+    ...branchFilter,
     {
       $group: {
         _id: '$items.productId',
@@ -369,9 +452,14 @@ async function getTopProducts(dateFilter: any, limit: number) {
   ])
 }
 
-async function getGeographicDistribution(dateFilter: any) {
+async function getGeographicDistribution(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   return Order.aggregate([
     { $match: dateFilter },
+    { $unwind: '$items' },
+    ...branchFilter,
     {
       $group: {
         _id: {
@@ -379,7 +467,7 @@ async function getGeographicDistribution(dateFilter: any) {
           area: '$shippingAddress.area'
         },
         orderCount: { $sum: 1 },
-        revenue: { $sum: '$totalAmount' },
+        revenue: { $sum: '$items.totalPrice' },
         customers: { $addToSet: '$userId' }
       }
     },
@@ -396,15 +484,20 @@ async function getGeographicDistribution(dateFilter: any) {
   ])
 }
 
-async function getOrderAnalytics(dateFilter: any) {
+async function getOrderAnalytics(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   const [
     statusDistribution,
     fulfillmentTimes,
     shippingPerformance
   ] = await Promise.all([
-    // Order status distribution
+    // Order status distribution - use branch-filtered line items
     Order.aggregate([
       { $match: dateFilter },
+      { $unwind: '$items' },
+      ...branchFilter,
       {
         $group: {
           _id: '$status',
@@ -484,11 +577,14 @@ async function getOrderAnalytics(dateFilter: any) {
   }
 }
 
-async function getDashboardSummary(dateFilter: any) {
+async function getDashboardSummary(dateFilter: any, branchId?: string | null) {
+  const branchFilter = branchId && branchId !== 'all' 
+    ? [{ $match: { 'items.branchId': new mongoose.Types.ObjectId(branchId) } }]
+    : []
   const [salesOverview, productStats, customerStats] = await Promise.all([
-    getSalesOverview(dateFilter),
-    getProductPerformance(dateFilter),
-    getCustomerAnalytics(dateFilter)
+    getSalesOverview(dateFilter, branchId),
+    getProductPerformance(dateFilter, branchId),
+    getCustomerAnalytics(dateFilter, branchId)
   ])
   
   return {

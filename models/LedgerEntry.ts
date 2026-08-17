@@ -42,6 +42,9 @@ export interface ILedgerEntry {
   channel?: 'online' | 'pos' | 'admin'
   outletId?: mongoose.Types.ObjectId
   outletName?: string
+  branchId?: mongoose.Types.ObjectId
+  branchCode?: string
+  branchStockId?: string
   userId?: mongoose.Types.ObjectId
   userName?: string
   customerId?: mongoose.Types.ObjectId
@@ -86,6 +89,9 @@ const LedgerEntrySchema = new mongoose.Schema<ILedgerEntry>(
     channel:      { type: String, enum: ['online', 'pos', 'admin'] },
     outletId:     { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
     outletName:   String,
+    branchId:     { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
+    branchCode:   String,
+    branchStockId: String,
     userId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     userName:     String,
     customerId:   { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

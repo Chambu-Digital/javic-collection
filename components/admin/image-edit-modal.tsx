@@ -7,31 +7,16 @@ import { IProductImage } from '@/models/Product'
 interface ImageEditModalProps {
   image: IProductImage | null
   imageIndex: number
-  allImages: IProductImage[]  // NEW: All images to show group members
+  allImages: IProductImage[]
   open: boolean
-  // Product-level defaults shown as placeholders
   defaultPrice?: number
   defaultWholesalePrice?: number
   defaultWholesaleThreshold?: number
   defaultSizes?: string[]
+  branchStock?: number // Branch-specific stock quantity
   onSave: (index: number, updated: IProductImage) => void
   onClose: () => void
-  onUngroup?: (index: number) => void  // NEW: Callback to ungroup image
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Derive sizes[] from sizeStock keys, falling back to existing sizes[] */
-function getSizes(img: IProductImage): string[] {
-  if (img.sizeStock && Object.keys(img.sizeStock).length > 0) {
-    return Object.keys(img.sizeStock)
-  }
-  return img.sizes ?? []
-}
-
-/** Compute total stock from sizeStock map, or fall back to flat stock field */
-function getTotalStock(sizeStock: Record<string, number>): number {
-  return Object.values(sizeStock).reduce((s, v) => s + (v || 0), 0)
+  onUngroup?: (index: number) => void
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -45,21 +30,20 @@ export default function ImageEditModal({
   defaultWholesalePrice,
   defaultWholesaleThreshold,
   defaultSizes = [],
+  branchStock,
   onSave,
   onClose,
   onUngroup,
 }: ImageEditModalProps) {
-  // Local editable state — isolated from parent until Save is clicked
-  const [price, setPrice]                         = useState<string>('')
-  const [wholesalePrice, setWholesalePrice]       = useState<string>('')
+  const [price, setPrice] = useState<string>('')
+  const [wholesalePrice, setWholesalePrice] = useState<string>('')
   const [wholesaleThreshold, setWholesaleThreshold] = useState<string>('')
-  const [sku, setSku]                             = useState<string>('')
-  const [useSizeStock, setUseSizeStock]           = useState(false)
-  const [sizeStock, setSizeStock]                 = useState<Record<string, number>>({})
-  const [flatStock, setFlatStock]                 = useState<string>('')
-  const [newSizeName, setNewSizeName]             = useState('')
+  const [sku, setSku] = useState<string>('')
+  const [useSizeStock, setUseSizeStock] = useState(false)
+  const [sizeStock, setSizeStock] = useState<Record<string, number>>({})
+  const [flatStock, setFlatStock] = useState<string>('')
+  const [newSizeName, setNewSizeName] = useState('')
 
-  // Populate local state when the modal opens for a different image
   useEffect(() => {
     if (!open || !image) return
     setPrice(image.price != null ? String(image.price) : '')
@@ -67,7 +51,10 @@ export default function ImageEditModal({
     setWholesaleThreshold(image.wholesaleThreshold != null ? String(image.wholesaleThreshold) : '')
     setSku(image.sku ?? '')
 
-    if (image.sizeStock && Object.keys(image.sizeStock).length > 0) {
+    // Initialize with branch stock if available
+    if (branchStock !== undefined) {
+      setFlatStock(String(branchStock))
+    } else if (image.sizeStock && Object.keys(image.sizeStock).length > 0) {
       setUseSizeStock(true)
       setSizeStock({ ...image.sizeStock })
       setFlatStock('')
@@ -77,11 +64,9 @@ export default function ImageEditModal({
       setFlatStock(image.stock != null ? String(image.stock) : '')
     }
     setNewSizeName('')
-  }, [open, image, imageIndex])
+  }, [open, image, imageIndex, branchStock])
 
   if (!open || !image) return null
-
-  // ── Size-stock helpers ──────────────────────────────────────────────────────
 
   const addSizeRow = () => {
     const names = newSizeName.split(',').map(s => s.trim()).filter(Boolean)
@@ -115,32 +100,34 @@ export default function ImageEditModal({
     })
   }
 
-  // ── Save ───────────────────────────────────────────────────────────────────
-
   const handleSave = () => {
     const updated: IProductImage = { ...image }
 
     // Price overrides
-    updated.price             = price !== '' ? parseFloat(price) : undefined
-    updated.wholesalePrice    = wholesalePrice !== '' ? parseFloat(wholesalePrice) : undefined
-    updated.wholesaleThreshold= wholesaleThreshold !== '' ? parseInt(wholesaleThreshold) : undefined
-    updated.sku               = sku.trim() || undefined
+    updated.price = price !== '' ? parseFloat(price) : undefined
+    updated.wholesalePrice = wholesalePrice !== '' ? parseFloat(wholesalePrice) : undefined
+    updated.wholesaleThreshold = wholesaleThreshold !== '' ? parseInt(wholesaleThreshold) : undefined
+    updated.sku = sku.trim() || undefined
 
+    // Stock overrides (will be handled by branch-specific logic)
     if (useSizeStock && Object.keys(sizeStock).length > 0) {
-      updated.sizeStock  = { ...sizeStock }
-      updated.sizes      = Object.keys(sizeStock)
-      updated.stock      = getTotalStock(sizeStock)
+      updated.sizeStock = { ...sizeStock }
+      updated.sizes = Object.keys(sizeStock)
+      updated.stock = Object.values(sizeStock).reduce((s, v) => s + v, 0)
     } else {
-      updated.sizeStock  = undefined
-      updated.sizes      = undefined
-      updated.stock      = flatStock !== '' ? parseInt(flatStock) : undefined
+      updated.sizeStock = undefined
+      updated.sizes = undefined
+      updated.stock = flatStock !== '' ? parseInt(flatStock) : undefined
     }
 
     onSave(imageIndex, updated)
     onClose()
   }
 
-  // ── Badge summary (for button label) ──────────────────────────────────────
+  const getTotalStock = (sizeStock: Record<string, number>): number => {
+    return Object.values(sizeStock).reduce((s, v) => s + (v || 0), 0)
+  }
+
   const totalStock = useSizeStock
     ? getTotalStock(sizeStock)
     : flatStock !== '' ? parseInt(flatStock) : null
@@ -148,16 +135,14 @@ export default function ImageEditModal({
   const inp = 'w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
   const label = 'block text-xs font-medium text-gray-600 mb-1'
 
+  function indexBadge(idx: number): string {
+    if (idx === 0) return ' (Main)'
+    return ''
+  }
+
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Modal */}
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
       <div
         role="dialog"
         aria-modal="true"
@@ -166,15 +151,9 @@ export default function ImageEditModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
-
-          {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b">
             <div className="flex items-center gap-3">
-              <img
-                src={image.url}
-                alt=""
-                className="w-10 h-10 rounded-lg object-cover border border-gray-200"
-              />
+              <img src={image.url} alt="" className="w-10 h-10 rounded-lg object-cover border border-gray-200" />
               <div>
                 <h2 className="text-sm font-semibold text-gray-900">
                   Edit Image {imageIndex + 1}
@@ -190,16 +169,11 @@ export default function ImageEditModal({
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-            >
+            <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Group members display */}
           {image.groupId && (
             <div className="px-5 py-3 bg-purple-50 border-b border-purple-100">
               <p className="text-xs font-semibold text-purple-800 mb-2">Group Members</p>
@@ -209,11 +183,7 @@ export default function ImageEditModal({
                   .filter(({ img, originalIndex }) => img.groupId === image.groupId && originalIndex !== imageIndex)
                   .map(({ img, originalIndex }) => (
                     <div key={originalIndex} className="relative group flex-shrink-0">
-                      <img
-                        src={img.url}
-                        alt={`Group member ${originalIndex}`}
-                        className="w-12 h-12 rounded-lg object-cover border border-purple-200"
-                      />
+                      <img src={img.url} alt={`Group member ${originalIndex}`} className="w-12 h-12 rounded-lg object-cover border border-purple-200" />
                       {onUngroup && (
                         <button
                           type="button"
@@ -233,82 +203,42 @@ export default function ImageEditModal({
             </div>
           )}
 
-          {/* Scrollable body */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-
-            {/* ── SKU ── */}
             <div>
               <label className={label}>SKU / Item Code</label>
-              <input
-                type="text"
-                value={sku}
-                onChange={e => setSku(e.target.value)}
-                placeholder="e.g. JVC-RED-001"
-                className={inp}
-              />
+              <input type="text" value={sku} onChange={e => setSku(e.target.value)} placeholder="e.g. JVC-RED-001" className={inp} />
             </div>
 
-            {/* ── Price overrides ── */}
             <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 space-y-3">
               <p className="text-xs font-semibold text-blue-800">Price Overrides</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={label}>
                     Retail Price (KSH)
-                    {defaultPrice != null && (
-                      <span className="text-gray-400 ml-1">default: {defaultPrice.toLocaleString()}</span>
-                    )}
+                    {defaultPrice != null && <span className="text-gray-400 ml-1">default: {defaultPrice.toLocaleString()}</span>}
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={price}
-                    onChange={e => setPrice(e.target.value)}
-                    placeholder="Leave blank to inherit"
-                    className={inp}
-                  />
+                  <input type="number" min="0" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="Leave blank to inherit" className={inp} />
                 </div>
                 <div>
                   <label className={label}>
                     Wholesale Price (KSH)
-                    {defaultWholesalePrice != null && (
-                      <span className="text-gray-400 ml-1">default: {defaultWholesalePrice.toLocaleString()}</span>
-                    )}
+                    {defaultWholesalePrice != null && <span className="text-gray-400 ml-1">default: {defaultWholesalePrice.toLocaleString()}</span>}
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={wholesalePrice}
-                    onChange={e => setWholesalePrice(e.target.value)}
-                    placeholder="Leave blank to inherit"
-                    className={inp}
-                  />
+                  <input type="number" min="0" step="0.01" value={wholesalePrice} onChange={e => setWholesalePrice(e.target.value)} placeholder="Leave blank to inherit" className={inp} />
                 </div>
               </div>
               <div className="w-1/2 pr-1.5">
                 <label className={label}>
                   Min Qty for Wholesale
-                  {defaultWholesaleThreshold != null && (
-                    <span className="text-gray-400 ml-1">default: {defaultWholesaleThreshold}</span>
-                  )}
+                  {defaultWholesaleThreshold != null && <span className="text-gray-400 ml-1">default: {defaultWholesaleThreshold}</span>}
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={wholesaleThreshold}
-                  onChange={e => setWholesaleThreshold(e.target.value)}
-                  placeholder="Leave blank to inherit"
-                  className={inp}
-                />
+                <input type="number" min="1" value={wholesaleThreshold} onChange={e => setWholesaleThreshold(e.target.value)} placeholder="Leave blank to inherit" className={inp} />
               </div>
             </div>
 
-            {/* ── Stock ── */}
             <div className="rounded-lg bg-gray-50 border border-gray-200 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-700">Stock</p>
+                <p className="text-xs font-semibold text-gray-700">Stock (Branch-Specific)</p>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <span className="text-xs text-gray-600">Per-size stock</span>
                   <button
@@ -330,7 +260,6 @@ export default function ImageEditModal({
               </div>
 
               {!useSizeStock ? (
-                /* Flat stock */
                 <div>
                   <label className={label}>Total stock for this design</label>
                   <input
@@ -338,12 +267,11 @@ export default function ImageEditModal({
                     min="0"
                     value={flatStock}
                     onChange={e => setFlatStock(e.target.value)}
-                    placeholder="Leave blank to use product-level stock"
+                    placeholder="Enter quantity"
                     className={inp}
                   />
                 </div>
               ) : (
-                /* Per-size stock table */
                 <div className="space-y-2">
                   {Object.keys(sizeStock).length === 0 && (
                     <p className="text-xs text-gray-400 italic">
@@ -374,7 +302,6 @@ export default function ImageEditModal({
                     </div>
                   ))}
 
-                  {/* Total */}
                   {Object.keys(sizeStock).length > 0 && (
                     <div className="flex items-center gap-2 pt-1 border-t border-gray-200">
                       <span className="w-16 text-xs font-semibold text-gray-600">Total</span>
@@ -382,7 +309,6 @@ export default function ImageEditModal({
                     </div>
                   )}
 
-                  {/* Add size row */}
                   <div className="flex gap-2 pt-1">
                     <input
                       type="text"
@@ -403,23 +329,20 @@ export default function ImageEditModal({
                     </button>
                   </div>
 
-                  {/* Seed from product defaults */}
                   {defaultSizes.length > 0 && (
                     <button
                       type="button"
                       onClick={seedFromDefaults}
-                      className="text-xs text-blue-600 hover:text-blue-800 underline underline-offset-2"
+                      className="text-xs text-blue-600 hover:text-blue-800 underline"
                     >
-                      Seed from product base sizes ({defaultSizes.join(', ')})
+                      Seed from product sizes
                     </button>
                   )}
                 </div>
               )}
             </div>
-
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-between px-5 py-3 border-t bg-gray-50 gap-3">
             <div className="text-xs text-gray-500 flex items-center gap-1">
               {totalStock != null && (
@@ -430,34 +353,16 @@ export default function ImageEditModal({
               )}
             </div>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
-              >
+              <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors">
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-              >
+              <button type="button" onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
                 Save Changes
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </>
-  )
-}
-
-function indexBadge(index: number) {
-  if (index !== 0) return null
-  return (
-    <span className="ml-2 text-xs font-normal bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
-      Main
-    </span>
   )
 }

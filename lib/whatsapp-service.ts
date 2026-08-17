@@ -85,6 +85,9 @@ export const sendWhatsAppOrder = async (
     quantity: number; 
     price: number; 
     image?: string;
+    selectedImage?: string;  // The specific image variant selected
+    imageIndex?: number;     // Index of the selected image
+    selectedSize?: string;   // Size selected
     variantId?: string;
     variantDetails?: any;
   }>,
@@ -98,9 +101,35 @@ export const sendWhatsAppOrder = async (
   const shippingCost = total >= 5000 ? 0 : 500
   const finalTotal = total + shippingCost
   
+  // Get base URL for short links
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://javic.co.ke'
+  
+  // Format item list with short image links
   const itemsList = items
-    .map((item) => `${item.name} (Qty: ${item.quantity}) - KSH ${item.price.toLocaleString()}`)
-    .join('\n')
+    .map((item, index) => {
+      let itemText = `${index + 1}. ${item.name}`
+      
+      // Add variant/image info if available
+      if (item.imageIndex !== undefined && item.imageIndex > 0) {
+        itemText += ` [Design #${item.imageIndex + 1}]`
+      }
+      
+      // Add size if available
+      if (item.selectedSize) {
+        itemText += ` - Size: ${item.selectedSize}`
+      }
+      
+      itemText += ` (Qty: ${item.quantity}) - KSH ${item.price.toLocaleString()}`
+      
+      // Add short image URL
+      if (item.productId && item.imageIndex !== undefined) {
+        const shortUrl = `${baseUrl}/i/${item.productId}-${item.imageIndex}`
+        itemText += `\n   📸 ${shortUrl}`
+      }
+      
+      return itemText
+    })
+    .join('\n\n')
 
   const message = `Hello JAVIC COLLECTION!
 

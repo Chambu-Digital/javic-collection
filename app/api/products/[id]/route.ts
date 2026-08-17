@@ -81,18 +81,6 @@ export async function PUT(
       }
     }
 
-    // Auto-compute stockQuantity from per-image stock overrides.
-    // If any image has a stock value set, sum them all (images without a stock
-    // override contribute 0 — they are designs not yet stocked individually).
-    // Only do this when images are present in the update payload.
-    if (Array.isArray(body.images) && body.images.length > 0) {
-      const imagesWithStock = body.images.filter((img: any) => img.stock != null)
-      if (imagesWithStock.length > 0) {
-        body.stockQuantity = body.images.reduce((sum: number, img: any) => sum + (img.stock ?? 0), 0)
-      }
-      body.inStock = (body.stockQuantity ?? 0) > 0
-    }
-    
     const product = await Product.findByIdAndUpdate(
       id,
       body,

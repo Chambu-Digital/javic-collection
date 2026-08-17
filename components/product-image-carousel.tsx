@@ -96,6 +96,12 @@ export default function ProductImageCarousel({
   // Check if any image has a price override — used to decide whether to show badges
   const hasAnyPriceOverride = images.some(img => img.price !== undefined && img.price !== null)
 
+  // For thumbnail price badges, use basePrice if no override
+  const getThumbnailPrice = (img: IProductImage) => {
+    if (img.price !== undefined && img.price !== null) return img.price
+    return basePrice
+  }
+
   return (
     <div>
       {/* Main image */}
@@ -134,35 +140,37 @@ export default function ProductImageCarousel({
         )}
       </div>
 
-      {/* Thumbnails - show one per group */}
-      {groupIds.length > 1 && (
+      {/* Thumbnails - show all images */}
+      {images.length > 1 && (
         <div className="grid grid-cols-4 gap-2">
-          {groupIds.map((groupId, groupIndex) => {
-            const group = groupedImages[groupId]
-            const groupFirstImage = group.images[0]
-            const groupFirstIndex = group.indices[0]
-            const hasOverride = groupFirstImage.price !== undefined && groupFirstImage.price !== null
-            const isSelected = currentGroupId === groupId
+          {images.map((img, index) => {
+            const isCurrentImage = index === currentIndex
+            const isGroupMember = img.groupId === currentGroupId && index !== currentIndex
+            const hasOverride = img.price !== undefined && img.price !== null
+            const isSelected = isCurrentImage
+            const thumbnailPrice = getThumbnailPrice(img)
 
             return (
               <button
-                key={groupId}
-                onClick={() => handleChange(groupFirstIndex)}
+                key={index}
+                onClick={() => handleChange(index)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition bg-white ${
                   isSelected
                     ? 'border-primary'
+                    : isGroupMember
+                    ? 'border-purple-300'
                     : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <img
-                  src={groupFirstImage.url || '/placeholder.svg'}
-                  alt={`Design ${groupIndex + 1}`}
+                  src={img.url || '/placeholder.svg'}
+                  alt={`Image ${index + 1}`}
                   className="w-full h-full object-contain p-1"
                 />
                 {/* Group indicator badge */}
-                {group.images.length > 1 && (
+                {img.groupId && (
                   <div className="absolute top-1 left-1 bg-purple-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
-                    {group.images.length}
+                    {img.groupId === currentGroupId ? '✓' : '○'}
                   </div>
                 )}
                 {/* Per-image price badge on thumbnail */}
@@ -172,11 +180,7 @@ export default function ProductImageCarousel({
                       ? 'bg-primary/90 text-primary-foreground'
                       : 'bg-black/40 text-white'
                   }`}>
-                    {hasOverride
-                      ? `KSH ${groupFirstImage.price!.toLocaleString()}`
-                      : basePrice
-                        ? `KSH ${basePrice.toLocaleString()}`
-                        : ''}
+                    {thumbnailPrice ? `KSH ${thumbnailPrice.toLocaleString()}` : ''}
                   </div>
                 )}
               </button>

@@ -10,18 +10,22 @@ import { ICategory } from '@/models/Category'
 import ImageEditModal from '@/components/admin/image-edit-modal'
 import QuickCategoryModal from '@/components/admin/quick-category-modal'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function imageBadge(img: IProductImage): string {
+function imageBadge(img: IProductImage, branchStocks: Record<string, any>, selectedBranchId: string): string {
   const parts: string[] = []
   if (img.groupId) parts.push('Grouped')
-  if (img.sizeStock && Object.keys(img.sizeStock).length) {
-    const total = Object.values(img.sizeStock).reduce((s, v) => s + v, 0)
-    parts.push(`${total} in stock (${Object.keys(img.sizeStock).join(', ')})`)
-  } else if (img.stock != null) {
-    parts.push(`${img.stock} in stock`)
+  
+  // Display branch-specific stock
+  const stockKey = `${selectedBranchId}-${img.index || 0}`
+  const branchStock = branchStocks[stockKey]
+  if (branchStock && branchStock.quantity > 0) {
+    parts.push(`${branchStock.quantity} in stock`)
   }
+  
   if (img.price != null) parts.push(`KSH ${img.price.toLocaleString()}`)
   if (img.sku) parts.push(img.sku)
   return parts.join(' · ')
@@ -37,6 +41,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [saving, setSaving]                 = useState(false)
   const [imageUploading, setImageUploading] = useState(false)
   const [categories, setCategories]         = useState<ICategory[]>([])
+  const [branches, setBranches]             = useState<Array<{ _id: string; name: string; branchCode: string; isMainBranch: boolean }>>([])
+  const [selectedBranchId, setSelectedBranchId] = useState('')
+  const [branchStocks, setBranchStocks]     = useState<Record<string, any>>({})
   const [product, setProduct]               = useState<IProduct | null>(null)
 
   // Modal state
@@ -61,7 +68,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     wholesaleThreshold: 0,
     category: '',
     categoryId: '',
-    stockQuantity: 0,
     images: [] as IProductImage[],
     sizes: [] as string[],
     tags: [] as string[],
@@ -71,12 +77,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     isNewProduct: false,
     isBestseller: false,
     isActive: true,
+    branchId: '', // For tracking which branch's stock is being edited
+    stockQuantity: 0, // Read-only display of branch stock
   })
 
   useEffect(() => {
     fetchProduct()
     fetchCategories()
+    fetchBranches()
   }, [resolvedParams.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (selectedBranchId && product) {
+      fetchBranchStocks(selectedBranchId)
+    }
+  }, [selectedBranchId, product]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // Update stockQuantity when branchStocks change
+    const totalStock = Object.values(branchStocks).reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0)
+    setFormData(prev => ({ ...prev, stockQuantity: totalStock }))
+  }, [branchStocks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProduct = async () => {
     try {
@@ -93,7 +114,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           wholesaleThreshold: data.wholesaleThreshold || 0,
           category: data.category || '',
           categoryId: data.categoryId || '',
-          stockQuantity: data.stockQuantity || 0,
           images: (data.images || []).map((img: any) =>
             typeof img === 'string' ? { url: img } : img
           ),
@@ -105,6 +125,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           isNewProduct: data.isNewProduct || false,
           isBestseller: data.isBestseller || false,
           isActive: data.isActive !== undefined ? data.isActive : true,
+          stockQuantity: data.stockQuantity || 0,
         })
       } else {
         alert('Product not found')
@@ -121,6 +142,35 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     try {
       const res = await fetch('/api/categories?includeInactive=true')
       if (res.ok) setCategories(await res.json())
+    } catch { /* silent */ }
+  }
+
+  const fetchBranches = async () => {
+    try {
+      const res = await fetch('/api/admin/branches')
+      if (res.ok) {
+        const data = await res.json()
+        const activeBranches = (data.branches || []).filter((b: any) => b.isActive)
+        setBranches(activeBranches)
+        
+        // Auto-select main branch if available
+        const mainBranch = activeBranches.find((b: any) => b.isMainBranch)
+        if (mainBranch) {
+          setSelectedBranchId(mainBranch._id)
+        } else if (activeBranches.length > 0) {
+          setSelectedBranchId(activeBranches[0]._id)
+        }
+      }
+    } catch { /* silent */ }
+  }
+
+  const fetchBranchStocks = async (branchId: string) => {
+    try {
+      const res = await fetch(`/api/admin/products/branch-stock?productId=${resolvedParams.id}&branchId=${branchId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setBranchStocks(data.stocks || {})
+      }
     } catch { /* silent */ }
   }
 
@@ -169,11 +219,38 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     if (editModalIndex === index) setEditModalIndex(null)
   }
 
-  const handleImageSave = (index: number, updated: IProductImage) => {
-    setFormData(prev => (({
+  const handleImageSave = async (index: number, updated: IProductImage) => {
+    // Update local form data
+    setFormData(prev => ({
       ...prev,
       images: prev.images.map((img, i) => i === index ? updated : img),
-    })))
+    }))
+
+    // If stock was changed, update branch stock
+    if (updated.stock !== undefined || updated.sizeStock) {
+      try {
+        const stockData = {
+          productId: resolvedParams.id,
+          branchId: selectedBranchId,
+          imageIndex: index,
+          quantity: updated.stock || 0,
+          sizeStock: updated.sizeStock || {},
+        }
+
+        const res = await fetch('/api/admin/products/branch-stock', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(stockData),
+        })
+
+        if (res.ok) {
+          // Refresh branch stocks
+          await fetchBranchStocks(selectedBranchId)
+        }
+      } catch (error) {
+        console.error('Error updating branch stock:', error)
+      }
+    }
   }
 
   // ── Image Grouping ─────────────────────────────────────────────────────────────
@@ -277,16 +354,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
     setSaving(true)
 
-    // Derive total stock from per-image stock if any image has it set
-    const imagesWithStock = formData.images.filter(img => img.stock != null)
-    const derivedStock = imagesWithStock.length > 0
-      ? formData.images.reduce((sum, img) => sum + (img.stock ?? 0), 0)
-      : formData.stockQuantity
+    // Remove stock from update data (handled by branch stock)
+    const imagesWithoutStock = formData.images.map(img => {
+      const { stock, sizeStock, ...imgWithoutStock } = img
+      return imgWithoutStock
+    })
 
     const updateData = {
       ...formData,
-      stockQuantity: derivedStock,
-      inStock: derivedStock > 0,
+      images: imagesWithoutStock,
     }
 
     try {
@@ -336,11 +412,44 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <ArrowLeft className="w-4 h-4 mr-2 flex-shrink-0" />
           <span className="text-sm sm:text-base">Back to Products</span>
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">Edit Product</h1>
-        <p className="text-sm text-gray-600 mt-1">Update product information and settings.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">Edit Product</h1>
+            <p className="text-sm text-gray-600 mt-1">Update product information and stock for the selected branch.</p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+
+        {/* ── Branch Selection ── */}
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Branch Selection</h2>
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
+            <div>
+              <Label>Branch</Label>
+              <Select 
+                value={selectedBranchId} 
+                onValueChange={setSelectedBranchId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map(branch => (
+                    <SelectItem key={branch._id} value={branch._id}>
+                      {branch.name} ({branch.branchCode})
+                      {branch.isMainBranch && ' - Main Branch'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                View and manage stock for this product at the selected branch.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* ── Basic Information ── */}
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
@@ -415,15 +524,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   onChange={e => setFormData(prev => ({ ...prev, oldPrice: parseFloat(e.target.value) || 0 }))}
                   className={inp} placeholder="0.00" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Stock
-                  <span className="ml-1 text-xs font-normal text-gray-400">(or set per-image below)</span>
-                </label>
-                <input type="number" value={formData.stockQuantity}
-                  onChange={e => setFormData(prev => ({ ...prev, stockQuantity: parseInt(e.target.value) || 0 }))}
-                  className={inp} placeholder="0" />
-              </div>
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -455,11 +555,35 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
+        {/* ── Branch Stock Summary ── */}
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-1">Branch Stock Summary</h2>
+          <p className="text-xs text-gray-500 mb-4">
+            Total stock for this product at the selected branch.
+          </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Total Stock at {branches.find(b => b._id === selectedBranchId)?.name || 'Selected Branch'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="0"
+                value={Object.values(branchStocks).reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0)}
+                disabled
+                className={`${inp} bg-gray-50 text-gray-700`}
+                placeholder="0"
+              />
+              <span className="text-xs text-gray-500">Read-only (manage via image variants)</span>
+            </div>
+          </div>
+        </div>
+
         {/* ── Base Sizes ── */}
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold mb-1">Base Sizes</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Default sizes. Each image can define its own per-size stock in the image modal.
+            Default sizes for this product.
           </p>
           <div className="flex gap-2 mb-3">
             <input type="text" value={newSize}
@@ -498,7 +622,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           {formData.images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
               {getRepresentativeImages().map(({ image, index, count }) => {
-                const badge = imageBadge(image)
+                const badge = imageBadge(image, branchStocks, selectedBranchId)
                 const isGrouped = !!image.groupId
                 return (
                   <div key={index} className="group relative">
@@ -545,7 +669,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
                       {/* Override summary */}
                       {badge && (
-                        <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-xs font-medium text-center py-0.5 px-1 leading-tight truncate">
+                        <div className="absolute bottom-0 inset-x-0 bg-white/95 text-gray-900 text-xs font-medium text-center py-1 px-1 leading-tight truncate border-t border-gray-200">
                           {badge}
                         </div>
                       )}
@@ -650,7 +774,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* ── Actions ── */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sticky bottom-0 bg-white p-4 sm:p-6 shadow-lg border-t border-gray-200 -mx-4 sm:-mx-6">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
           <Link href="/admin/products" className="w-full sm:w-auto">
             <Button type="button" variant="outline" className="w-full sm:w-auto">Cancel</Button>
           </Link>
@@ -664,13 +788,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       {/* ── Image Edit Modal ── */}
       <ImageEditModal
         open={editModalIndex !== null}
-        image={editModalIndex !== null ? formData.images[editModalIndex] : null}
-        allImages={formData.images}
+        image={editModalIndex !== null ? { ...formData.images[editModalIndex], index: editModalIndex } : null}
+        allImages={formData.images.map((img, idx) => ({ ...img, index: idx }))}
         imageIndex={editModalIndex ?? 0}
         defaultPrice={formData.price || undefined}
         defaultWholesalePrice={formData.wholesalePrice || undefined}
         defaultWholesaleThreshold={formData.wholesaleThreshold || undefined}
         defaultSizes={formData.sizes}
+        branchStock={editModalIndex !== null ? branchStocks[`${selectedBranchId}-${editModalIndex}`]?.quantity : undefined}
         onSave={handleImageSave}
         onClose={() => setEditModalIndex(null)}
         onUngroup={handleUngroup}

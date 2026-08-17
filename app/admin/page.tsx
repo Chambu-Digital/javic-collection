@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import PermissionGuard, { PermissionCheck } from '@/components/admin/permission-guard'
 import { PERMISSIONS } from '@/lib/permissions'
 import { useUserStore } from '@/lib/user-store'
+import LowStockAlert from '@/components/admin/low-stock-alert'
 
 interface DashboardStats {
   products: {
@@ -369,6 +370,11 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Low Stock Alert */}
+        <PermissionCheck permissions={[PERMISSIONS.PRODUCTS_VIEW]}>
+          <LowStockAlert threshold={10} maxItems={8} showBranchFilter={true} />
+        </PermissionCheck>
 
         {/* Quick Actions */}
         <Card>

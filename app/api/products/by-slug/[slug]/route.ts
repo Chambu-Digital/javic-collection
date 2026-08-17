@@ -11,7 +11,7 @@ export async function GET(
 
     const { slug } = await params
 
-    const product = await Product.findOne({ slug: slug.toLowerCase() })
+    const product = await Product.findOne({ slug: slug.toLowerCase() }).populate('branchId')
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })

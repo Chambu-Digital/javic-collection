@@ -46,6 +46,13 @@ export interface IProduct {
   benefits?: string[]
   tags?: string[]
   isActive: boolean
+  
+  // Branch inventory migration flag
+  branchInventoryEnabled?: boolean
+  
+  // Branch this product belongs to
+  branchId?: mongoose.Types.ObjectId
+  
   createdAt?: Date
   updatedAt?: Date
 }
@@ -101,6 +108,12 @@ const ProductSchema = new mongoose.Schema<IProduct>({
   benefits:    [String],
   tags:        [String],
   isActive:    { type: Boolean, default: true },
+  
+  // Branch inventory migration flag
+  branchInventoryEnabled: { type: Boolean, default: false },
+  
+  // Branch this product belongs to
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
 }, { timestamps: true })
 
 ProductSchema.pre('save', function (next) {

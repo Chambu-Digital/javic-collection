@@ -10,18 +10,14 @@ import { IProductImage } from '@/models/Product'
 import ImageEditModal from '@/components/admin/image-edit-modal'
 import QuickCategoryModal from '@/components/admin/quick-category-modal'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function imageBadge(img: IProductImage): string {
   const parts: string[] = []
   if (img.groupId) parts.push('Grouped')
-  if (img.sizeStock && Object.keys(img.sizeStock).length) {
-    const total = Object.values(img.sizeStock).reduce((s, v) => s + v, 0)
-    parts.push(`${total} in stock (${Object.keys(img.sizeStock).join(', ')})`)
-  } else if (img.stock != null) {
-    parts.push(`${img.stock} in stock`)
-  }
   if (img.price != null) parts.push(`KSH ${img.price.toLocaleString()}`)
   if (img.sku) parts.push(img.sku)
   return parts.join(' · ')
@@ -34,6 +30,8 @@ export default function NewProductPage() {
   const [loading, setLoading]             = useState(false)
   const [imageUploading, setImageUploading] = useState(false)
   const [categories, setCategories]       = useState<ICategory[]>([])
+  const [branches, setBranches]           = useState<Array<{ _id: string; name: string; branchCode: string; isMainBranch: boolean }>>([])
+  const [vendors, setVendors]             = useState<Array<{ _id: string; name: string; vendorCode: string; isHouseStock: boolean }>>([])
 
   // Modal state
   const [editModalIndex, setEditModalIndex]     = useState<number | null>(null)
@@ -59,7 +57,9 @@ export default function NewProductPage() {
     sizes: [] as string[],
     category: '',
     categoryId: '',
-    stockQuantity: '',
+    branchId: '', // Branch selection
+    vendorId: '', // NEW: Vendor selection
+    stockQuantity: '', // Initial stock for selected branch and vendor
     tags: [] as string[],
     isActive: true,
     isFeatured: false,
@@ -69,12 +69,50 @@ export default function NewProductPage() {
     flashDealDiscount: '',
   })
 
-  useEffect(() => { fetchCategories() }, [])
+  useEffect(() => { 
+    fetchCategories()
+    fetchBranches()
+    fetchVendors()
+  }, [])
 
   const fetchCategories = async () => {
     try {
       const res = await fetch('/api/categories')
       if (res.ok) setCategories(await res.json())
+    } catch { /* silent */ }
+  }
+
+  const fetchBranches = async () => {
+    try {
+      const res = await fetch('/api/admin/branches')
+      if (res.ok) {
+        const data = await res.json()
+        const activeBranches = (data.branches || []).filter((b: any) => b.isActive)
+        setBranches(activeBranches)
+        
+        // Auto-select main branch if available
+        const mainBranch = activeBranches.find((b: any) => b.isMainBranch)
+        if (mainBranch) {
+          setFormData(prev => ({ ...prev, branchId: mainBranch._id }))
+        }
+      }
+    } catch { /* silent */ }
+  }
+
+  const fetchVendors = async () => {
+    try {
+      const res = await fetch('/api/admin/vendors')
+      if (res.ok) {
+        const data = await res.json()
+        const activeVendors = (data.vendors || []).filter((v: any) => v.isActive)
+        setVendors(activeVendors)
+        
+        // Auto-select House Stock vendor if available
+        const houseVendor = activeVendors.find((v: any) => v.isHouseStock)
+        if (houseVendor) {
+          setFormData(prev => ({ ...prev, vendorId: houseVendor._id }))
+        }
+      }
     } catch { /* silent */ }
   }
 
@@ -231,6 +269,19 @@ export default function NewProductPage() {
       alert('Please set a price and upload at least one image.')
       return
     }
+    if (!formData.branchId) {
+      alert('Please select a branch for this product.')
+      return
+    }
+    if (!formData.vendorId) {
+      alert('Please select a vendor for this product.')
+      return
+    }
+    const stockQty = parseInt(formData.stockQuantity)
+    if (isNaN(stockQty) || stockQty < 0) {
+      alert('Please set a valid initial stock quantity.')
+      return
+    }
     setLoading(true)
 
     const slug = formData.name
@@ -265,6 +316,9 @@ export default function NewProductPage() {
       flashDealDiscount: formData.flashDealDiscount ? parseFloat(formData.flashDealDiscount) : undefined,
       rating: 0,
       reviews: 0,
+      branchId: formData.branchId,
+      vendorId: formData.vendorId,
+      initialStock: parseInt(formData.stockQuantity) || 0, // Pass initial stock for branch
     }
 
     try {
@@ -300,6 +354,60 @@ export default function NewProductPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+
+        {/* ── Branch Selection ── */}
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Branch & Vendor Selection</h2>
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
+            <div>
+              <Label>Branch *</Label>
+              <Select 
+                value={formData.branchId} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, branchId: value }))}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map(branch => (
+                    <SelectItem key={branch._id} value={branch._id}>
+                      {branch.name} ({branch.branchCode})
+                      {branch.isMainBranch && ' - Main Branch'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Physical location where initial stock will be stored.
+              </p>
+            </div>
+            
+            <div>
+              <Label>Vendor (Stock Owner) *</Label>
+              <Select 
+                value={formData.vendorId} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, vendorId: value }))}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map(vendor => (
+                    <SelectItem key={vendor._id} value={vendor._id}>
+                      {vendor.name} ({vendor.vendorCode})
+                      {vendor.isHouseStock && ' - House Stock'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Who owns this inventory. Initial stock will belong to this vendor.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* ── Basic Information ── */}
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
@@ -370,9 +478,9 @@ export default function NewProductPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Stock *
+                  Initial Stock *
                   <span className="ml-1 text-xs font-normal text-gray-400">
-                    (or set per-image stock below)
+                    (for selected branch + vendor)
                   </span>
                 </label>
                 <input type="number" value={formData.stockQuantity}
@@ -414,7 +522,7 @@ export default function NewProductPage() {
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h2 className="text-base sm:text-lg font-semibold mb-1">Base Sizes</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Default sizes for this product. Each image can have its own per-size stock set in the image modal.
+            Default sizes for this product.
           </p>
           <div className="flex gap-2 mb-3">
             <input type="text" value={newSize}
@@ -445,7 +553,7 @@ export default function NewProductPage() {
           <h2 className="text-base sm:text-lg font-semibold mb-1">Product Images *</h2>
           <p className="text-xs text-gray-500 mb-4">
             Each image is a selectable design variant. Drag one image onto another to group them (front/back/side views). 
-            Click the <strong>edit</strong> icon to set per-image stock (including per-size), pricing, and SKU.
+            Click the <strong>edit</strong> icon to set per-image pricing and SKU.
           </p>
 
           {formData.images.length > 0 && (

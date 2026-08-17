@@ -18,6 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { useUserStore } from '@/lib/user-store'
+import LowStockAlert from '@/components/admin/low-stock-alert'
 
 interface ReportData {
   dashboard_summary?: {
@@ -49,6 +50,12 @@ interface ReportData {
       }
     }
   }
+  branches?: Array<{
+    _id: string
+    name: string
+    branchCode: string
+    isMainBranch: boolean
+  }>
   sales_overview?: {
     totalRevenue: number
     totalOrders: number
@@ -131,12 +138,30 @@ export default function AdminReportsPage() {
   const [customStartDate, setCustomStartDate] = useState('')
   const [customEndDate, setCustomEndDate] = useState('')
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedBranch, setSelectedBranch] = useState('all')
+  const [branches, setBranches] = useState<Array<{ _id: string; name: string; branchCode: string; isMainBranch: boolean }>>([])
 
   useEffect(() => {
     if (user) {
+      fetchBranches()
       fetchReportData()
     }
-  }, [user, dateRange, customStartDate, customEndDate])
+  }, [user, dateRange, customStartDate, customEndDate, selectedBranch])
+
+  const fetchBranches = async () => {
+    try {
+      const response = await fetch('/api/admin/branches', {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setBranches(data.branches || [])
+      }
+    } catch (error) {
+      console.error('Error fetching branches:', error)
+    }
+  }
 
   const fetchReportData = async (reportType = 'dashboard-summary') => {
     try {
@@ -150,6 +175,10 @@ export default function AdminReportsPage() {
       if (customStartDate && customEndDate) {
         params.append('startDate', customStartDate)
         params.append('endDate', customEndDate)
+      }
+      
+      if (selectedBranch && selectedBranch !== 'all') {
+        params.append('branchId', selectedBranch)
       }
       
       const response = await fetch(`/api/admin/reports?${params}`, {
@@ -272,6 +301,23 @@ export default function AdminReportsPage() {
                   <SelectItem value="90">Last 90 days</SelectItem>
                   <SelectItem value="365">Last year</SelectItem>
                   <SelectItem value="custom">Custom range</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex-1">
+              <Label>Branch</Label>
+              <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Branches</SelectItem>
+                  {branches.map(branch => (
+                    <SelectItem key={branch._id} value={branch._id}>
+                      {branch.name} ({branch.branchCode})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -587,26 +633,7 @@ function ProductsTab({ data, formatCurrency, formatNumber, onLoad }: TabProps) {
       </Card>
 
       {/* Low Stock Alert */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-red-600">Low Stock Alert</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {data.lowStockProducts?.map((product: any) => (
-              <div key={product._id} className="flex items-center justify-between p-3 bg-red-50 rounded">
-                <div>
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-sm text-red-600">
-                    {product.hasVariants ? 'Multiple variants low' : `${product.stockQuantity} remaining`}
-                  </p>
-                </div>
-                <Badge variant="destructive">Low Stock</Badge>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <LowStockAlert threshold={10} maxItems={10} showBranchFilter={true} />
     </>
   )
 }
