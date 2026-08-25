@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/custom-toast'
 
 interface Product {
   _id: string
+  slug: string
   name: string
   price: number
   oldPrice?: number
@@ -59,10 +60,12 @@ export default function ProductComparison({ isOpen, onClose, productIds }: Produ
     try {
       addItem({
         id: product._id,
+        slug: product.slug,
         name: product.name,
         price: product.price,
         image: product.images[0]?.url ?? '/placeholder.svg',
-        quantity: 1
+        quantity: 1,
+        imageIndex: 0
       })
       
       toast.success(`${product.name} added to cart!`)

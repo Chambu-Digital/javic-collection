@@ -1,0 +1,1474 @@
+{
+  "totalCollections": 28,
+  "totalRecords": 130,
+  "collections": {
+    "users": {
+      "name": "users",
+      "count": 6,
+      "purpose": "User accounts (customers, admins, super_admins)",
+      "sampleRecords": [
+        {
+          "_id": "6983ebc91df5b011d5338026",
+          "firstName": "Javic",
+          "lastName": "Admin",
+          "email": "admin@javic.com",
+          "password": "$2b$12$bBAbu79dS/C5thgIb8x/nexB.aFieFC9aYnvB8KTrwSh.RikWyFfy",
+          "phone": "+254713065412",
+          "isEmailVerified": true,
+          "isActive": true,
+          "role": "admin",
+          "permissions": [],
+          "legacyPermissions": {
+            "products": {
+              "view": true,
+              "create": true,
+              "edit": true,
+              "delete": true
+            },
+            "orders": {
+              "view": true,
+              "edit": true,
+              "cancel": true
+            },
+            "blog": {
+              "view": true,
+              "create": true,
+              "edit": true,
+              "delete": true
+            },
+            "customers": {
+              "view": true,
+              "edit": true
+            },
+            "reports": {
+              "view": true,
+              "export": true
+            },
+            "settings": {
+              "view": true,
+              "edit": true
+            },
+            "locations": {
+              "view": true,
+              "edit": true
+            }
+          },
+          "isApproved": true,
+          "approvedAt": "2026-02-05T01:00:57.208Z",
+          "provider": "local",
+          "addresses": [],
+          "createdAt": "2026-02-05T01:00:57.245Z",
+          "updatedAt": "2026-02-05T01:00:57.245Z",
+          "__v": 0
+        },
+        {
+          "_id": "6983ebca1df5b011d5338029",
+          "firstName": "Javic",
+          "lastName": "SuperAdmin",
+          "email": "superadmin@javic.com",
+          "password": "$2b$12$n7ZOhvwqKutWnJ8oxxPv8OiWx5JWltJW90/hwb2ebqGhp61AIfQkO",
+          "phone": "+254713065412",
+          "isEmailVerified": true,
+          "isActive": true,
+          "role": "super_admin",
+          "permissions": [],
+          "legacyPermissions": {
+            "products": {
+              "view": true,
+              "create": true,
+              "edit": true,
+              "delete": true
+            },
+            "orders": {
+              "view": true,
+              "edit": true,
+              "cancel": true
+            },
+            "blog": {
+              "view": true,
+              "create": true,
+              "edit": true,
+              "delete": true
+            },
+            "customers": {
+              "view": true,
+              "edit": true
+            },
+            "reports": {
+              "view": true,
+              "export": true
+            },
+            "settings": {
+              "view": true,
+              "edit": true
+            },
+            "locations": {
+              "view": true,
+              "edit": true
+            }
+          },
+          "isApproved": true,
+          "approvedAt": "2026-02-05T01:00:58.018Z",
+          "provider": "local",
+          "addresses": [],
+          "createdAt": "2026-02-05T01:00:58.027Z",
+          "updatedAt": "2026-02-05T01:00:58.027Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a4cbc12dcdf9a1783de5153",
+          "firstName": "Super",
+          "lastName": "Admin",
+          "email": "admin@javic.co.ke",
+          "password": "$2b$12$183rRi0DO454n.ExHc6nWOC3Epu3ZF8s3b.740WMqO.baXi9/GglW",
+          "phone": "",
+          "role": "super_admin",
+          "permissions": [],
+          "isEmailVerified": true,
+          "isApproved": true,
+          "isActive": true,
+          "provider": "local",
+          "addresses": [],
+          "createdAt": "2026-07-07T08:42:58.480Z",
+          "updatedAt": "2026-07-07T08:42:58.480Z"
+        }
+      ],
+      "relationships": [
+        "orders",
+        "reviews",
+        "adminrequests"
+      ],
+      "dataType": "mixed",
+      "recommendation": "manual review needed"
+    },
+    "adminrequests": {
+      "name": "adminrequests",
+      "count": 0,
+      "purpose": "Pending admin registration requests",
+      "sampleRecords": [],
+      "relationships": [
+        "users (when approved)"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "reviews": {
+      "name": "reviews",
+      "count": 0,
+      "purpose": "Product reviews from customers",
+      "sampleRecords": [],
+      "relationships": [
+        "products",
+        "orders",
+        "users"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe to leave empty"
+    },
+    "branches": {
+      "name": "branches",
+      "count": 1,
+      "purpose": "Physical branch/location records",
+      "sampleRecords": [
+        {
+          "_id": "6a815b220b3ddb83cf6759ca",
+          "name": "Main Branch",
+          "branchCode": "M",
+          "location": "Digo rd",
+          "address": "Mombasa",
+          "isActive": true,
+          "isMainBranch": true,
+          "createdAt": "2026-08-16T06:39:30.186Z",
+          "updatedAt": "2026-08-16T06:39:30.186Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "branchstocks",
+        "orders"
+      ],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "vendors": {
+      "name": "vendors",
+      "count": 2,
+      "purpose": "Vendor/supplier records",
+      "sampleRecords": [
+        {
+          "_id": "6a82717ffeefdd141b9230c7",
+          "name": "House Stock",
+          "vendorCode": "HOUSE",
+          "isActive": true,
+          "isHouseStock": true,
+          "notes": "Default vendor for store-owned inventory. Created by migration script.",
+          "createdAt": "2026-08-17T02:27:11.370Z",
+          "updatedAt": "2026-08-17T02:27:11.370Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a8298198b4558fef5483584",
+          "name": "Mama Vic",
+          "vendorCode": "MV",
+          "isActive": true,
+          "isHouseStock": false,
+          "createdAt": "2026-08-17T05:11:53.367Z",
+          "updatedAt": "2026-08-17T05:11:53.367Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "branchstocks",
+        "orders"
+      ],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "notificationsettings": {
+      "name": "notificationsettings",
+      "count": 1,
+      "purpose": "Notification preferences",
+      "sampleRecords": [
+        {
+          "_id": "6a6319f3eecd12363f4b98c0",
+          "userId": "6983ebc91df5b011d5338026",
+          "lowStockEnabled": true,
+          "lowStockThreshold": 5,
+          "syncFailureEnabled": true,
+          "offlineModeEnabled": true,
+          "creditLimitEnabled": true,
+          "creditLimitThreshold": 10000,
+          "systemNotificationsEnabled": true,
+          "emailNotifications": false,
+          "smsNotifications": false,
+          "inAppNotifications": true,
+          "createdAt": "2026-07-24T07:53:23.406Z",
+          "updatedAt": "2026-07-24T07:53:23.406Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "campaigns": {
+      "name": "campaigns",
+      "count": 1,
+      "purpose": "Marketing campaigns and promotions",
+      "sampleRecords": [
+        {
+          "_id": "6a79c1914b78ed80e8716a93",
+          "title": "Valentines gift",
+          "subtitle": "Be something more than...",
+          "description": "Blah blah",
+          "type": "promotion",
+          "status": "active",
+          "images": [
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/08/1786364023_5782f40d.jpg",
+              "alt": "",
+              "device": "desktop",
+              "order": 0
+            }
+          ],
+          "badge": {
+            "type": "exclusive"
+          },
+          "cta": {
+            "enabled": true,
+            "text": "Shop Now",
+            "url": "/products",
+            "isExternal": true
+          },
+          "schedule": {
+            "startDate": "2026-08-10T12:17:00.000Z",
+            "endDate": "2026-08-12T12:18:00.000Z",
+            "timezone": "Africa/Nairobi"
+          },
+          "display": {
+            "mode": "popup_modal",
+            "position": "center",
+            "animation": "fade",
+            "background": {
+              "type": "color",
+              "color": "#5a1e5c",
+              "gradientFrom": "#5a1e5c",
+              "gradientTo": "#9c4a9e",
+              "gradientDirection": "to right"
+            },
+            "overlay": "blur",
+            "delaySeconds": 0.5,
+            "showCloseButton": true,
+            "textColor": "#ffffff"
+          },
+          "visibility": {
+            "pages": [
+              "homepage"
+            ],
+            "frequency": "once_per_session"
+          },
+          "audience": {
+            "targets": [
+              "everyone"
+            ]
+          },
+          "countdown": {
+            "enabled": false
+          },
+          "coupon": {
+            "enabled": false,
+            "code": "",
+            "copyConfirmationText": "Code copied!"
+          },
+          "priority": 0,
+          "createdBy": "6a4cbc12dcdf9a1783de5153",
+          "updatedBy": "6a4cbc12dcdf9a1783de5153",
+          "createdAt": "2026-08-10T12:18:25.348Z",
+          "updatedAt": "2026-08-10T12:18:39.444Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "campaignanalytics"
+      ],
+      "dataType": "configuration",
+      "recommendation": "review for test campaigns"
+    },
+    "banners": {
+      "name": "banners",
+      "count": 6,
+      "purpose": "Homepage/promotional banners",
+      "sampleRecords": [
+        {
+          "_id": "6a545befad0aee3832442039",
+          "title": "Wear Confidence",
+          "subtitle": "Comfort meets elegance.",
+          "image": "https://fecy.co.ke/imgapi/media/2026/07/1783913448_e6328a5c.jpg",
+          "isActive": true,
+          "order": 0,
+          "createdAt": "2026-07-13T03:30:55.226Z",
+          "updatedAt": "2026-07-13T03:30:55.226Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a545c8dad0aee383244204b",
+          "title": "Your Perfect Fit",
+          "subtitle": "Style starts within.",
+          "image": "https://fecy.co.ke/imgapi/media/2026/07/1783913610_a6656197.jpg",
+          "isActive": true,
+          "order": 2,
+          "createdAt": "2026-07-13T03:33:33.351Z",
+          "updatedAt": "2026-07-13T03:33:33.351Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a5888c2283b331e9d211751",
+          "title": "Own Your Confidence",
+          "subtitle": "Made to fit beautifully",
+          "image": "https://fecy.co.ke/imgapi/media/2026/07/1784186664_f8595ed5.jpg",
+          "isActive": true,
+          "order": 0,
+          "createdAt": "2026-07-16T07:31:14.562Z",
+          "updatedAt": "2026-07-16T07:31:14.562Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [],
+      "dataType": "content",
+      "recommendation": "review for test banners"
+    },
+    "blogposts": {
+      "name": "blogposts",
+      "count": 0,
+      "purpose": "Blog content",
+      "sampleRecords": [],
+      "relationships": [
+        "products (via relatedProducts)"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "posoutlets": {
+      "name": "posoutlets",
+      "count": 1,
+      "purpose": "Point of Sale outlet configuration",
+      "sampleRecords": [
+        {
+          "_id": "6a61ceded3a1fffab32e3538",
+          "name": "Main Shop",
+          "code": "MAIN",
+          "isActive": true,
+          "isDefault": true,
+          "createdAt": "2026-07-23T08:20:47.004Z",
+          "updatedAt": "2026-07-23T08:20:47.004Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "orders",
+        "users"
+      ],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "productviews": {
+      "name": "productviews",
+      "count": 0,
+      "purpose": "Product view tracking/analytics",
+      "sampleRecords": [],
+      "relationships": [
+        "products"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "areas": {
+      "name": "areas",
+      "count": 0,
+      "purpose": "Delivery areas/locations",
+      "sampleRecords": [],
+      "relationships": [
+        "orders (via shippingAddress.area)"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "sitesettings": {
+      "name": "sitesettings",
+      "count": 1,
+      "purpose": "Application configuration settings",
+      "sampleRecords": [
+        {
+          "_id": "6a544512b5df9eddd824afc3",
+          "__v": 0,
+          "createdAt": "2026-07-13T01:53:22.038Z",
+          "updatedAt": "2026-07-13T01:53:22.038Z",
+          "watermarkEnabled": true,
+          "watermarkOpacity": 0.7,
+          "watermarkPosition": "bottom-right",
+          "watermarkText": "Javic Collection"
+        }
+      ],
+      "relationships": [],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "posauditentries": {
+      "name": "posauditentries",
+      "count": 8,
+      "purpose": "POS system audit trail",
+      "sampleRecords": [
+        {
+          "_id": "6a61eb87623f93c37bc6ce78",
+          "userId": "6983ebc91df5b011d5338026",
+          "userName": "Javic Admin",
+          "userRole": "manager",
+          "action": "pos_sale_completed",
+          "targetType": "order",
+          "targetId": "6a61eb87623f93c37bc6ce66",
+          "newValue": "POS260723594",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "deviceId": "unknown",
+          "createdAt": "2026-07-23T10:23:03.404Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61ece4623f93c37bc6cea2",
+          "userId": "6983ebc91df5b011d5338026",
+          "userName": "Javic Admin",
+          "userRole": "manager",
+          "action": "pos_sale_completed",
+          "targetType": "order",
+          "targetId": "6a61ece4623f93c37bc6ce98",
+          "newValue": "POS260723358",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "deviceId": "unknown",
+          "createdAt": "2026-07-23T10:28:52.998Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61edc8623f93c37bc6cecd",
+          "userId": "6983ebc91df5b011d5338026",
+          "userName": "Javic Admin",
+          "userRole": "manager",
+          "action": "pos_sale_completed",
+          "targetType": "order",
+          "targetId": "6a61edc7623f93c37bc6cec3",
+          "newValue": "POS260723825",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "deviceId": "unknown",
+          "createdAt": "2026-07-23T10:32:40.071Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "users",
+        "posoutlets"
+      ],
+      "dataType": "audit log",
+      "recommendation": "review for test vs production data"
+    },
+    "customercreditaccounts": {
+      "name": "customercreditaccounts",
+      "count": 0,
+      "purpose": "Customer credit account records",
+      "sampleRecords": [],
+      "relationships": [
+        "users",
+        "credittransactions"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "mpesatransactions": {
+      "name": "mpesatransactions",
+      "count": 0,
+      "purpose": "M-Pesa payment transaction records",
+      "sampleRecords": [],
+      "relationships": [
+        "orders"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "categories": {
+      "name": "categories",
+      "count": 3,
+      "purpose": "Product categories",
+      "sampleRecords": [
+        {
+          "_id": "6a52b72e680d8bce3538790a",
+          "name": "Sleepwear & Loungewear",
+          "slug": "sleepwear-loungewear",
+          "description": "Sleepwear & Loungewear collection",
+          "image": "https://fecy.co.ke/imgapi/media/2026/07/1783911028_540cf036.jpg",
+          "icon": "👗",
+          "isActive": true,
+          "createdAt": "2026-07-11T21:35:42.473Z",
+          "updatedAt": "2026-07-13T02:50:34.676Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a52b72f680d8bce3538791d",
+          "name": "Lingerie",
+          "slug": "lingerie",
+          "description": "Lingerie collection",
+          "image": "https://fecy.co.ke/imgapi/media/2026/07/1783910976_ef776dca.jpg",
+          "icon": "👗",
+          "isActive": true,
+          "createdAt": "2026-07-11T21:35:43.849Z",
+          "updatedAt": "2026-07-13T02:49:42.356Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a79bb494b78ed80e87169e3",
+          "name": "Night Dresses",
+          "slug": "night-dresses",
+          "description": "The best quality sleepwear.",
+          "image": "https://fecy.co.ke/imgapi/media/2026/08/1786362656_8b9bc3a7.jpg",
+          "icon": "📦",
+          "isActive": true,
+          "createdAt": "2026-08-10T11:51:37.458Z",
+          "updatedAt": "2026-08-10T11:51:37.458Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "products"
+      ],
+      "dataType": "production",
+      "recommendation": "keep"
+    },
+    "counties": {
+      "name": "counties",
+      "count": 0,
+      "purpose": "Kenya counties data",
+      "sampleRecords": [],
+      "relationships": [
+        "orders (via shippingAddress.county)"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "branchstocks": {
+      "name": "branchstocks",
+      "count": 43,
+      "purpose": "Branch inventory tracking",
+      "sampleRecords": [
+        {
+          "_id": "6a815bdb0b3ddb83cf675a42",
+          "productId": "6a646c13cb2cccb0bfbe0880",
+          "branchId": "6a815b220b3ddb83cf6759ca",
+          "imageIndex": 0,
+          "stockIdentifier": "SCARLET-ALLURE-3-PIECE-SHEER-NIGHTDRESS-SET-M-IMG0",
+          "quantity": 10,
+          "createdAt": "2026-08-16T06:42:35.433Z",
+          "updatedAt": "2026-08-16T06:42:35.433Z",
+          "__v": 0,
+          "vendorId": "6a82717ffeefdd141b9230c7"
+        },
+        {
+          "_id": "6a815bdb0b3ddb83cf675a45",
+          "productId": "6a646c13cb2cccb0bfbe0880",
+          "branchId": "6a815b220b3ddb83cf6759ca",
+          "imageIndex": 1,
+          "stockIdentifier": "SCARLET-ALLURE-3-PIECE-SHEER-NIGHTDRESS-SET-M-IMG1",
+          "quantity": 10,
+          "createdAt": "2026-08-16T06:42:35.607Z",
+          "updatedAt": "2026-08-16T06:42:35.607Z",
+          "__v": 0,
+          "vendorId": "6a82717ffeefdd141b9230c7"
+        },
+        {
+          "_id": "6a815bdb0b3ddb83cf675a48",
+          "productId": "6a647df827ed8f43d58b7d27",
+          "branchId": "6a815b220b3ddb83cf6759ca",
+          "imageIndex": 0,
+          "selectedSize": "L",
+          "stockIdentifier": "SWEET-CHERRY-RIBBED-CAMI-SHORTS-LOUNGE-SET-M-IMG0-L",
+          "quantity": 6,
+          "createdAt": "2026-08-16T06:42:35.767Z",
+          "updatedAt": "2026-08-16T06:42:35.767Z",
+          "__v": 0,
+          "vendorId": "6a82717ffeefdd141b9230c7"
+        }
+      ],
+      "relationships": [
+        "products",
+        "branches",
+        "vendors"
+      ],
+      "dataType": "transactional",
+      "recommendation": "review for orphaned records"
+    },
+    "possettings": {
+      "name": "possettings",
+      "count": 0,
+      "purpose": "POS system settings",
+      "sampleRecords": [],
+      "relationships": [],
+      "dataType": "system configuration",
+      "recommendation": "DO NOT DELETE"
+    },
+    "ledgerentries": {
+      "name": "ledgerentries",
+      "count": 29,
+      "purpose": "Financial ledger entries",
+      "sampleRecords": [
+        {
+          "_id": "6a61eb86623f93c37bc6ce62",
+          "entryNumber": "LED20260723-8U2A7",
+          "eventType": "inventory_removed",
+          "source": "pos",
+          "channel": "pos",
+          "productId": "6a54160f2dbf0b3b508645b3",
+          "productName": "See-Through Lace Lingerie Set with Strings & Slit",
+          "variantImageUrl": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_0f778027.jpg",
+          "quantity": 1,
+          "totalMinor": 0,
+          "paymentBreakdown": [],
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "isReversal": false,
+          "createdAt": "2026-07-23T10:23:02.989Z",
+          "updatedAt": "2026-07-23T10:23:02.989Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61eb87623f93c37bc6ce6d",
+          "entryNumber": "LED20260723-N5XZM",
+          "eventType": "pos_sale",
+          "source": "pos",
+          "channel": "pos",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "userId": "6983ebc91df5b011d5338026",
+          "userName": "Javic Admin",
+          "orderId": "6a61eb87623f93c37bc6ce66",
+          "orderNumber": "POS260723594",
+          "totalMinor": 150000,
+          "paymentMethod": "cash",
+          "paymentBreakdown": [
+            {
+              "method": "cash",
+              "amountMinor": 150000,
+              "_id": "6a61eb87623f93c37bc6ce6e"
+            }
+          ],
+          "deviceId": "unknown",
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "isReversal": false,
+          "createdAt": "2026-07-23T10:23:03.230Z",
+          "updatedAt": "2026-07-23T10:23:03.230Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61eb87623f93c37bc6ce73",
+          "entryNumber": "LED20260723-YR8RC",
+          "eventType": "cash_payment",
+          "source": "pos",
+          "channel": "pos",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "userId": "6983ebc91df5b011d5338026",
+          "userName": "Javic Admin",
+          "orderId": "6a61eb87623f93c37bc6ce66",
+          "orderNumber": "POS260723594",
+          "totalMinor": 150000,
+          "paymentMethod": "cash",
+          "paymentBreakdown": [],
+          "deviceId": "unknown",
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "isReversal": false,
+          "createdAt": "2026-07-23T10:23:03.318Z",
+          "updatedAt": "2026-07-23T10:23:03.318Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "orders",
+        "credittransactions"
+      ],
+      "dataType": "financial",
+      "recommendation": "MANUAL REVIEW - CRITICAL"
+    },
+    "campaignanalytics": {
+      "name": "campaignanalytics",
+      "count": 3,
+      "purpose": "Campaign performance metrics",
+      "sampleRecords": [
+        {
+          "_id": "6a79c1aed03896ae151c6963",
+          "campaignId": "6a79c1914b78ed80e8716a93",
+          "date": "2026-08-10T00:00:00.000Z",
+          "__v": 0,
+          "clicks": 7,
+          "createdAt": "2026-08-10T12:18:54.358Z",
+          "dismissals": 5,
+          "uniqueVisitors": 9,
+          "updatedAt": "2026-08-10T14:24:48.761Z",
+          "views": 9
+        },
+        {
+          "_id": "6a7aaeeed03896ae151c6cd1",
+          "date": "2026-08-11T00:00:00.000Z",
+          "campaignId": "6a79c1914b78ed80e8716a93",
+          "__v": 0,
+          "clicks": 0,
+          "createdAt": "2026-08-11T05:11:10.704Z",
+          "dismissals": 0,
+          "uniqueVisitors": 3,
+          "updatedAt": "2026-08-11T08:06:34.915Z",
+          "views": 3
+        },
+        {
+          "_id": "6a7c1db58d61221f1f013ab6",
+          "campaignId": "6a79c1914b78ed80e8716a93",
+          "date": "2026-08-12T00:00:00.000Z",
+          "__v": 0,
+          "clicks": 0,
+          "createdAt": "2026-08-12T07:16:06.040Z",
+          "dismissals": 0,
+          "uniqueVisitors": 1,
+          "updatedAt": "2026-08-12T07:16:06.040Z",
+          "views": 1
+        }
+      ],
+      "relationships": [
+        "campaigns"
+      ],
+      "dataType": "analytics",
+      "recommendation": "safe to clear"
+    },
+    "posheldorders": {
+      "name": "posheldorders",
+      "count": 2,
+      "purpose": "Held/parked POS orders",
+      "sampleRecords": [
+        {
+          "_id": "6a62f20c310e45449924d743",
+          "holdNumber": "HLD20260724-WURV",
+          "items": [
+            {
+              "productId": "6a54160f2dbf0b3b508645ad",
+              "productName": "Ribbed Cherry 2-Piece Pajama Set",
+              "selectedImageIndex": 5,
+              "selectedImageUrl": "https://fecy.co.ke/imgapi/media/2026/07/1783909095_5b6df7ee.jpg",
+              "selectedSize": "XL",
+              "quantity": 1,
+              "retailUnitPrice": 1000,
+              "wholesaleUnitPrice": 800,
+              "originalUnitPrice": 1000,
+              "actualUnitPrice": 1000,
+              "lineDiscountMinor": 0,
+              "lineSubtotalMinor": 100000,
+              "lineTotalMinor": 100000,
+              "pricingMode": "retail",
+              "addedBy": "6983ebc91df5b011d5338026",
+              "addedAt": "2026-07-24T05:03:07.922Z",
+              "_id": "6a62f20c310e45449924d744"
+            }
+          ],
+          "pricingMode": "retail",
+          "cartDiscountMinor": 0,
+          "subtotalMinor": 100000,
+          "totalDiscountMinor": 0,
+          "totalMinor": 100000,
+          "cashierId": "6983ebc91df5b011d5338026",
+          "cashierName": "Javic Admin",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "deviceId": "unknown",
+          "wasOffline": false,
+          "status": "resumed",
+          "createdAt": "2026-07-24T05:03:08.355Z",
+          "updatedAt": "2026-07-24T05:03:30.505Z",
+          "__v": 0,
+          "resumedAt": "2026-07-24T05:03:30.504Z"
+        },
+        {
+          "_id": "6a62f227310e45449924d75f",
+          "holdNumber": "HLD20260724-CN8O",
+          "items": [
+            {
+              "productId": "6a54160f2dbf0b3b508645ad",
+              "productName": "Ribbed Cherry 2-Piece Pajama Set",
+              "selectedImageIndex": 5,
+              "selectedImageUrl": "https://fecy.co.ke/imgapi/media/2026/07/1783909095_5b6df7ee.jpg",
+              "selectedSize": "XL",
+              "quantity": 1,
+              "retailUnitPrice": 1000,
+              "wholesaleUnitPrice": 800,
+              "originalUnitPrice": 1000,
+              "actualUnitPrice": 1000,
+              "lineDiscountMinor": 0,
+              "lineSubtotalMinor": 100000,
+              "lineTotalMinor": 100000,
+              "pricingMode": "retail",
+              "addedBy": "6983ebc91df5b011d5338026",
+              "addedAt": "2026-07-24T05:03:35.474Z",
+              "_id": "6a62f227310e45449924d760"
+            }
+          ],
+          "pricingMode": "retail",
+          "cartDiscountMinor": 0,
+          "subtotalMinor": 100000,
+          "totalDiscountMinor": 0,
+          "totalMinor": 100000,
+          "cashierId": "6983ebc91df5b011d5338026",
+          "cashierName": "Javic Admin",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "deviceId": "unknown",
+          "wasOffline": false,
+          "status": "resumed",
+          "createdAt": "2026-07-24T05:03:35.672Z",
+          "updatedAt": "2026-07-24T05:03:40.666Z",
+          "__v": 0,
+          "resumedAt": "2026-07-24T05:03:40.664Z"
+        }
+      ],
+      "relationships": [
+        "products",
+        "posoutlets"
+      ],
+      "dataType": "transactional",
+      "recommendation": "review before deleting"
+    },
+    "credittransactions": {
+      "name": "credittransactions",
+      "count": 0,
+      "purpose": "Credit transaction history",
+      "sampleRecords": [],
+      "relationships": [
+        "customercreditaccounts",
+        "orders"
+      ],
+      "dataType": "empty",
+      "recommendation": "safe"
+    },
+    "outlets": {
+      "name": "outlets",
+      "count": 1,
+      "purpose": "Sales outlets",
+      "sampleRecords": [
+        {
+          "_id": "6a631658eecd12363f4b98a8",
+          "outletId": "MAIN",
+          "name": "Main Shop",
+          "location": "Biashara Street, Marikiti — Mombasa",
+          "phone": "+254 706 512 984",
+          "isActive": true,
+          "cashierIds": [],
+          "settings": {
+            "defaultPricingMode": "retail",
+            "taxRate": 0,
+            "currency": "KES",
+            "locale": "en-KE",
+            "autoPrintReceipt": false,
+            "requireCustomerForSale": false,
+            "allowCreditSales": true,
+            "maxCreditAmount": 100000,
+            "allowReturns": true,
+            "returnDaysLimit": 30
+          },
+          "createdAt": "2026-07-24T07:38:00.470Z",
+          "updatedAt": "2026-07-24T07:56:01.692Z",
+          "__v": 0,
+          "email": "service@javic.co.ke"
+        }
+      ],
+      "relationships": [
+        "orders"
+      ],
+      "dataType": "configuration",
+      "recommendation": "keep if actively used"
+    },
+    "orders": {
+      "name": "orders",
+      "count": 12,
+      "purpose": "Customer orders and sales transactions",
+      "sampleRecords": [
+        {
+          "_id": "6a61eb87623f93c37bc6ce66",
+          "orderNumber": "POS260723594",
+          "customerEmail": "pos-walk-in@javic.local",
+          "items": [
+            {
+              "productId": "6a54160f2dbf0b3b508645b3",
+              "productName": "See-Through Lace Lingerie Set with Strings & Slit",
+              "productImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_0f778027.jpg",
+              "selectedImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_0f778027.jpg",
+              "selectedImageIndex": 2,
+              "quantity": 1,
+              "price": 1500,
+              "retailPrice": 1500,
+              "wholesalePrice": 0,
+              "originalPrice": 1500,
+              "lineDiscount": 0,
+              "cartDiscountAllocation": 0,
+              "pricingMode": "retail",
+              "totalPrice": 1500,
+              "reviewed": false,
+              "_id": "6a61eb87623f93c37bc6ce67"
+            }
+          ],
+          "subtotal": 1500,
+          "shippingCost": 0,
+          "taxAmount": 0,
+          "discountAmount": 0,
+          "totalAmount": 1500,
+          "shippingAddress": {
+            "name": "Main Shop",
+            "phone": "N/A",
+            "county": "POS",
+            "area": "Main Shop",
+            "_id": "6a61eb87623f93c37bc6ce68"
+          },
+          "status": "completed",
+          "paymentStatus": "paid",
+          "paymentMethod": "cash",
+          "channel": "pos",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "cashierId": "6983ebc91df5b011d5338026",
+          "cashierName": "Javic Admin",
+          "pricingMode": "retail",
+          "paymentAllocations": [
+            {
+              "method": "cash",
+              "amount": 1500,
+              "cashReceived": 2000,
+              "changeGiven": 500,
+              "status": "confirmed",
+              "timestamp": "2026-07-23T10:23:03.093Z",
+              "_id": "6a61eb87623f93c37bc6ce69"
+            }
+          ],
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "creditAmount": 0,
+          "review_request_status": "not_requested",
+          "customerNotes": "",
+          "createdAt": "2026-07-23T10:23:03.120Z",
+          "updatedAt": "2026-07-23T10:23:03.120Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61ece4623f93c37bc6ce98",
+          "orderNumber": "POS260723358",
+          "customerEmail": "pos-walk-in@javic.local",
+          "items": [
+            {
+              "productId": "6a54160f2dbf0b3b508645b3",
+              "productName": "See-Through Lace Lingerie Set with Strings & Slit",
+              "productImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_f44164b6.jpg",
+              "selectedImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_f44164b6.jpg",
+              "selectedImageIndex": 0,
+              "quantity": 1,
+              "price": 1500,
+              "retailPrice": 1500,
+              "wholesalePrice": 0,
+              "originalPrice": 1500,
+              "lineDiscount": 0,
+              "cartDiscountAllocation": 0,
+              "pricingMode": "retail",
+              "totalPrice": 1500,
+              "reviewed": false,
+              "_id": "6a61ece4623f93c37bc6ce99"
+            }
+          ],
+          "subtotal": 1500,
+          "shippingCost": 0,
+          "taxAmount": 0,
+          "discountAmount": 0,
+          "totalAmount": 1500,
+          "shippingAddress": {
+            "name": "Main Shop",
+            "phone": "N/A",
+            "county": "POS",
+            "area": "Main Shop",
+            "_id": "6a61ece4623f93c37bc6ce9a"
+          },
+          "status": "completed",
+          "paymentStatus": "paid",
+          "paymentMethod": "cash",
+          "channel": "pos",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "cashierId": "6983ebc91df5b011d5338026",
+          "cashierName": "Javic Admin",
+          "pricingMode": "retail",
+          "paymentAllocations": [
+            {
+              "method": "cash",
+              "amount": 1500,
+              "cashReceived": 1600,
+              "changeGiven": 100,
+              "status": "confirmed",
+              "timestamp": "2026-07-23T10:28:52.714Z",
+              "_id": "6a61ece4623f93c37bc6ce9b"
+            }
+          ],
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "creditAmount": 0,
+          "review_request_status": "not_requested",
+          "customerNotes": "",
+          "createdAt": "2026-07-23T10:28:52.729Z",
+          "updatedAt": "2026-07-23T10:28:52.729Z",
+          "__v": 0
+        },
+        {
+          "_id": "6a61edc7623f93c37bc6cec3",
+          "orderNumber": "POS260723825",
+          "customerEmail": "pos-walk-in@javic.local",
+          "items": [
+            {
+              "productId": "6a54160f2dbf0b3b508645b3",
+              "productName": "See-Through Lace Lingerie Set with Strings & Slit",
+              "productImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_f44164b6.jpg",
+              "selectedImage": "https://fecy.co.ke/imgapi/media/2026/07/1783909059_f44164b6.jpg",
+              "selectedImageIndex": 0,
+              "quantity": 1,
+              "price": 1500,
+              "retailPrice": 1500,
+              "wholesalePrice": 0,
+              "originalPrice": 1500,
+              "lineDiscount": 0,
+              "cartDiscountAllocation": 0,
+              "pricingMode": "retail",
+              "totalPrice": 1500,
+              "reviewed": false,
+              "_id": "6a61edc7623f93c37bc6cec4"
+            }
+          ],
+          "subtotal": 1500,
+          "shippingCost": 0,
+          "taxAmount": 0,
+          "discountAmount": 0,
+          "totalAmount": 1500,
+          "shippingAddress": {
+            "name": "Main Shop",
+            "phone": "N/A",
+            "county": "POS",
+            "area": "Main Shop",
+            "_id": "6a61edc7623f93c37bc6cec5"
+          },
+          "status": "completed",
+          "paymentStatus": "paid",
+          "paymentMethod": "cash",
+          "channel": "pos",
+          "outletId": "6a61ceded3a1fffab32e3538",
+          "outletName": "Main Shop",
+          "cashierId": "6983ebc91df5b011d5338026",
+          "cashierName": "Javic Admin",
+          "pricingMode": "retail",
+          "paymentAllocations": [
+            {
+              "method": "cash",
+              "amount": 1500,
+              "cashReceived": 1500,
+              "changeGiven": 0,
+              "status": "confirmed",
+              "timestamp": "2026-07-23T10:32:39.794Z",
+              "_id": "6a61edc7623f93c37bc6cec6"
+            }
+          ],
+          "wasOffline": false,
+          "syncStatus": "synced",
+          "creditAmount": 0,
+          "review_request_status": "not_requested",
+          "customerNotes": "",
+          "createdAt": "2026-07-23T10:32:39.803Z",
+          "updatedAt": "2026-07-23T10:32:39.803Z",
+          "__v": 0
+        }
+      ],
+      "relationships": [
+        "users",
+        "products",
+        "mpesatransactions",
+        "reviews"
+      ],
+      "dataType": "production",
+      "recommendation": "manual review required"
+    },
+    "products": {
+      "name": "products",
+      "count": 10,
+      "purpose": "Product catalog",
+      "sampleRecords": [
+        {
+          "_id": "6a646c13cb2cccb0bfbe0880",
+          "name": "Scarlet Allure 3-Piece Sheer Nightdress Set",
+          "slug": "scarlet-allure-3-piece-sheer-nightdress-set",
+          "description": "Make a bold statement in this sassy 3-piece lingerie set, featuring a long, sheer, flowing gown with a daring front slit, delicate adjustable straps, and an alluring cut-out back. The flared silhouette drapes beautifully over the body for an elegant yet seductive finish. Complete with a matching G-string and coordinating lingerie piece, it is perfect for romantic evenings and special occasions.",
+          "price": 2500,
+          "wholesalePrice": 2000,
+          "wholesaleThreshold": 12,
+          "images": [
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784965184_e26c3d73.jpg",
+              "stock": 10,
+              "sizes": [],
+              "_id": "6a646c13cb2cccb0bfbe0881"
+            },
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784965184_f0b88f00.jpg",
+              "stock": 10,
+              "sizes": [],
+              "_id": "6a646c13cb2cccb0bfbe0882"
+            }
+          ],
+          "sizes": [],
+          "category": "Sleepwear & Loungewear",
+          "categoryId": "6a52b72e680d8bce3538790a",
+          "inStock": true,
+          "stockQuantity": 20,
+          "rating": 0,
+          "reviews": 0,
+          "isNewProduct": false,
+          "isBestseller": false,
+          "isFeatured": true,
+          "isFlashDeal": false,
+          "benefits": [],
+          "tags": [
+            "SheerNightdress",
+            "ThreePieceLingerie",
+            "RedLingerieSet",
+            "FlairyGown",
+            "GStringSet"
+          ],
+          "isActive": true,
+          "createdAt": "2026-07-25T07:56:03.466Z",
+          "updatedAt": "2026-08-04T14:52:42.977Z",
+          "__v": 0,
+          "sku": "SCARLET-ALLURE-3-PIECE-SHEER-NIGHTDRESS-SET",
+          "flashDealDiscount": 0,
+          "oldPrice": 0
+        },
+        {
+          "_id": "6a647df827ed8f43d58b7d27",
+          "name": "Sweet Cherry Ribbed Cami & Shorts Lounge Set",
+          "slug": "sweet-cherry-ribbed-cami-shorts-lounge-set",
+          "description": "Unwind in effortless style with this adorable 2-piece ribbed lounge set. Blending playful charm with cozy comfort, this set features a fitted cropped camisole paired with matching printed shorts—making it perfect for slumber parties, cozy weekends, or everyday sleepwear.",
+          "price": 1500,
+          "wholesalePrice": 1200,
+          "wholesaleThreshold": 4,
+          "images": [
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784968937_8745a67b.jpg",
+              "stock": 12,
+              "sizes": [
+                "L",
+                "XL"
+              ],
+              "sizeStock": {
+                "L": 6,
+                "XL": 6
+              },
+              "_id": "6a647df827ed8f43d58b7d28"
+            },
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784969178_b454f9d4.jpg",
+              "stock": 12,
+              "sizes": [
+                "L",
+                "XL"
+              ],
+              "sizeStock": {
+                "L": 6,
+                "XL": 6
+              },
+              "_id": "6a647df827ed8f43d58b7d29"
+            },
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784969178_d3dba7f3.jpg",
+              "stock": 12,
+              "sizes": [
+                "L",
+                "XL"
+              ],
+              "sizeStock": {
+                "L": 6,
+                "XL": 6
+              },
+              "_id": "6a647df827ed8f43d58b7d2a"
+            },
+            {
+              "url": "https://fecy.co.ke/imgapi/media/2026/07/1784969178_90e41e3e.jpg",
+              "stock": 12,
+              "sizes": [
+                "L",
+                "XL"
+              ],
+              "sizeStock": {
+                "L": 6,
+                "XL": 6
+              },
+              "_id": "6a647df827ed8f43d58b7d2b"
+            }
+          ],
+          "sizes": [],
+          "category": "Sleepwear & Loungewear",
+          "categoryId": "6a52b72e680d8bce3538790a",
+          "inStock": true,
+          "stockQuantity": 48,
+          "rating": 0,
+          "reviews": 0,
+          "isNewProduct": false,
+          "isBestseller": false,
+          "isFeatured": false,
+          "isFlashDeal": false,
+          "benefits": [],
+          "tags": [
+            "Cherry Print Pajamas",
+            "Ribbed Lounge Set",
+            "2 Piece Sleepwear",
+            "Cami and Shorts Set",
+            "Women Pyjamas"
+          ],
+          "isActive": true,
+          "createdAt": "2026-07-25T09:12:24.175Z",
+          "updatedAt": "2026-08-12T13:20:17.356Z",
+          "__v": 0,
+          "sku": "SWEET-CHERRY-RIBBED-CAMI-SHORTS-LOUNGE-SET",
+          "flashDealDiscount": 0,
+          "oldPrice": 0
+        },
+        {
+          "_id": "6a71f70e6f67aebdc46949c8",
+          "name": "See-Through Lace Lingerie Set with Strings & Slit",
+          "slug": "see-through-lace-lingerie-set-with-strings-slit",
+          "description": "See-through lace lingerie set featuring two matching strings and a slit detail.",
+          "price": 1500,
+          "wholesalePrice": 1200,
+          "wholesaleThreshold": 3,
+          "images": [
+            {
+              "groupId": "group-1785853622746",
+              "url": "https://fecy.co.ke/imgapi/media/2026/08/1785853573_cc4fa793.jpg",
+              "stock": 6,
+              "sizes": [
+                "XXL",
+                "XXXL",
+                "XXXXL"
+              ],
+              "sizeStock": {
+                "XXL": 2,
+                "XXXL": 2,
+                "XXXXL": 2
+              },
+              "_id": "6a71f70e6f67aebdc46949c9"
+            },
+            {
+              "groupId": "group-1785853629916",
+              "url": "https://fecy.co.ke/imgapi/media/2026/08/1785853572_e4c95fc4.jpg",
+              "stock": 6,
+              "sizes": [
+                "XXL",
+                "XXXL",
+                "XXXXL"
+              ],
+              "sizeStock": {
+                "XXL": 2,
+                "XXXL": 2,
+                "XXXXL": 2
+              },
+              "_id": "6a71f70e6f67aebdc46949ca"
+            },
+            {
+              "groupId": "group-1785853622746",
+              "url": "https://fecy.co.ke/imgapi/media/2026/08/1785853572_cf856692.jpg",
+              "sizes": [],
+              "_id": "6a71f70e6f67aebdc46949cb"
+            },
+            {
+              "groupId": "group-1785853629916",
+              "url": "https://fecy.co.ke/imgapi/media/2026/08/1785853573_d6be0cde.jpg",
+              "sizes": [],
+              "_id": "6a71f70e6f67aebdc46949cc"
+            }
+          ],
+          "sizes": [
+            "XXL",
+            "XXXL",
+            "XXXXL"
+          ],
+          "category": "Lingerie",
+          "categoryId": "6a52b72f680d8bce3538791d",
+          "inStock": true,
+          "stockQuantity": 12,
+          "rating": 0,
+          "reviews": 0,
+          "isNewProduct": false,
+          "isBestseller": false,
+          "isFeatured": false,
+          "isFlashDeal": false,
+          "benefits": [],
+          "tags": [],
+          "isActive": true,
+          "createdAt": "2026-08-04T14:28:30.459Z",
+          "updatedAt": "2026-08-04T14:55:53.388Z",
+          "__v": 0,
+          "sku": "SEE-THROUGH-LACE-LINGERIE-SET-WITH-STRINGS-SLIT"
+        }
+      ],
+      "relationships": [
+        "categories",
+        "orders",
+        "reviews",
+        "branchstocks"
+      ],
+      "dataType": "production",
+      "recommendation": "keep"
+    },
+    "exams": {
+      "name": "exams",
+      "count": 0,
+      "purpose": "UNKNOWN - Not part of documented schema",
+      "sampleRecords": [],
+      "relationships": [],
+      "dataType": "unknown",
+      "recommendation": "safe to ignore"
+    }
+  },
+  "testData": [],
+  "safeToDelete": [
+    {
+      "collection": "campaignanalytics",
+      "count": 3,
+      "reason": "Analytics data that can be regenerated",
+      "recommendation": "Safe to clear analytics for fresh start"
+    }
+  ],
+  "likelySafe": [],
+  "doNotDelete": [
+    {
+      "collection": "users",
+      "_id": "6983ebc91df5b011d5338026",
+      "record": "admin@javic.com (admin)",
+      "reason": "Administrative account - required for system access"
+    },
+    {
+      "collection": "users",
+      "_id": "6983ebca1df5b011d5338029",
+      "record": "superadmin@javic.com (super_admin)",
+      "reason": "Administrative account - required for system access"
+    },
+    {
+      "collection": "users",
+      "_id": "6a4cbc12dcdf9a1783de5153",
+      "record": "admin@javic.co.ke (super_admin)",
+      "reason": "Administrative account - required for system access"
+    },
+    {
+      "collection": "users",
+      "_id": "6a4cbceff943328198ce09d7",
+      "record": "jay@javic.co.ke (admin)",
+      "reason": "Administrative account - required for system access"
+    },
+    {
+      "collection": "branches",
+      "count": 1,
+      "reason": "Required for inventory and order tracking system",
+      "recommendation": "Keep all branches - system configuration"
+    },
+    {
+      "collection": "vendors",
+      "count": 2,
+      "reason": "Required for inventory tracking system",
+      "recommendation": "Keep all vendors - system configuration"
+    },
+    {
+      "collection": "notificationsettings",
+      "count": 1,
+      "reason": "System notification configuration",
+      "recommendation": "Keep - system settings"
+    },
+    {
+      "collection": "posoutlets",
+      "count": 1,
+      "reason": "Required for POS system operation",
+      "recommendation": "Keep - system configuration"
+    },
+    {
+      "collection": "sitesettings",
+      "count": 1,
+      "reason": "Contains application configuration",
+      "recommendation": "DO NOT DELETE - system settings"
+    },
+    {
+      "collection": "possettings",
+      "count": 0,
+      "reason": "POS system configuration",
+      "recommendation": "Keep - system settings"
+    }
+  ],
+  "manualReview": [
+    {
+      "collection": "ledgerentries",
+      "count": 29,
+      "reason": "Financial transaction records",
+      "recommendation": "CRITICAL: Review carefully - may contain real financial data"
+    },
+    {
+      "collection": "posheldorders",
+      "count": 2,
+      "reason": "Orders on hold in POS system",
+      "recommendation": "Check if these are test or real held orders"
+    },
+    {
+      "collection": "orders",
+      "count": 12,
+      "reason": "Orders that appear to be production data",
+      "recommendation": "Manual review required - could be real customer orders"
+    }
+  ],
+  "dataIntegrityIssues": [],
+  "orphanedRecords": [],
+  "duplicates": []
+}

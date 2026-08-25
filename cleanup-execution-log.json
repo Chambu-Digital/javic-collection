@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-08-18T07:22:52.553Z",
+  "status": "completed",
+  "kept": {
+    "categories": 3,
+    "banners": 6,
+    "users": 1,
+    "branches": 1,
+    "vendors": 2,
+    "posoutlets": 1
+  },
+  "deleted": {
+    "campaignanalytics": 3,
+    "reviews": 0,
+    "branchstocks": 43,
+    "ledgerentries": 29,
+    "posheldorders": 2,
+    "posauditentries": 8,
+    "orders": 12,
+    "products": 10,
+    "campaigns": 1,
+    "users": 5
+  },
+  "errors": [],
+  "totalDeleted": 113
+}

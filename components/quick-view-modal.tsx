@@ -11,6 +11,7 @@ import { IProductImage } from '@/models/Product'
 // Local product shape aligned with the new image-based architecture
 interface Product {
   _id: string
+  slug: string
   name: string
   description: string
   price: number
@@ -105,6 +106,7 @@ export default function QuickViewModal({ isOpen, onClose, productId }: QuickView
 
       addItem({
         id: product._id,
+        slug: product.slug,
         name: product.name,
         price,
         wholesalePrice: product.wholesalePrice,
@@ -113,6 +115,7 @@ export default function QuickViewModal({ isOpen, onClose, productId }: QuickView
         quantity,
         selectedSize: selectedSize || undefined,
         selectedImage: product.images.length > 1 ? selectedImage : undefined,
+        imageIndex: selectedImageIndex
       })
 
       setJustAdded(true)

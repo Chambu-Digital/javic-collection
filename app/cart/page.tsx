@@ -104,7 +104,7 @@ export default function CartPage() {
                   <div className="block sm:hidden">
                     <div className="flex gap-4 mb-4">
                       {/* Product Image - Larger for mobile */}
-                      <Link href={`/product/${item.id}`} className="flex-shrink-0">
+                      <Link href={`/product/${item.slug}`} className="flex-shrink-0">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -114,7 +114,7 @@ export default function CartPage() {
 
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
-                        <Link href={`/product/${item.id}`}>
+                        <Link href={`/product/${item.slug}`}>
                           <h3 className="font-semibold text-base hover:text-primary cursor-pointer line-clamp-2">
                             {item.name}
                           </h3>
@@ -225,7 +225,7 @@ export default function CartPage() {
                   <div className="hidden sm:block">
                     <div className="flex items-start gap-4">
                       {/* Product Image - Larger for desktop */}
-                      <Link href={`/product/${item.id}`} className="flex-shrink-0">
+                      <Link href={`/product/${item.slug}`} className="flex-shrink-0">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -235,7 +235,7 @@ export default function CartPage() {
 
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
-                        <Link href={`/product/${item.id}`}>
+                        <Link href={`/product/${item.slug}`}>
                           <h3 className="font-semibold text-lg hover:text-primary cursor-pointer">
                             {item.name}
                           </h3>

@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const search   = searchParams.get('search')?.trim()
     const category = searchParams.get('category')
     const barcode  = searchParams.get('barcode')?.trim()
+    const branchId = searchParams.get('branchId')?.trim() // NEW: Branch filter
     const page     = Math.max(1, parseInt(searchParams.get('page')  || '1'))
     const limit    = Math.min(96, Math.max(1, parseInt(searchParams.get('limit') || '48')))
     const skip     = (page - 1) * limit
@@ -74,16 +75,47 @@ export async function GET(request: NextRequest) {
       const productId = p._id.toString()
       const branchStocks = branchStocksMap.get(productId) || []
       
-      // Calculate total stock across all branches
-      const totalBranchStock = branchStocks.reduce((sum, bs) => sum + bs.quantity, 0)
+      // NEW: Filter by branch if branchId is provided
+      const relevantStocks = branchId 
+        ? branchStocks.filter(bs => bs.branchId === branchId)
+        : branchStocks
+      
+      // Calculate stock for selected branch only (or total if no branch filter)
+      const branchSpecificStock = relevantStocks.reduce((sum, bs) => sum + bs.quantity, 0)
+      
+      // Group by vendor for multi-vendor display
+      const vendorStocks = relevantStocks.map(bs => ({
+        vendorId: bs.vendorId,
+        vendorCode: bs.vendorCode,
+        vendorName: bs.vendorName,
+        quantity: bs.quantity
+      }))
+      
+      // CRITICAL FIX: Enrich image-level stock from BranchStock records
+      // Group branch stocks by imageIndex to calculate per-image stock
+      const imageStockMap = new Map<number, number>()
+      for (const bs of relevantStocks) {
+        const currentStock = imageStockMap.get(bs.imageIndex) || 0
+        imageStockMap.set(bs.imageIndex, currentStock + bs.quantity)
+      }
+      
+      // Clone images array and enrich each image with its branch-specific stock
+      const enrichedImages = (p.images || []).map((img: any, idx: number) => ({
+        ...img,
+        stock: imageStockMap.get(idx) || 0, // Set stock from branch records
+      }))
       
       return {
         ...p,
-        stock: totalBranchStock > 0 ? totalBranchStock : stock, // Use branch stock if available
-        available: isProductAvailable(p as any),
-        lowStock: (totalBranchStock > 0 ? totalBranchStock : stock) > 0 && (totalBranchStock > 0 ? totalBranchStock : stock) <= 5,
-        variants: getAllVariants(p as any),
-        branchStocks: branchStocks, // Include branch-specific stock information
+        images: enrichedImages, // Use enriched images with branch-specific stock
+        stock: branchSpecificStock, // Branch-specific stock (not total across all branches)
+        available: branchSpecificStock > 0, // Only available if stock at THIS branch
+        lowStock: branchSpecificStock > 0 && branchSpecificStock <= 5,
+        variants: getAllVariants({ ...p, images: enrichedImages } as any), // Recalculate variants with enriched images
+        branchStocks: relevantStocks, // Only return stocks for the selected branch
+        vendorStocks, // NEW: Vendor breakdown at this branch
+        hasMultipleVendors: vendorStocks.length > 1,
+        branchId: branchId || null, // Echo back which branch this stock is for
       }
     })
 

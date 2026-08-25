@@ -100,15 +100,6 @@ export function getProductSearchStock(product: IProduct): number {
   // Use product.stockQuantity as the primary source of truth
   const mainStock = product.stockQuantity ?? 0
   
-  // Log for debugging
-  console.log('[Stock Debug]', {
-    productId: product._id,
-    productName: product.name,
-    databaseStockQuantity: mainStock,
-    imageStocks: product.images?.map(img => ({ url: img.url, stock: img.stock })),
-    calculatedStock: mainStock
-  })
-  
   // Always return the main stockQuantity - this is the source of truth
   return mainStock
 }

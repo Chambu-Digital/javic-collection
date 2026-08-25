@@ -138,6 +138,7 @@ export default function MakeSalePage() {
       const params = new URLSearchParams()
       if (debouncedSearch) params.set('search', debouncedSearch)
       if (selectedCategory !== 'all') params.set('category', selectedCategory)
+      if (selectedBranchId) params.set('branchId', selectedBranchId) // NEW: Pass selected branch
       params.set('page', String(currentPage))
       params.set('limit', '48')
       const res  = await fetch(`/api/pos/products/search?${params}`, {
@@ -152,12 +153,13 @@ export default function MakeSalePage() {
         console.log('[Fetch Products Debug]', {
           searchQuery: debouncedSearch,
           selectedCategory,
+          selectedBranchId, // NEW: Log branch
           productsCount: incoming.length,
           sampleProducts: incoming.slice(0, 3).map(p => ({
             id: p._id,
             name: p.name,
             stock: p.stock,
-            stockQuantity: p.stockQuantity
+            branchId: p.branchId
           }))
         })
       }
@@ -171,9 +173,9 @@ export default function MakeSalePage() {
     } finally {
       setLoadingProducts(false)
     }
-  }, [debouncedSearch, selectedCategory]) // page intentionally omitted — read via ref
+  }, [debouncedSearch, selectedCategory, selectedBranchId]) // NEW: Add selectedBranchId dependency
 
-  useEffect(() => { fetchProducts(true) }, [debouncedSearch, selectedCategory]) // eslint-disable-line
+  useEffect(() => { fetchProducts(true) }, [fetchProducts]) // Use fetchProducts in dependency
 
   // ── Auto-refresh stock ──
   // 1. Refetch when the tab becomes visible again (catches changes made in

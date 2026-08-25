@@ -59,6 +59,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       }
       addItem({
         id: product.id,
+        slug: product.slug,
         name: product.name,
         price: product.price,
         image: product.image,
