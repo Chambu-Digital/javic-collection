@@ -23,15 +23,6 @@ function imageBadge(img: IProductImage, imgIndex: number, branchStocks: Record<s
   const stockKey = `${selectedBranchId}-${imgIndex}`
   const branchStock = branchStocks[stockKey]
   const quantity = branchStock ? branchStock.quantity : 0
-  
-  console.log('[imageBadge]', { 
-    imgIndex, 
-    stockKey, 
-    branchStock, 
-    quantity,
-    allKeys: Object.keys(branchStocks)
-  })
-  
   parts.push(`Stock: ${quantity}`)
   
   if (img.price != null) parts.push(`KSH ${img.price.toLocaleString()}`)
@@ -196,13 +187,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       if (res.ok) {
         const data = await res.json()
         
-        console.log('[Edit Product] Branch Stock API Response:', {
-          productId: resolvedParams.id,
-          branchId,
-          totalStock: data.totalStock,
-          branchStocksArray: data.branchStocks
-        })
-        
         // Set total stock from API response
         setTotalBranchStock(data.totalStock || 0)
         
@@ -212,12 +196,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         if (data.branchStocks && Array.isArray(data.branchStocks)) {
           data.branchStocks.forEach((stock: any) => {
             const key = `${stock.branchId}-${stock.imageIndex || 0}`
-            console.log('[Edit Product] Processing stock:', { 
-              key, 
-              imageIndex: stock.imageIndex, 
-              quantity: stock.quantity,
-              vendorName: stock.vendorName 
-            })
             if (stocksObject[key]) {
               // If key exists, add to the quantity
               stocksObject[key].quantity += stock.quantity
@@ -228,7 +206,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           })
         }
         
-        console.log('[Edit Product] Final stocksObject:', stocksObject)
         setBranchStocks(stocksObject)
       }
     } catch (error) {

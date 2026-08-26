@@ -13,6 +13,7 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-cormorant',
   display: 'swap',
+  fallback: ['Georgia', 'serif'],
 })
 
 const dmSans = DM_Sans({ 
@@ -20,6 +21,7 @@ const dmSans = DM_Sans({
   weight: ['400', '500', '700'],
   variable: '--font-dm-sans',
   display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
 })
 
 export const viewport: Viewport = {
