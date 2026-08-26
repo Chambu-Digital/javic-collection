@@ -29,15 +29,18 @@ export async function GET(request: NextRequest) {
     }
 
     if (branchId && branchId !== 'all') {
-      // Get stock for specific branch
-      const branchStocks = await getProductBranchStocks(productId)
-      const specificBranch = branchStocks.find(bs => bs.branchId === branchId)
+      // Get stock for specific branch (all image variants)
+      const allBranchStocks = await getProductBranchStocks(productId)
+      const specificBranchStocks = allBranchStocks.filter(bs => bs.branchId === branchId)
+      
+      // Calculate total stock for this branch (sum across all image variants and vendors)
+      const totalStock = specificBranchStocks.reduce((sum, bs) => sum + bs.quantity, 0)
       
       return NextResponse.json({
         productId,
         branchId,
-        totalStock: specificBranch ? specificBranch.quantity : 0,
-        branchStocks: specificBranch ? [specificBranch] : []
+        totalStock,
+        branchStocks: specificBranchStocks
       })
     }
 

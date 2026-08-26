@@ -5,7 +5,16 @@ import { useRouter } from 'next/navigation'
 import PosSidebar from '@/components/pos/pos-sidebar'
 import PosHeader from '@/components/pos/pos-header'
 import { usePosAuthStore } from '@/lib/pos/pos-auth-store'
+import { usePosCartStore } from '@/lib/pos/cart-store'
 import { POS_NAVIGATION } from '@/lib/pos/navigation'
+
+interface Branch {
+  _id: string
+  name: string
+  branchCode: string
+  isMainBranch?: boolean
+  isActive: boolean
+}
 
 // Rendered only on the client (imported via dynamic with ssr:false in layout.tsx).
 // Uses the independent POS auth store — zero coupling to useUserStore or the
@@ -13,7 +22,13 @@ import { POS_NAVIGATION } from '@/lib/pos/navigation'
 export default function PosShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { user, isLoaded, logout, checkAuth } = usePosAuthStore()
+  const { items, clearCart, setCurrentBranch } = usePosCartStore()
   const [sidebarOpen, setSidebarOpen] = useState(false) // starts closed; opens on desktop after mount
+  
+  // Branch management state
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('')
+  const [loadingBranches, setLoadingBranches] = useState(false)
 
   useEffect(() => {
     // Open sidebar by default on desktop (≥1024px), keep closed on mobile
@@ -27,6 +42,67 @@ export default function PosShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     checkAuth()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load branches
+  useEffect(() => {
+    const loadBranches = async () => {
+      setLoadingBranches(true)
+      try {
+        const response = await fetch('/api/pos/branches')
+        const data = await response.json()
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load branches')
+        }
+        
+        setBranches(data.branches || [])
+        
+        // Auto-select main branch or first branch
+        if (data.branches && data.branches.length > 0) {
+          const mainBranch = data.branches.find((b: Branch) => b.isMainBranch)
+          const branchToSelect = mainBranch || data.branches[0]
+          
+          // DEBUG: Log branch selection
+          console.log('[POS Shell Branch Selected]', {
+            branchId: branchToSelect._id,
+            branchName: branchToSelect.name,
+            branchCode: branchToSelect.branchCode,
+            branchIdType: typeof branchToSelect._id
+          })
+          
+          setSelectedBranchId(branchToSelect._id)
+          setCurrentBranch(branchToSelect._id, branchToSelect.branchCode)
+        }
+      } catch (error) {
+        console.error('Failed to load branches:', error)
+        setBranches([])
+      } finally {
+        setLoadingBranches(false)
+      }
+    }
+    
+    if (user) {
+      loadBranches()
+    }
+  }, [user, setCurrentBranch])
+
+  // Handle branch change
+  const handleBranchChange = (branchId: string) => {
+    const branch = branches.find(b => b._id === branchId)
+    if (!branch) return
+    
+    // Warn if cart has items
+    if (items.length > 0) {
+      const confirm = window.confirm(
+        'Changing branch will clear the current cart. Continue?'
+      )
+      if (!confirm) return
+      clearCart()
+    }
+    
+    setSelectedBranchId(branch._id)
+    setCurrentBranch(branch._id, branch.branchCode)
+  }
 
   // Redirect to POS login when there's no valid session
   useEffect(() => {
@@ -65,6 +141,10 @@ export default function PosShell({ children }: { children: React.ReactNode }) {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onLogout={handleLogout}
+        branches={branches}
+        selectedBranchId={selectedBranchId}
+        onBranchChange={handleBranchChange}
+        loadingBranches={loadingBranches}
       />
 
       {/*

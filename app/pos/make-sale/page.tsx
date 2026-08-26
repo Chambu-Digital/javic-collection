@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Search, Camera, Clock, User, Package,
   Loader2, X, ChevronDown, Minus, Plus, Tag, ShoppingCart,
-  Building2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,11 +50,6 @@ export default function MakeSalePage() {
   const [lastReceipt, setLastReceipt]                 = useState<any>(null)
   const [saleError, setSaleError]                     = useState<string | null>(null)
   const [outletId, setOutletId]                       = useState<string | null>(null)
-  
-  // NEW: Branch context state
-  const [branches, setBranches]                       = useState<Array<{ _id: string; name: string; branchCode: string }>>([])
-  const [selectedBranchId, setSelectedBranchId]       = useState<string>('')
-  const [selectedBranchCode, setSelectedBranchCode]   = useState<string>('')
 
   // ── Cart ──
   const {
@@ -65,7 +59,7 @@ export default function MakeSalePage() {
     setCartDiscount, clearCart, setOutlet, setCustomer,
     cartDiscountType, cartDiscountValue, cartDiscountReason,
     isMultiBranchCart, isMultiVendorCart,
-    currentBranchId, setCurrentBranch,
+    currentBranchId,
   } = usePosCartStore()
 
   const subtotal = getSubtotalMinor() / 100
@@ -89,26 +83,6 @@ export default function MakeSalePage() {
       .then(d => setCategories(d.categories || []))
       .catch(() => setCategories([]))
       .finally(() => setLoadingCategories(false))
-  }, [])
-
-  // ── Load branches ──
-  useEffect(() => {
-    fetch('/api/admin/branches')
-      .then(r => r.json())
-      .then(d => {
-        const activeBranches = (d.branches || []).filter((b: any) => b.isActive)
-        setBranches(activeBranches)
-        
-        // Auto-select main branch or first branch
-        if (activeBranches.length > 0) {
-          const mainBranch = activeBranches.find((b: any) => b.isMainBranch)
-          const branchToSelect = mainBranch || activeBranches[0]
-          setSelectedBranchId(branchToSelect._id)
-          setSelectedBranchCode(branchToSelect.branchCode)
-          setCurrentBranch(branchToSelect._id, branchToSelect.branchCode)
-        }
-      })
-      .catch(() => setBranches([]))
   }, [])
 
   // ── Load POS session (gets the real default outlet) ──
@@ -138,31 +112,23 @@ export default function MakeSalePage() {
       const params = new URLSearchParams()
       if (debouncedSearch) params.set('search', debouncedSearch)
       if (selectedCategory !== 'all') params.set('category', selectedCategory)
-      if (selectedBranchId) params.set('branchId', selectedBranchId) // NEW: Pass selected branch
+      if (currentBranchId) params.set('branchId', currentBranchId) // Use branch from cart store
       params.set('page', String(currentPage))
       params.set('limit', '48')
+      
+      // DEBUG: Log what we're sending
+      console.log('[POS Fetch Products]', {
+        currentBranchId,
+        branchIdType: typeof currentBranchId,
+        params: params.toString()
+      })
+      
       const res  = await fetch(`/api/pos/products/search?${params}`, {
         cache: 'no-store',
         headers: { 'Cache-Control': 'no-cache' },
       })
       const data = await res.json()
       const incoming = data.products || []
-      
-      // Log for debugging - verify API response
-      if (incoming.length > 0) {
-        console.log('[Fetch Products Debug]', {
-          searchQuery: debouncedSearch,
-          selectedCategory,
-          selectedBranchId, // NEW: Log branch
-          productsCount: incoming.length,
-          sampleProducts: incoming.slice(0, 3).map(p => ({
-            id: p._id,
-            name: p.name,
-            stock: p.stock,
-            branchId: p.branchId
-          }))
-        })
-      }
       
       setProducts(resetPage ? incoming : prev => [...prev, ...incoming])
       setHasMore(data.pagination?.hasMore ?? false)
@@ -173,7 +139,7 @@ export default function MakeSalePage() {
     } finally {
       setLoadingProducts(false)
     }
-  }, [debouncedSearch, selectedCategory, selectedBranchId]) // NEW: Add selectedBranchId dependency
+  }, [debouncedSearch, selectedCategory, currentBranchId]) // Use currentBranchId from cart store
 
   useEffect(() => { fetchProducts(true) }, [fetchProducts]) // Use fetchProducts in dependency
 
@@ -205,30 +171,6 @@ export default function MakeSalePage() {
     if (!barcodeInput.trim()) return
     setSearchQuery(barcodeInput.trim())
     setBarcodeInput('')
-  }
-
-  // Handle branch change
-  const handleBranchChange = (branchId: string) => {
-    const branch = branches.find(b => b._id === branchId)
-    if (branch) {
-      setSelectedBranchId(branch._id)
-      setSelectedBranchCode(branch.branchCode)
-      setCurrentBranch(branch._id, branch.branchCode)
-      
-      // Warn if cart has items from different branch
-      if (items.length > 0 && items.some(item => item.branchId !== branch._id)) {
-        if (confirm('Changing branch will clear the current cart. Continue?')) {
-          clearCart()
-        } else {
-          // Revert selection
-          const currentBranch = branches.find(b => b._id === currentBranchId)
-          if (currentBranch) {
-            setSelectedBranchId(currentBranch._id)
-            setSelectedBranchCode(currentBranch.branchCode)
-          }
-        }
-      }
-    }
   }
 
   // ── Product select → open variant modal ──
@@ -677,37 +619,6 @@ export default function MakeSalePage() {
       ════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden p-3 sm:p-5">
 
-        {/* NEW: Branch selector at top */}
-        <div className="mb-4 bg-white border-2 border-primary/20 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Current Branch</label>
-              <select
-                value={selectedBranchId}
-                onChange={(e) => handleBranchChange(e.target.value)}
-                className="w-full border-gray-300 rounded-md text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary"
-                disabled={branches.length === 0}
-              >
-                {branches.length === 0 && <option value="">No branches available</option>}
-                {branches.map(branch => (
-                  <option key={branch._id} value={branch._id}>
-                    {branch.name} ({branch.branchCode})
-                  </option>
-                ))}
-              </select>
-            </div>
-            {items.length > 0 && (
-              <div className="text-xs text-gray-500 hidden sm:block">
-                {items.length} item{items.length !== 1 ? 's' : ''} in cart
-              </div>
-            )}
-          </div>
-          <p className="text-xs text-gray-500 mt-2 ml-8">
-            All products will be sold from this branch. {isMultiVendorCart() && <span className="text-primary font-medium">Multiple vendors in cart.</span>}
-          </p>
-        </div>
-
         {/* Page heading row */}
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -929,10 +840,6 @@ export default function MakeSalePage() {
                       {item.selectedSize && (
                         <p className="text-xs text-muted-foreground">Size: {item.selectedSize}</p>
                       )}
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        <span>{item.branchCode}</span>
-                      </div>
                       {item.vendorCode && (
                         <div className="flex items-center gap-1 text-xs text-primary/70">
                           <span>•</span>
@@ -1075,7 +982,7 @@ export default function MakeSalePage() {
         product={selectedProduct}
         open={showVariantSelector}
         pricingMode={pricingMode}
-        currentBranchId={selectedBranchId}
+        currentBranchId={currentBranchId}
         onClose={() => { setShowVariantSelector(false); setSelectedProduct(null) }}
         onAdd={handleVariantAdd}
       />

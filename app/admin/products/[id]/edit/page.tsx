@@ -15,16 +15,24 @@ import { Label } from '@/components/ui/label'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
-function imageBadge(img: IProductImage, branchStocks: Record<string, any>, selectedBranchId: string): string {
+function imageBadge(img: IProductImage, imgIndex: number, branchStocks: Record<string, any>, selectedBranchId: string): string {
   const parts: string[] = []
   if (img.groupId) parts.push('Grouped')
   
   // Display branch-specific stock
-  const stockKey = `${selectedBranchId}-${img.index || 0}`
+  const stockKey = `${selectedBranchId}-${imgIndex}`
   const branchStock = branchStocks[stockKey]
-  if (branchStock && branchStock.quantity > 0) {
-    parts.push(`${branchStock.quantity} in stock`)
-  }
+  const quantity = branchStock ? branchStock.quantity : 0
+  
+  console.log('[imageBadge]', { 
+    imgIndex, 
+    stockKey, 
+    branchStock, 
+    quantity,
+    allKeys: Object.keys(branchStocks)
+  })
+  
+  parts.push(`Stock: ${quantity}`)
   
   if (img.price != null) parts.push(`KSH ${img.price.toLocaleString()}`)
   if (img.sku) parts.push(img.sku)
@@ -43,7 +51,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [categories, setCategories]         = useState<ICategory[]>([])
   const [branches, setBranches]             = useState<Array<{ _id: string; name: string; branchCode: string; isMainBranch: boolean }>>([])
   const [selectedBranchId, setSelectedBranchId] = useState('')
+  const [vendors, setVendors]               = useState<Array<{ _id: string; name: string; isActive: boolean }>>([])
+  const [selectedVendorId, setSelectedVendorId] = useState('')
   const [branchStocks, setBranchStocks]     = useState<Record<string, any>>({})
+  const [totalBranchStock, setTotalBranchStock] = useState(0)
   const [product, setProduct]               = useState<IProduct | null>(null)
 
   // Modal state
@@ -85,6 +96,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     fetchProduct()
     fetchCategories()
     fetchBranches()
+    fetchVendors()
   }, [resolvedParams.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -92,12 +104,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       fetchBranchStocks(selectedBranchId)
     }
   }, [selectedBranchId, product]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    // Update stockQuantity when branchStocks change
-    const totalStock = Object.values(branchStocks).reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0)
-    setFormData(prev => ({ ...prev, stockQuantity: totalStock }))
-  }, [branchStocks]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProduct = async () => {
     try {
@@ -164,14 +170,70 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     } catch { /* silent */ }
   }
 
+  const fetchVendors = async () => {
+    try {
+      const res = await fetch('/api/admin/vendors?activeOnly=true')
+      if (res.ok) {
+        const data = await res.json()
+        setVendors(data.vendors || [])
+        
+        // Auto-select house stock vendor if available
+        const houseVendor = (data.vendors || []).find((v: any) => 
+          v.name.toLowerCase().includes('house') || v.name.toLowerCase().includes('stock')
+        )
+        if (houseVendor) {
+          setSelectedVendorId(houseVendor._id)
+        } else if ((data.vendors || []).length > 0) {
+          setSelectedVendorId(data.vendors[0]._id)
+        }
+      }
+    } catch { /* silent */ }
+  }
+
   const fetchBranchStocks = async (branchId: string) => {
     try {
       const res = await fetch(`/api/admin/products/branch-stock?productId=${resolvedParams.id}&branchId=${branchId}`)
       if (res.ok) {
         const data = await res.json()
-        setBranchStocks(data.stocks || {})
+        
+        console.log('[Edit Product] Branch Stock API Response:', {
+          productId: resolvedParams.id,
+          branchId,
+          totalStock: data.totalStock,
+          branchStocksArray: data.branchStocks
+        })
+        
+        // Set total stock from API response
+        setTotalBranchStock(data.totalStock || 0)
+        
+        // Convert branchStocks array to object keyed by branchId-imageIndex
+        // Aggregate quantities from all vendors for each image
+        const stocksObject: Record<string, any> = {}
+        if (data.branchStocks && Array.isArray(data.branchStocks)) {
+          data.branchStocks.forEach((stock: any) => {
+            const key = `${stock.branchId}-${stock.imageIndex || 0}`
+            console.log('[Edit Product] Processing stock:', { 
+              key, 
+              imageIndex: stock.imageIndex, 
+              quantity: stock.quantity,
+              vendorName: stock.vendorName 
+            })
+            if (stocksObject[key]) {
+              // If key exists, add to the quantity
+              stocksObject[key].quantity += stock.quantity
+            } else {
+              // Create new entry
+              stocksObject[key] = { ...stock }
+            }
+          })
+        }
+        
+        console.log('[Edit Product] Final stocksObject:', stocksObject)
+        setBranchStocks(stocksObject)
       }
-    } catch { /* silent */ }
+    } catch (error) {
+      console.error('[Edit Product] Error fetching branch stocks:', error)
+    }
   }
 
   const handleCategoryCreated = (cat: ICategory) => {
@@ -424,7 +486,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
         {/* ── Branch Selection ── */}
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-          <h2 className="text-base sm:text-lg font-semibold mb-4">Branch Selection</h2>
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Branch & Vendor Selection</h2>
           <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
             <div>
               <Label>Branch</Label>
@@ -446,6 +508,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </Select>
               <p className="text-xs text-gray-500 mt-1">
                 View and manage stock for this product at the selected branch.
+              </p>
+            </div>
+            <div>
+              <Label>Vendor</Label>
+              <Select 
+                value={selectedVendorId} 
+                onValueChange={setSelectedVendorId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map(vendor => (
+                    <SelectItem key={vendor._id} value={vendor._id}>
+                      {vendor.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select the vendor for stock management operations.
               </p>
             </div>
           </div>
@@ -569,7 +652,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <input
                 type="number"
                 min="0"
-                value={Object.values(branchStocks).reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0)}
+                value={totalBranchStock}
                 disabled
                 className={`${inp} bg-gray-50 text-gray-700`}
                 placeholder="0"
@@ -622,7 +705,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           {formData.images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
               {getRepresentativeImages().map(({ image, index, count }) => {
-                const badge = imageBadge(image, branchStocks, selectedBranchId)
+                const badge = imageBadge(image, index, branchStocks, selectedBranchId)
                 const isGrouped = !!image.groupId
                 return (
                   <div key={index} className="group relative">

@@ -75,6 +75,22 @@ export async function GET(request: NextRequest) {
       const productId = p._id.toString()
       const branchStocks = branchStocksMap.get(productId) || []
       
+      // DEBUG: Log first product to diagnose issue
+      if (products.indexOf(p) === 0) {
+        console.log('[POS Products Debug]', {
+          branchIdFromRequest: branchId,
+          branchIdType: typeof branchId,
+          productName: p.name,
+          totalBranchStocks: branchStocks.length,
+          branchStockSample: branchStocks.slice(0, 2).map(bs => ({
+            branchId: bs.branchId,
+            branchIdType: typeof bs.branchId,
+            quantity: bs.quantity,
+            matches: bs.branchId === branchId
+          }))
+        })
+      }
+      
       // NEW: Filter by branch if branchId is provided
       const relevantStocks = branchId 
         ? branchStocks.filter(bs => bs.branchId === branchId)

@@ -1,8 +1,7 @@
 'use client'
 
-import { Wifi, WifiOff, RefreshCw, Bell } from 'lucide-react'
+import { Wifi, WifiOff, RefreshCw, Bell, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PosMenuButton } from '@/components/pos/pos-sidebar'
 import { cn } from '@/lib/utils'
 
 interface PosHeaderProps {
@@ -28,7 +27,10 @@ export default function PosHeader({
     <header className="sticky top-0 z-30 bg-card border-b border-border px-4 py-3">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <PosMenuButton onClick={onMenuOpen} />
+          {/* Mobile menu button */}
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuOpen}>
+            <Menu className="h-5 w-5" />
+          </Button>
           <div className="min-w-0">
             <h1 className="text-sm font-semibold truncate">Welcome to Javic Collection</h1>
             <p className="text-xs text-muted-foreground truncate">

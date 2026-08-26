@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { SwRegistration } from '@/components/service-worker-registration'
+import { PwaInstallPrompt } from '@/components/pos/pwa-install-prompt'
 
 // Render the entire POS shell only on the client — eliminates hydration
 // mismatches from zustand/persist reading localStorage before SSR settles.
@@ -19,6 +20,8 @@ export default function PosClientLayout({ children }: { children: React.ReactNod
     <>
       {/* Register the POS service worker only within the POS layout */}
       <SwRegistration />
+      {/* Show PWA install prompt */}
+      <PwaInstallPrompt />
       <PosShell>{children}</PosShell>
     </>
   )

@@ -20,6 +20,9 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
   const [saving, setSaving] = useState(false)
   const [product, setProduct] = useState<IProduct | null>(null)
   const [selectedBranch, setSelectedBranch] = useState('')
+  const [selectedVendor, setSelectedVendor] = useState('')
+  const [vendors, setVendors] = useState<Array<{ _id: string; name: string; vendorCode: string; isHouseStock: boolean }>>([])
+  const [loadingVendors, setLoadingVendors] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [selectedSize, setSelectedSize] = useState('')
   const [quantityToAdd, setQuantityToAdd] = useState(0)
@@ -27,6 +30,7 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     fetchProduct()
+    fetchVendors()
   }, [resolvedParams.id])
 
   const fetchProduct = async () => {
@@ -46,11 +50,38 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
     }
   }
 
+  const fetchVendors = async () => {
+    setLoadingVendors(true)
+    try {
+      const res = await fetch('/api/admin/vendors?activeOnly=true')
+      if (res.ok) {
+        const data = await res.json()
+        setVendors(data.vendors || [])
+        
+        // Auto-select house stock vendor if available
+        const houseVendor = data.vendors.find((v: any) => v.isHouseStock)
+        if (houseVendor) {
+          setSelectedVendor(houseVendor._id)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching vendors:', error)
+      toast.error('Failed to load vendors')
+    } finally {
+      setLoadingVendors(false)
+    }
+  }
+
   const handleAddStock = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!selectedBranch) {
       toast.error('Please select a branch')
+      return
+    }
+
+    if (!selectedVendor) {
+      toast.error('Please select a vendor')
       return
     }
 
@@ -69,6 +100,7 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
         body: JSON.stringify({
           productId: resolvedParams.id,
           branchId: selectedBranch,
+          vendorId: selectedVendor,
           imageIndex: selectedImageIndex,
           selectedSize: selectedSize || undefined,
           quantity: quantityToAdd,
@@ -175,6 +207,32 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
                 </p>
               </div>
 
+              {/* Vendor Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vendor *
+                </label>
+                <select
+                  value={selectedVendor}
+                  onChange={(e) => setSelectedVendor(e.target.value)}
+                  required
+                  disabled={loadingVendors || vendors.length === 0}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {loadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor...'}
+                  </option>
+                  {vendors.map((vendor) => (
+                    <option key={vendor._id} value={vendor._id}>
+                      {vendor.name} ({vendor.vendorCode}) {vendor.isHouseStock ? '- House Stock' : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Select which vendor this stock is from
+                </p>
+              </div>
+
               {/* Image/Variant Selection */}
               {product.images && product.images.length > 1 && (
                 <div>
@@ -253,7 +311,7 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={saving || !selectedBranch || quantityToAdd <= 0}
+                disabled={saving || !selectedBranch || !selectedVendor || quantityToAdd <= 0}
                 className="w-full"
               >
                 {saving ? (
