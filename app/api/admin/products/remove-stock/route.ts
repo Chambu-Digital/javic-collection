@@ -51,6 +51,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Branch restriction for POS users
+    // If user has an assigned branch and is not a manager/administrator, they can only adjust their branch
+    if (user.assignedBranchId && user.posRole && 
+        user.posRole !== 'manager' && user.posRole !== 'administrator' && 
+        user.role !== 'super_admin') {
+      if (user.assignedBranchId.toString() !== branchId) {
+        return NextResponse.json(
+          { error: 'You can only adjust stock for your assigned branch' },
+          { status: 403 }
+        )
+      }
+    }
+
     await session.withTransaction(async () => {
       // Verify product exists
       const product = await Product.findById(productId).session(session)

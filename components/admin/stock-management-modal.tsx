@@ -50,12 +50,24 @@ interface StockManagementModalProps {
   isOpen: boolean
   onClose: () => void
   productId: string
+  userBranchId?: string // Auto-select this branch if provided
+  userPosRole?: string // User's POS role for permission checking
+  restrictToBranch?: boolean // If true, user cannot change branch
+  isPosContext?: boolean // If true, hide branch selection UI (POS manages branch)
+  branchName?: string // Display name for POS context
+  branchCode?: string // Display code for POS context
 }
 
 export default function StockManagementModal({
   isOpen,
   onClose,
   productId,
+  userBranchId,
+  userPosRole,
+  restrictToBranch = false,
+  isPosContext = false,
+  branchName,
+  branchCode,
 }: StockManagementModalProps) {
   const [loading, setLoading] = useState(true)
   const [product, setProduct] = useState<ProductData | null>(null)
@@ -82,6 +94,13 @@ export default function StockManagementModal({
       fetchData()
     }
   }, [isOpen, productId])
+
+  // Auto-select branch when user has assigned branch
+  useEffect(() => {
+    if (userBranchId && !selectedBranch) {
+      setSelectedBranch(userBranchId)
+    }
+  }, [userBranchId, selectedBranch])
 
   const fetchData = async () => {
     setLoading(true)
@@ -410,23 +429,56 @@ export default function StockManagementModal({
           <Card>
             <CardContent className="p-4">
               <p className="text-sm font-medium text-gray-700 mb-3">
-                Select Branch & Vendor (applies to all adjustments below)
+                {isPosContext ? 'Current Branch & Vendor' : 'Select Branch & Vendor (applies to all adjustments below)'}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Branch Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Building2 className="inline h-4 w-4 mr-1" />
-                    Branch *
-                  </label>
-                  <BranchDropdown
-                    value={selectedBranch}
-                    onChange={setSelectedBranch}
-                    required
-                    activeOnly
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                  />
-                </div>
+                {/* Branch Selection or Display */}
+                {isPosContext ? (
+                  // POS Context: Show read-only branch info
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Building2 className="inline h-4 w-4 mr-1" />
+                      Current Branch
+                    </label>
+                    <div className="w-full px-3 py-2 border border-blue-300 bg-blue-50 rounded-md text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-blue-900">
+                          {branchName} ({branchCode})
+                        </span>
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                          Active
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Stock adjustments will be made to this branch
+                    </p>
+                  </div>
+                ) : (
+                  // Admin Context: Show dropdown
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Building2 className="inline h-4 w-4 mr-1" />
+                      Branch *
+                      {restrictToBranch && (
+                        <span className="text-xs text-blue-600 ml-2">(Assigned Branch)</span>
+                      )}
+                    </label>
+                    <BranchDropdown
+                      value={selectedBranch}
+                      onChange={setSelectedBranch}
+                      required
+                      activeOnly
+                      disabled={restrictToBranch}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    />
+                    {restrictToBranch && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        You can only adjust stock for your assigned branch
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* Vendor Selection */}
                 <div>
@@ -456,7 +508,7 @@ export default function StockManagementModal({
               {(!selectedBranch || !selectedVendor) && (
                 <div className="mt-3 flex items-center gap-2 text-sm text-amber-600">
                   <AlertTriangle className="h-4 w-4" />
-                  <span>Select branch and vendor to enable stock actions</span>
+                  <span>{isPosContext ? 'Select vendor to enable stock actions' : 'Select branch and vendor to enable stock actions'}</span>
                 </div>
               )}
             </CardContent>

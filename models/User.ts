@@ -28,7 +28,8 @@ export interface IUser {
   role: 'customer' | 'admin' | 'super_admin'
   permissions?: string[] // New granular permissions system
   posRole?: 'cashier' | 'senior_cashier' | 'supervisor' | 'manager' | 'administrator'
-  posOutletId?: mongoose.Types.ObjectId
+  posOutletId?: mongoose.Types.ObjectId // Legacy: kept for backwards compatibility
+  assignedBranchId?: mongoose.Types.ObjectId // User's assigned branch for POS operations
   // Google OAuth fields
   googleId?: string
   profileImage?: string
@@ -171,6 +172,10 @@ const UserSchema = new mongoose.Schema<IUser>({
   posOutletId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PosOutlet',
+  },
+  assignedBranchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch',
   },
   // Google OAuth fields
   googleId: {

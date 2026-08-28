@@ -54,16 +54,24 @@ export async function GET(request: NextRequest) {
     const admins = await User.find(query)
       .select('-password -passwordResetToken -emailVerificationToken')
       .populate('approvedBy', 'firstName lastName email')
+      .populate('assignedBranchId', 'name branchCode')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean()
     
+    // Rename populated field for consistency
+    const adminsWithBranch = admins.map((admin: any) => ({
+      ...admin,
+      assignedBranch: admin.assignedBranchId,
+      assignedBranchId: admin.assignedBranchId?._id
+    }))
+    
     // Get total count
     const total = await User.countDocuments(query)
     
     return NextResponse.json({
-      admins,
+      admins: adminsWithBranch,
       pagination: {
         page,
         limit,

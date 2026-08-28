@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -19,7 +19,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     
     await connectDB()
@@ -58,12 +58,32 @@ export async function PATCH(
     }
     
     // Update allowed fields
-    const allowedUpdates = ['isActive', 'permissions']
+    const allowedUpdates = ['isActive', 'permissions', 'posRole', 'assignedBranchId']
     const updates: any = {}
     
     for (const field of allowedUpdates) {
       if (body[field] !== undefined) {
         updates[field] = body[field]
+      }
+    }
+    
+    // Validate branch ID if provided
+    if (updates.assignedBranchId) {
+      if (!mongoose.Types.ObjectId.isValid(updates.assignedBranchId)) {
+        return NextResponse.json(
+          { error: 'Invalid branch ID' },
+          { status: 400 }
+        )
+      }
+      
+      // Verify branch exists
+      const Branch = (await import('@/models/Branch')).default
+      const branch = await Branch.findById(updates.assignedBranchId)
+      if (!branch) {
+        return NextResponse.json(
+          { error: 'Branch not found' },
+          { status: 404 }
+        )
       }
     }
     
@@ -98,7 +118,7 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -111,7 +131,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     
     await connectDB()
     

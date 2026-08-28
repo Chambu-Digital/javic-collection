@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import PermissionEditor from '@/components/admin/permission-editor'
+import PosConfigEditor from '@/components/admin/pos-config-editor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,7 +22,9 @@ import {
   UserX,
   AlertCircle,
   CheckCircle,
-  Edit
+  Edit,
+  Store,
+  MapPin
 } from 'lucide-react'
 import { useUserStore } from '@/lib/user-store'
 
@@ -34,6 +37,13 @@ interface Admin {
   role: 'admin' | 'super_admin'
   isActive: boolean
   isApproved: boolean
+  posRole?: 'cashier' | 'senior_cashier' | 'supervisor' | 'manager' | 'administrator'
+  assignedBranchId?: string
+  assignedBranch?: {
+    _id: string
+    name: string
+    branchCode: string
+  }
   permissions?: {
     products?: { view?: boolean; create?: boolean; edit?: boolean; delete?: boolean }
     orders?: { view?: boolean; edit?: boolean; cancel?: boolean }
@@ -62,6 +72,7 @@ export default function AdminsPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null)
+  const [editingPosConfig, setEditingPosConfig] = useState<Admin | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [clearingAdmins, setClearingAdmins] = useState(false)
 
@@ -149,6 +160,39 @@ export default function AdminsPage() {
 
   const handleEditPermissions = (admin: Admin) => {
     setEditingAdmin(admin)
+  }
+
+  const handleEditPosConfig = (admin: Admin) => {
+    setEditingPosConfig(admin)
+  }
+
+  const handleSavePosConfig = async (posRole: string | undefined, branchId: string | undefined) => {
+    if (!editingPosConfig) return
+
+    try {
+      const response = await fetch(`/api/admin/admins/${editingPosConfig._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          posRole: posRole && posRole !== 'none' ? posRole : null,
+          assignedBranchId: branchId && branchId !== 'none' ? branchId : null
+        }),
+      })
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'POS configuration updated successfully' })
+        setEditingPosConfig(null)
+        fetchAdmins()
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to update POS configuration')
+      }
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message })
+      throw error
+    }
   }
 
   const handleSavePermissions = async (permissions: Admin['permissions']) => {
@@ -257,6 +301,27 @@ export default function AdminsPage() {
           currentPermissions={editingAdmin.permissions || {}}
           onSave={handleSavePermissions}
           onCancel={() => setEditingAdmin(null)}
+        />
+      </div>
+    )
+  }
+
+  // Show POS config editor if editing
+  if (editingPosConfig) {
+    return (
+      <div className="p-6">
+        <PosConfigEditor
+          adminInfo={{
+            _id: editingPosConfig._id,
+            firstName: editingPosConfig.firstName,
+            lastName: editingPosConfig.lastName,
+            email: editingPosConfig.email,
+            role: editingPosConfig.role
+          }}
+          currentPosRole={editingPosConfig.posRole}
+          currentBranchId={editingPosConfig.assignedBranchId}
+          onSave={handleSavePosConfig}
+          onCancel={() => setEditingPosConfig(null)}
         />
       </div>
     )
@@ -424,6 +489,18 @@ export default function AdminsPage() {
                             <Calendar className="h-3 w-3" />
                             Joined {formatDate(admin.createdAt)}
                           </div>
+                          {admin.posRole && (
+                            <div className="flex items-center gap-2 text-blue-600">
+                              <Store className="h-3 w-3" />
+                              POS: {admin.posRole.replace('_', ' ').toUpperCase()}
+                            </div>
+                          )}
+                          {admin.assignedBranch && (
+                            <div className="flex items-center gap-2 text-green-600">
+                              <MapPin className="h-3 w-3" />
+                              Branch: {admin.assignedBranch.name} ({admin.assignedBranch.branchCode})
+                            </div>
+                          )}
                         </div>
                         
                         <div className="space-y-2">
@@ -465,14 +542,23 @@ export default function AdminsPage() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleEditPermissions(admin)}
                         >
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit Permissions
+                          Permissions
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditPosConfig(admin)}
+                        >
+                          <Store className="h-4 w-4 mr-2" />
+                          POS Config
                         </Button>
                         
                         {admin._id !== user.id && (
