@@ -17,6 +17,7 @@ import {
   UsersRound,
   Building2,
   Store,
+  History,
   LucideIcon
 } from 'lucide-react'
 import { PERMISSIONS, Permission, PermissionChecker } from './permissions'
@@ -59,6 +60,13 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     href: '/admin/import-products',
     icon: Upload,
     permissions: [PERMISSIONS.PRODUCTS_CREATE],
+    notificationKey: null,
+  },
+  {
+    name: 'Stock Movements',
+    href: '/admin/stock-movements',
+    icon: History,
+    permissions: [PERMISSIONS.PRODUCTS_VIEW],
     notificationKey: null,
   },
   // {

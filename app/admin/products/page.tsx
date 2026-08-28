@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, EyeOff, Search, Download } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, Download, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { IProduct } from '@/models/Product'
 import { getProductDisplayImage, getProductDisplayPrice } from '@/lib/product-utils'
 import BranchSelector from '@/components/admin/branch-selector'
+import StockManagementModal from '@/components/admin/stock-management-modal'
 import * as XLSX from 'xlsx'
 
 export default function ProductsPage() {
@@ -19,6 +20,8 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [exporting, setExporting] = useState(false)
   const [selectedBranch, setSelectedBranch] = useState('all')
+  const [stockModalOpen, setStockModalOpen] = useState(false)
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProducts()
@@ -27,8 +30,8 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      // For admin, we need to see inactive products too
-      const response = await fetch('/api/products?includeInactive=true')
+      // For admin, we need to see inactive products too and fetch all products
+      const response = await fetch('/api/products?includeInactive=true&limit=9999')
       if (response.ok) {
         const data = await response.json()
         setProducts(data.products || [])
@@ -354,12 +357,12 @@ export default function ProductsPage() {
                   
                   {/* Action Buttons */}
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => toggleActive(product._id!, product.isActive)}
-                        className="flex-1 min-w-[80px]"
+                        className="w-full"
                       >
                         {product.isActive ? (
                           <>
@@ -373,7 +376,19 @@ export default function ProductsPage() {
                           </>
                         )}
                       </Button>
-                      <Link href={`/admin/products/${product._id}/edit`} className="flex-1 min-w-[80px]">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProductId(product._id!)
+                          setStockModalOpen(true)
+                        }}
+                        className="w-full"
+                      >
+                        <Package className="h-4 w-4 mr-1" />
+                        Stock
+                      </Button>
+                      <Link href={`/admin/products/${product._id}/edit`} className="w-full">
                         <Button variant="outline" size="sm" className="w-full">
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
@@ -383,7 +398,7 @@ export default function ProductsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(product._id!)}
-                        className="flex-1 min-w-[80px] text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
                         Delete
@@ -482,6 +497,17 @@ export default function ProductsPage() {
                         ) : (
                           <Eye className="h-4 w-4" />
                         )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProductId(product._id!)
+                          setStockModalOpen(true)
+                        }}
+                        title="Manage stock"
+                      >
+                        <Package className="h-4 w-4" />
                       </Button>
                       <Link href={`/admin/products/${product._id}/edit`}>
                         <Button variant="outline" size="sm" title="Edit product">
@@ -585,6 +611,19 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {/* Stock Management Modal */}
+      {selectedProductId && (
+        <StockManagementModal
+          isOpen={stockModalOpen}
+          onClose={() => {
+            setStockModalOpen(false)
+            setSelectedProductId(null)
+            // Refresh products to get updated stock quantities
+            fetchProducts()
+          }}
+          productId={selectedProductId}
+        />
+      )}
     </div>
   )
 }

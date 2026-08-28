@@ -40,7 +40,12 @@ export async function getTotalProductStock(
   imageIndex?: number,
   selectedSize?: string
 ): Promise<number> {
-  const query: any = { productId }
+  // Convert productId to ObjectId if it's a string for MongoDB queries
+  const productObjectId = typeof productId === 'string' 
+    ? new mongoose.Types.ObjectId(productId) 
+    : productId
+
+  const query: any = { productId: productObjectId }
   if (imageIndex !== undefined) query.imageIndex = imageIndex
   if (selectedSize) query.selectedSize = selectedSize
 
@@ -60,7 +65,12 @@ export async function getProductBranchStocks(
   imageIndex?: number,
   selectedSize?: string
 ): Promise<BranchStockInfo[]> {
-  const query: any = { productId }
+  // Convert productId to ObjectId if it's a string for MongoDB queries
+  const productObjectId = typeof productId === 'string' 
+    ? new mongoose.Types.ObjectId(productId) 
+    : productId
+
+  const query: any = { productId: productObjectId }
   if (imageIndex !== undefined) query.imageIndex = imageIndex
   if (selectedSize) query.selectedSize = selectedSize
 
