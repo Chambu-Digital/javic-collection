@@ -94,6 +94,15 @@ export default function ProductPageClient({
       return
     }
 
+    const stock = effectiveStock()
+    
+    // Check if quantity exceeds stock (only if stock tracking is enabled)
+    // If stock is 0 but product.inStock is true, assume unlimited stock
+    if (stock > 0 && quantity > stock) {
+      toast.error(`Only ${stock} items available in stock`)
+      return
+    }
+
     // Extract URL and identity from the IProductImage object
     const selectedImage = images[selectedImageIndex]
     const selectedImageUrl = selectedImage?.url ?? '/placeholder.svg'
@@ -103,31 +112,37 @@ export default function ProductPageClient({
     const wsPrice = activeImage()?.wholesalePrice ?? product.wholesalePrice
     const wsThreshold = activeImage()?.wholesaleThreshold ?? product.wholesaleThreshold
 
-    addItem({
-      id: product._id || '',
-      slug: product.slug,
-      name: product.name,
-      price: unitPrice(),
-      wholesalePrice: wsPrice,
-      wholesaleThreshold: wsThreshold,
-      image: selectedImageUrl,
-      quantity,
-      selectedSize: selectedSize || undefined,
-      selectedImage: images.length > 1 ? selectedImageUrl : undefined,
-      imageIndex: selectedImageIndex,
-      sku: selectedImage?.sku,
-      groupId: selectedImage?.groupId,
-      branchId: (product as any).branchId?.toString() || undefined,
-    })
+    try {
+      // Pass stock for validation (0 means no limit)
+      addItem({
+        id: product._id || '',
+        slug: product.slug,
+        name: product.name,
+        price: unitPrice(),
+        wholesalePrice: wsPrice,
+        wholesaleThreshold: wsThreshold,
+        image: selectedImageUrl,
+        quantity,
+        selectedSize: selectedSize || undefined,
+        selectedImage: images.length > 1 ? selectedImageUrl : undefined,
+        imageIndex: selectedImageIndex,
+        sku: selectedImage?.sku,
+        groupId: selectedImage?.groupId,
+        branchId: (product as any).branchId?.toString() || undefined,
+      }, stock > 0 ? stock : undefined) // Only pass stock if it's being tracked
 
-    setTimeout(() => {
+      setTimeout(() => {
+        setAddingToCart(false)
+        const detail = [
+          images.length > 1 ? `Design ${selectedImageIndex + 1}` : '',
+          selectedSize,
+        ].filter(Boolean).join(' · ')
+        toast.success(`${product.name}${detail ? ` (${detail})` : ''} added to cart!`)
+      }, 400)
+    } catch (error: any) {
       setAddingToCart(false)
-      const detail = [
-        images.length > 1 ? `Design ${selectedImageIndex + 1}` : '',
-        selectedSize,
-      ].filter(Boolean).join(' · ')
-      toast.success(`${product.name}${detail ? ` (${detail})` : ''} added to cart!`)
-    }, 400)
+      toast.error(error.message || 'Failed to add to cart')
+    }
   }
 
   const images = product.images || []

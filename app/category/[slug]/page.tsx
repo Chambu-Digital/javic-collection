@@ -45,7 +45,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         setCategory(foundCategory)
         
         // Fetch products for this category using category name (same as other working components)
-        const productsResponse = await fetch(`/api/products?category=${encodeURIComponent(foundCategory.name)}`)
+        const productsResponse = await fetch(`/api/products?category=${encodeURIComponent(foundCategory.name)}&limit=9999`)
         
         if (productsResponse.ok) {
           const data = await productsResponse.json()
@@ -237,15 +237,19 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 key={product._id}
                 product={{
                   id: product._id!,
+                  slug: product.slug,
                   name: product.name,
                   price: price,
                   oldPrice: oldPrice,
                   rating: product.rating,
                   reviews: product.reviews,
                   image: displayImage,
+                  images: product.images,
+                  sizes: product.sizes,
                   inStock: product.inStock,
                   isNew: product.isNewProduct,
-                  isBestseller: product.isBestseller
+                  isBestseller: product.isBestseller,
+                  stockQuantity: product.stockQuantity
                 }}
                 viewMode={viewMode}
               />

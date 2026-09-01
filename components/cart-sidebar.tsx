@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Minus, ShoppingBag, Trash2, MessageCircle, ArrowLeft, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -23,17 +23,74 @@ export default function CartSidebar({ children }: CartSidebarProps) {
   const [whatsapp, setWhatsapp] = useState('')
   const [location, setLocation] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [validatingStock, setValidatingStock] = useState(false)
 
-  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart } = useCartStore()
+  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems, clearCart, validateCartStock } = useCartStore()
   const { user } = useUserStore()
   const toast = useToast()
 
-  const handleQuantityChange = (index: number, newQuantity: number) => {
+  // Validate cart stock when cart opens
+  useEffect(() => {
+    if (isOpen && items.length > 0) {
+      const validateStock = async () => {
+        setValidatingStock(true)
+        try {
+          const adjusted = await validateCartStock()
+          if (adjusted > 0) {
+            toast.warning(`${adjusted} item(s) adjusted due to stock changes`)
+          }
+        } catch (error) {
+          console.error('Failed to validate stock:', error)
+        } finally {
+          setValidatingStock(false)
+        }
+      }
+      validateStock()
+    }
+  }, [isOpen, items.length])
+
+  const handleQuantityChange = async (index: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(index)
       toast.success('Item removed from cart')
-    } else {
-      updateQuantity(index, newQuantity)
+      return
+    }
+
+    const item = items[index]
+    
+    // Fetch current stock from API
+    try {
+      const response = await fetch(`/api/products/${item.slug}`)
+      if (!response.ok) {
+        toast.error('Failed to validate stock')
+        return
+      }
+      
+      const { product } = await response.json()
+      
+      // Calculate available stock based on variant
+      let availableStock = product.stockQuantity || 0
+      
+      // If product has multiple images/variants, check specific variant stock
+      if (product.images && product.images.length > 0 && item.imageIndex !== undefined) {
+        const variantImage = product.images[item.imageIndex]
+        if (variantImage?.stock !== undefined) {
+          availableStock = variantImage.stock
+        }
+      }
+      
+      if (newQuantity > availableStock) {
+        toast.error(`Only ${availableStock} items available`)
+        return
+      }
+      
+      updateQuantity(index, newQuantity, availableStock)
+    } catch (error: any) {
+      if (error.message?.includes('Only')) {
+        toast.error(error.message)
+      } else {
+        toast.error('Failed to update quantity')
+      }
     }
   }
 
@@ -88,9 +145,22 @@ export default function CartSidebar({ children }: CartSidebarProps) {
       setWhatsapp('')
       setLocation('')
       toast.success('Order sent via WhatsApp!')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error)
-      toast.error('Failed to process order. Please try again.')
+      
+      // Check if it's a stock validation error
+      if (error.response?.data?.stockErrors) {
+        const stockErrors = error.response.data.stockErrors
+        const errorMsg = stockErrors.map((err: any) => 
+          `${err.productName}: Only ${err.availableQty} available`
+        ).join(', ')
+        toast.error(`Stock issue: ${errorMsg}`)
+        
+        // Trigger stock validation to update cart
+        await validateCartStock()
+      } else {
+        toast.error(error.message || 'Failed to process order. Please try again.')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -144,6 +214,12 @@ export default function CartSidebar({ children }: CartSidebarProps) {
             <>
               {/* Cart Items */}
               <div className="flex-1 overflow-y-auto py-4">
+                {validatingStock && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800 flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    Validating stock availability...
+                  </div>
+                )}
                 <div className="space-y-4">
                   {items.map((item, index) => (
                     <div key={`${item.id}-${item.selectedImage || 'default'}-${item.selectedSize || 'default'}`}

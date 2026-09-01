@@ -67,7 +67,7 @@ export default function AllProductsCatalog({ onAddToCart }: { onAddToCart: () =>
       if (searchTerm) params.append('search', searchTerm)
       if (selectedCategory) params.append('category', selectedCategory)
 
-      const response = await fetch(`/api/products?${params}`)
+      const response = await fetch(`/api/products?${params}&limit=9999`)
       if (response.ok) {
         const data = await response.json()
         

@@ -76,7 +76,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products')
+      const response = await fetch('/api/products?limit=9999')
       if (response.ok) {
         const data = await response.json()
         setProducts(data.products || [])

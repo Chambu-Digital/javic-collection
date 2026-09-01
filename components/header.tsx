@@ -11,7 +11,7 @@ import { useUserStore } from '@/lib/user-store'
 import CartSidebar from '@/components/cart-sidebar'
 
 export default function Header() {
-  const { getTotalItems, isLoaded } = useCartStore()
+  const { getTotalItems, getItemCount, isLoaded } = useCartStore()
   const { user, checkAuth, isLoaded: userLoaded } = useUserStore()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -235,8 +235,8 @@ export default function Header() {
               <CartSidebar>
                 <button className="javic-icon-btn javic-cart-btn" aria-label="Cart">
                   <ShoppingCart size={18} />
-                  {isLoaded && getTotalItems() > 0 && (
-                    <span className="javic-cart-badge">{getTotalItems()}</span>
+                  {isLoaded && getItemCount() > 0 && (
+                    <span className="javic-cart-badge">{getItemCount()}</span>
                   )}
                 </button>
               </CartSidebar>

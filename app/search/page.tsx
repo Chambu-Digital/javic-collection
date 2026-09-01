@@ -25,7 +25,7 @@ function SearchResults() {
   const fetchSearchResults = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/products?search=${encodeURIComponent(query)}&catalog=true`)
+      const response = await fetch(`/api/products?search=${encodeURIComponent(query)}&catalog=true&limit=9999`)
       if (response.ok) {
         const data = await response.json()
         setProducts(data.products || [])

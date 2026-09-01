@@ -28,7 +28,7 @@ export default function AllProductsSection() {
       }
 
       const currentPage = loadMore ? page : 1
-      const response = await fetch(`/api/products?catalog=true&page=${currentPage}&limit=8`)
+      const response = await fetch(`/api/products?catalog=true&page=${currentPage}&limit=16`)
 
       if (response.ok) {
         const data = await response.json()
@@ -39,7 +39,7 @@ export default function AllProductsSection() {
           setProducts(data.products)
         }
 
-        setHasMore(data.products.length === 8)
+        setHasMore(data.products.length === 16)
         if (loadMore) {
           setPage(prev => prev + 1)
         } else {
@@ -94,7 +94,7 @@ export default function AllProductsSection() {
           {/* ── GRID ── */}
           <div className="jap-grid">
             {loading
-              ? Array(8).fill(0).map((_, i) => (
+              ? Array(16).fill(0).map((_, i) => (
                   <div key={i} className="jap-skeleton">
                     <div className="jap-skeleton-img" />
                     <div className="jap-skeleton-body">
@@ -117,7 +117,7 @@ export default function AllProductsSection() {
                     <div
                       key={product._id}
                       className="jap-card"
-                      style={{ animationDelay: `${(index % 8) * 0.06}s` }}
+                      style={{ animationDelay: `${(index % 16) * 0.04}s` }}
                     >
                       {/* Image */}
                       <Link href={`/product/${product.slug}`} className="jap-card-img-link">

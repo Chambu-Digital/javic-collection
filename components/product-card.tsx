@@ -57,6 +57,16 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         window.location.href = `/product/${product.slug}`
         return
       }
+      
+      // Validate stock (only if stock tracking is enabled)
+      const maxStock = product.stockQuantity || 0
+      if (maxStock > 0 && quantity > maxStock) {
+        toast.error(`Only ${maxStock} items available`)
+        setIsAddingToCart(false)
+        return
+      }
+      
+      // Pass stock only if being tracked (stockQuantity > 0)
       addItem({
         id: product.id,
         slug: product.slug,
@@ -66,12 +76,13 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         quantity,
         selectedImage: product.images?.[0]?.url !== product.image ? product.images?.[0]?.url : undefined,
         selectedSize: product.sizes?.length === 1 ? product.sizes[0] : undefined,
-      })
+      }, maxStock > 0 ? maxStock : undefined)
+      
       setJustAdded(true)
       toast.success(`${product.name} added to cart!`, `Quantity: ${quantity}`)
       setTimeout(() => setJustAdded(false), 2000)
-    } catch {
-      toast.error('Failed to add item to cart')
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to add item to cart')
     } finally {
       setIsAddingToCart(false)
     }
@@ -133,9 +144,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 <button onClick={() => setIsFavorite(!isFavorite)} className={`pcard-fav-btn ${isFavorite ? 'active' : ''}`}>
                   <Heart size={16} />
                 </button>
-                <Link href={`/product/${product.slug}`}>
-                  <button className="pcard-eye-btn"><Eye size={16} /></button>
-                </Link>
+                <button 
+                  className="pcard-eye-btn"
+                  onClick={() => window.location.href = `/product/${product.slug}`}
+                >
+                  <Eye size={16} />
+                </button>
 
                 {/* Qty */}
                 <div className="pcard-qty">
@@ -204,16 +218,23 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
 
             {/* Hover overlay actions */}
             <div className={`pcard-hover-actions ${isHovered ? 'show' : ''}`}>
-              <Link href={`/product/${product.id}`}>
-                <button className="pcard-action-btn">
-                  <Eye size={15} />
-                  <span>Quick View</span>
-                </button>
-              </Link>
+              <button 
+                className="pcard-action-btn"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.location.href = `/product/${product.slug}`
+                }}
+              >
+                <Eye size={15} />
+                <span>Quick View</span>
+              </button>
               <button
                 className={`pcard-action-btn cart ${justAdded ? 'added' : ''}`}
                 disabled={!product.inStock || isAddingToCart}
-                onClick={handleAddToCart}
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleAddToCart()
+                }}
               >
                 {isAddingToCart
                   ? <><span className="pcard-spinner sm" /> Adding…</>
@@ -229,7 +250,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         {/* Card body */}
         <div className="pcard-body">
           <div className="pcard-body-top">
-            <Link href={`/product/${product.id}`}>
+            <Link href={`/product/${product.slug}`}>
               <h3 className="pcard-name">{product.name}</h3>
             </Link>
 

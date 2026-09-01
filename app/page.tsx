@@ -12,6 +12,7 @@ import BlogSection from '@/components/blog-section'
 import ReviewStatsSection from '@/components/review-stats-section'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import BackToTop from '@/components/back-to-top'
 
 export default function Home() {
   if (SHOW_COMING_SOON) {
@@ -41,6 +42,7 @@ export default function Home() {
       </main>
       
       <Footer />
+      <BackToTop />
     </div>
   )
 }

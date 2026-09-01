@@ -24,11 +24,12 @@ interface CartStore {
   isLoaded: boolean
   
   // Actions
-  addItem: (item: Omit<CartItem, 'addedAt'>) => void
+  addItem: (item: Omit<CartItem, 'addedAt'>, maxStock?: number) => void
   removeItem: (index: number) => void
-  updateQuantity: (index: number, quantity: number) => void
+  updateQuantity: (index: number, quantity: number, maxStock?: number) => void
   clearCart: () => void
   setLoaded: () => void
+  validateCartStock: () => Promise<number>
   
   // Computed values
   getTotalItems: () => number
@@ -50,7 +51,7 @@ export const useCartStore = create<CartStore>()(
       items: [],
       isLoaded: false,
 
-      addItem: (newItem) => {
+      addItem: (newItem, maxStock?) => {
         const items = get().items
         
         // Primary match: same product + same imageIndex + same size
@@ -73,14 +74,27 @@ export const useCartStore = create<CartStore>()(
 
         if (existingItemIndex > -1) {
           // Update quantity if item exists
+          const existingItem = items[existingItemIndex]
+          const newTotalQuantity = existingItem.quantity + newItem.quantity
+          
+          // Validate against stock if provided
+          if (maxStock !== undefined && newTotalQuantity > maxStock) {
+            throw new Error(`Only ${maxStock} items available in stock`)
+          }
+          
           set((state) => ({
             items: state.items.map((item, index) =>
               index === existingItemIndex
-                ? { ...item, quantity: item.quantity + newItem.quantity }
+                ? { ...item, quantity: newTotalQuantity }
                 : item
             ),
           }))
         } else {
+          // Validate new item quantity
+          if (maxStock !== undefined && newItem.quantity > maxStock) {
+            throw new Error(`Only ${maxStock} items available in stock`)
+          }
+          
           // Add new item
           set((state) => ({
             items: [
@@ -100,10 +114,15 @@ export const useCartStore = create<CartStore>()(
         }))
       },
 
-      updateQuantity: (index, quantity) => {
+      updateQuantity: (index, quantity, maxStock?) => {
         if (quantity <= 0) {
           get().removeItem(index)
           return
+        }
+
+        // Validate against stock if provided
+        if (maxStock !== undefined && quantity > maxStock) {
+          throw new Error(`Only ${maxStock} items available in stock`)
         }
 
         set((state) => ({
@@ -119,6 +138,49 @@ export const useCartStore = create<CartStore>()(
 
       setLoaded: () => {
         set({ isLoaded: true })
+      },
+
+      validateCartStock: async () => {
+        const items = get().items
+        const updates: { index: number; maxStock: number }[] = []
+        
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i]
+          try {
+            const response = await fetch(`/api/products/${item.slug}`)
+            if (!response.ok) continue
+            
+            const { product } = await response.json()
+            
+            // Calculate available stock based on variant
+            let availableStock = product.stockQuantity || 0
+            
+            // If product has multiple images/variants, check specific variant stock
+            if (product.images && product.images.length > 0 && item.imageIndex !== undefined) {
+              const variantImage = product.images[item.imageIndex]
+              if (variantImage?.stock !== undefined) {
+                availableStock = variantImage.stock
+              }
+            }
+            
+            if (item.quantity > availableStock) {
+              updates.push({ index: i, maxStock: availableStock })
+            }
+          } catch (error) {
+            console.error(`Failed to validate stock for ${item.name}:`, error)
+          }
+        }
+        
+        // Auto-adjust quantities
+        updates.forEach(({ index, maxStock }) => {
+          if (maxStock === 0) {
+            get().removeItem(index)
+          } else {
+            get().updateQuantity(index, maxStock)
+          }
+        })
+        
+        return updates.length
       },
 
       getTotalItems: () => {

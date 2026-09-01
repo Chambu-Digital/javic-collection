@@ -13,6 +13,7 @@ import Breadcrumb from '@/components/breadcrumb'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import ActiveRatingDisplay from '@/components/active-rating-display'
+import BackToTop from '@/components/back-to-top'
 
 // Wrap in Suspense so useSearchParams doesn't break static generation
 export default function ProductsPage() {
@@ -441,6 +442,7 @@ function ProductsPageInner() {
         </main>
 
         <Footer />
+        <BackToTop />
       </div>
     </>
   )

@@ -31,8 +31,38 @@ export async function POST(request: NextRequest) {
     // Process order items and calculate totals
     let subtotal = 0
     const processedItems = []
+    const stockErrors = []
     
     for (const item of items) {
+      // Validate stock before processing
+      try {
+        if (mongoose.Types.ObjectId.isValid(item.productId)) {
+          const product = await Product.findById(item.productId)
+          if (product) {
+            let availableStock = product.stockQuantity || 0
+            
+            // Check variant-specific stock if image index is provided
+            if (product.images && product.images.length > 0 && item.imageIndex !== undefined) {
+              const variantImage = product.images[item.imageIndex]
+              if (variantImage?.stock !== undefined) {
+                availableStock = variantImage.stock
+              }
+            }
+            
+            // Validate quantity against stock
+            if (item.quantity > availableStock) {
+              stockErrors.push({
+                productName: product.name,
+                requestedQty: item.quantity,
+                availableQty: availableStock
+              })
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Stock validation error:', e)
+      }
+
       const itemTotal = item.price * item.quantity
       subtotal += itemTotal
 
@@ -61,6 +91,22 @@ export async function POST(request: NextRequest) {
         price: item.price,
         totalPrice: itemTotal
       })
+    }
+    
+    // Return error if any items exceed stock
+    if (stockErrors.length > 0) {
+      const errorMessages = stockErrors.map(err => 
+        `${err.productName}: requested ${err.requestedQty}, only ${err.availableQty} available`
+      ).join('; ')
+      
+      return NextResponse.json(
+        { 
+          error: 'Insufficient stock for some items', 
+          details: errorMessages,
+          stockErrors 
+        },
+        { status: 400 }
+      )
     }
     
     // Calculate shipping (free for orders over 5000, otherwise 500)
