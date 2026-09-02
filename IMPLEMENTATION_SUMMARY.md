@@ -1,8 +1,40 @@
 # Image Replacement Feature - Implementation Summary
 
-## ✅ Implementation Complete
+## ✅ Implementation Complete (v1.1 - Mobile Fixed!)
 
-I've implemented a **precise, surgical solution** for replacing product variant images without breaking any references.
+I've implemented a **precise, surgical solution** for replacing product variant images without breaking any references. **Now fully mobile-responsive!**
+
+---
+
+## 📱 Mobile Update (v1.1)
+
+### What Was Fixed
+
+The original hover-based UI didn't work on mobile/touch devices. Now:
+
+**Mobile (< 640px)**:
+- ✅ Buttons **always visible** (no hover needed)
+- ✅ Semi-transparent overlay for contrast
+- ✅ All buttons fully touchable
+- ✅ Easy to use on phones/tablets
+
+**Desktop (≥ 640px)**:
+- ✅ Clean interface (buttons hidden)
+- ✅ Buttons appear on hover
+- ✅ Same great experience as before
+
+### Visual Behavior
+
+```
+Mobile:                    Desktop (hover):
+┌───────────────┐         ┌───────────────┐
+│ [Replace] [X] │ ← ✅    │ [Replace] [X] │ ← hover
+│               │         │               │
+│   [Image]     │         │   [Image]     │
+│          [✏]  │ ← ✅    │          [✏]  │ ← hover
+└───────────────┘         └───────────────┘
+Always visible            Shows on hover
+```
 
 ---
 
@@ -452,5 +484,21 @@ Track these to measure impact:
 ---
 
 **Implementation Date**: January 2024  
-**Version**: 1.0.0  
+**Version**: 1.1.0 (Mobile Update)  
 **Status**: Ready for Testing ✅
+
+## Changelog
+
+### v1.1.0 (Mobile Support)
+- ✅ Fixed hover-only buttons for mobile/touch devices
+- ✅ Added semi-transparent overlay for button visibility
+- ✅ Buttons always visible on mobile (< 640px)
+- ✅ Preserved hover behavior on desktop (≥ 640px)
+- ✅ Improved touch target accessibility
+- ✅ No breaking changes, pure enhancement
+
+### v1.0.0 (Initial Release)
+- ✅ Image replacement API endpoint
+- ✅ Replace button component
+- ✅ Admin UI integration
+- ✅ Complete documentation

@@ -699,9 +699,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     >
                       <img src={image.url} alt={`Design ${actualIndex + 1}`} className="h-full w-full object-cover" />
 
-                      {/* Replace Button */}
+                      {/* Action buttons overlay - Always visible on mobile, hover on desktop */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                      {/* Replace Button - Top left */}
                       <div
-                        className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-1 left-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ReplaceImageButton
@@ -714,38 +717,38 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         />
                       </div>
 
-                      {/* Remove */}
+                      {/* Remove Button - Top right */}
                       <button type="button"
                         onClick={(e) => { e.stopPropagation(); removeImage(actualIndex) }}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow">
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow z-10">
                         <X className="h-3 w-3" />
                       </button>
 
-                      {/* Edit */}
+                      {/* Edit Button - Bottom right */}
                       <button type="button"
                         onClick={(e) => { e.stopPropagation(); setEditModalIndex(actualIndex) }}
-                        className="absolute bottom-1 right-1 bg-white/90 text-gray-700 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white shadow"
+                        className="absolute bottom-1 right-1 bg-white/90 text-gray-700 rounded-full p-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white shadow z-10"
                         title="Edit image settings">
                         <Pencil className="h-3 w-3" />
                       </button>
 
                       {/* Main badge */}
                       {actualIndex === 0 && (
-                        <div className="absolute top-1 left-1 bg-blue-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
+                        <div className="absolute top-1 left-14 sm:left-1 bg-blue-500 text-white px-1.5 py-0.5 rounded text-xs font-bold z-10">
                           Main
                         </div>
                       )}
 
                       {/* Group count indicator */}
                       {isGrouped && count > 1 && (
-                        <div className="absolute top-1 right-10 bg-purple-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
+                        <div className="absolute top-1 right-10 bg-purple-500 text-white px-1.5 py-0.5 rounded text-xs font-bold z-10">
                           {count} images
                         </div>
                       )}
 
                       {/* Override summary */}
                       {badge && (
-                        <div className="absolute bottom-0 inset-x-0 bg-white/95 text-gray-900 text-xs font-medium text-center py-1 px-1 leading-tight truncate border-t border-gray-200">
+                        <div className="absolute bottom-0 inset-x-0 bg-white/95 text-gray-900 text-xs font-medium text-center py-1 px-1 leading-tight truncate border-t border-gray-200 z-10">
                           {badge}
                         </div>
                       )}
