@@ -9,6 +9,7 @@ import { IProduct, IProductImage } from '@/models/Product'
 import { ICategory } from '@/models/Category'
 import ImageEditModal from '@/components/admin/image-edit-modal'
 import QuickCategoryModal from '@/components/admin/quick-category-modal'
+import { ReplaceImageButton } from '@/components/admin/replace-image-button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
@@ -681,40 +682,55 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
           {formData.images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
-              {getRepresentativeImages().map(({ image, index, count }) => {
-                const badge = imageBadge(image, index, branchStocks, selectedBranchId)
+              {getRepresentativeImages().map(({ image, index: actualIndex, count }) => {
+                const badge = imageBadge(image, actualIndex, branchStocks, selectedBranchId)
                 const isGrouped = !!image.groupId
                 return (
-                  <div key={index} className="group relative">
+                  <div key={actualIndex} className="group relative">
                     <div 
                       className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                         isGrouped ? 'border-purple-400' : 'border-gray-200 group-hover:border-blue-400'
-                      } ${groupTargetIndex === index ? 'border-green-400 scale-105' : ''}`}
+                      } ${groupTargetIndex === actualIndex ? 'border-green-400 scale-105' : ''}`}
                       draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDrop={(e) => handleDrop(e, index)}
-                      onClick={() => setEditModalIndex(index)}
+                      onDragStart={() => handleDragStart(actualIndex)}
+                      onDragOver={(e) => handleDragOver(e, actualIndex)}
+                      onDrop={(e) => handleDrop(e, actualIndex)}
+                      onClick={() => setEditModalIndex(actualIndex)}
                     >
-                      <img src={image.url} alt={`Design ${index + 1}`} className="h-full w-full object-cover" />
+                      <img src={image.url} alt={`Design ${actualIndex + 1}`} className="h-full w-full object-cover" />
+
+                      {/* Replace Button */}
+                      <div
+                        className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ReplaceImageButton
+                          productId={resolvedParams.id}
+                          imageIndex={actualIndex}
+                          currentImageUrl={image.url}
+                          onReplaceSuccess={fetchProduct}
+                          size="sm"
+                          variant="default"
+                        />
+                      </div>
 
                       {/* Remove */}
                       <button type="button"
-                        onClick={(e) => { e.stopPropagation(); removeImage(index) }}
+                        onClick={(e) => { e.stopPropagation(); removeImage(actualIndex) }}
                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow">
                         <X className="h-3 w-3" />
                       </button>
 
                       {/* Edit */}
                       <button type="button"
-                        onClick={(e) => { e.stopPropagation(); setEditModalIndex(index) }}
+                        onClick={(e) => { e.stopPropagation(); setEditModalIndex(actualIndex) }}
                         className="absolute bottom-1 right-1 bg-white/90 text-gray-700 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white shadow"
                         title="Edit image settings">
                         <Pencil className="h-3 w-3" />
                       </button>
 
                       {/* Main badge */}
-                      {index === 0 && (
+                      {actualIndex === 0 && (
                         <div className="absolute top-1 left-1 bg-blue-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
                           Main
                         </div>

@@ -412,11 +412,14 @@ export async function getLowStockProductsByBranch(
     .populate('branchId', 'branchCode name')
     .lean()
 
-  return lowStocks.map((stock: any) => ({
-    productId: stock.productId._id.toString(),
-    productName: stock.productId.name,
-    branchCode: stock.branchId.branchCode,
-    branchName: stock.branchId.name,
-    quantity: stock.quantity
-  }))
+  // Filter out any stocks where productId or branchId failed to populate (product/branch was deleted)
+  return lowStocks
+    .filter((stock: any) => stock.productId && stock.branchId)
+    .map((stock: any) => ({
+      productId: stock.productId._id.toString(),
+      productName: stock.productId.name,
+      branchCode: stock.branchId.branchCode,
+      branchName: stock.branchId.name,
+      quantity: stock.quantity
+    }))
 }
