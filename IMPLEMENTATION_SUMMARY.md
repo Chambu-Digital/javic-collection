@@ -1,504 +1,295 @@
-# Image Replacement Feature - Implementation Summary
+# Freight Services Platform - Implementation Summary
 
-## ✅ Implementation Complete (v1.1 - Mobile Fixed!)
+## Phase 1 Completed: Core Models & APIs
 
-I've implemented a **precise, surgical solution** for replacing product variant images without breaking any references. **Now fully mobile-responsive!**
+### New Models Created
 
----
+**1. Service Model** (`models/Service.ts`)
+- Replaces Product model for freight services
+- Fields: name, slug, description, pricing (basePricePerKg, additionalPricePerKm)
+- Service tiers for different handling levels
+- Capacity constraints (max weight, dimensions)
+- Handling rules and restricted items
+- Rating system for service quality
 
-## 📱 Mobile Update (v1.1)
+**2. Shipment Model** (`models/Shipment.ts`)
+- Replaces Order model for customer shipments
+- Auto-generated shipment numbers (SHP + date + sequence)
+- Pickup and delivery locations with coordinates
+- Items with weight and value tracking
+- Real-time GPS tracking and service history
+- Rate calculations embedded in shipment
+- Status workflow: quoted → confirmed → picked-up → in-transit → delivered
+- Insurance and signature options
 
-### What Was Fixed
+**3. RateCard Model** (`models/RateCard.ts`)
+- Defines pricing rules per service
+- Weight-based brackets (e.g., 0-5kg: KES 50/kg, 5-10kg: KES 45/kg)
+- Distance-based brackets (e.g., 0-50km: KES 10/km, 50-100km: KES 8/km)
+- Surcharges for special handling (fragile, temperature-controlled, hazmat)
+- Minimum charge per shipment
+- Regional and depot-specific availability
+- Validity dates for pricing changes
 
-The original hover-based UI didn't work on mobile/touch devices. Now:
+**4. Merchandise Model** (`models/Merchandise.ts`)
+- For branded merchandise (t-shirts, bags, caps, etc.)
+- Categories: apparel, bags, accessories, stationery, drinkware
+- Color and size variants
+- Customization options (logo placement, print method)
+- Bulk discount tiers
+- Stock tracking with low-stock alerts
 
-**Mobile (< 640px)**:
-- ✅ Buttons **always visible** (no hover needed)
-- ✅ Semi-transparent overlay for contrast
-- ✅ All buttons fully touchable
-- ✅ Easy to use on phones/tablets
+**5. GoogleAdsCampaign Model** (`models/GoogleAdsCampaign.ts`)
+- Campaign management (search, display, shopping, app, video)
+- Keywords, negative keywords, audience segments
+- Daily and total budget tracking
+- Ad copies with headlines, descriptions, CTAs
+- Performance metrics (impressions, clicks, conversions, cost, revenue)
+- Daily metrics tracking for trend analysis
+- Conversion tracking and ROI calculation
+- Auto-calculation of CTR, CPC, conversion rate, ROI
 
-**Desktop (≥ 640px)**:
-- ✅ Clean interface (buttons hidden)
-- ✅ Buttons appear on hover
-- ✅ Same great experience as before
+### Services & Utilities Created
 
-### Visual Behavior
+**1. Rate Calculator** (`lib/rate-calculator.ts`)
+- `calculateShipmentRate()` - Computes final price based on weight, distance, tiers, surcharges
+- `getServiceSurcharges()` - Fetches available surcharges for a service
+- `validateShipmentSize()` - Validates weight and dimensions against service limits
+- Returns detailed rate breakdown (base price, distance price, surcharges, total)
 
+**2. Google Ads Service** (`lib/google-ads-service.ts`)
+- `createCampaign()` - Create new Google Ads campaign
+- `updateCampaign()` - Update campaign details
+- `pauseCampaign()` - Pause running campaign
+- `resumeCampaign()` - Resume paused campaign
+- `getCampaignMetrics()` - Get performance metrics for date range
+- `updateDailyMetrics()` - Record daily metrics from Google Ads API
+- `getCampaigns()` - List campaigns by account and status
+- `calculateCampaignROI()` - Calculate return on investment
+- `syncPendingCampaigns()` - Batch sync campaigns with Google Ads API
+- Placeholder for actual Google Ads API integration
+
+### API Endpoints Created
+
+**Shipment APIs:**
+- `POST /api/shipments/quote` - Generate rate quote
+  - Params: serviceId, pickupCounty, deliveryCounty, totalWeight, estimatedDistance, selectedTier, surchargeTypes
+  - Returns: Quote with breakdown of costs
+
+- `POST /api/shipments/create` - Create confirmed shipment
+  - Params: Full shipment details including items, locations, selected tier
+  - Returns: Shipment record with tracking number
+
+**Service APIs:**
+- `GET /api/services` - List all active services
+  - Optional filters: type, featured
+  - Returns: All available freight services
+
+- `POST /api/services` - Create new service (admin only)
+  - Params: Service configuration
+  - Returns: Created service
+
+**Google Ads APIs:**
+- `GET /api/admin/google-ads/campaigns` - List campaigns for account
+  - Query: accountId (required), status (optional)
+  - Returns: All campaigns
+
+- `POST /api/admin/google-ads/campaigns` - Create new campaign
+  - Params: Campaign configuration
+  - Returns: Campaign ID
+
+- `GET /api/admin/google-ads/campaigns/[id]` - Get campaign metrics
+  - Returns: Performance metrics with daily breakdown
+
+- `PATCH /api/admin/google-ads/campaigns/[id]` - Update campaign
+  - Params: Updated fields
+  - Returns: Updated campaign
+
+- `POST /api/admin/google-ads/campaigns/[id]/pause` - Pause campaign
+  - Returns: Campaign with paused status
+
+- `POST /api/admin/google-ads/campaigns/[id]/resume` - Resume campaign
+  - Returns: Campaign with active status
+
+## Data Architecture Mappings
+
+| E-Commerce | Freight Services | Purpose |
+|-----------|------------------|---------|
+| Product | Service | Shipping/handling options |
+| Order | Shipment | Customer shipment request |
+| Cart items | Shipment items | Contents being shipped |
+| Product pricing | Rate card | Weight/distance-based charges |
+| Branch | Depot | Regional distribution center |
+| POS | Driver App | Mobile interface (future) |
+| Review | Feedback | Service quality rating |
+
+## Preserved Architecture Patterns
+
+✅ **Multi-location system** - Branches → Depots (reuses BranchStock logic)
+✅ **Permission system** - Role-based access control (admin, super_admin, driver, customer)
+✅ **Offline sync** - Driver app can sync shipments offline (similar to POS)
+✅ **Audit trail** - Service history tracks all status changes
+✅ **Payment processing** - Extends to invoice/billing for B2B
+✅ **Bulk operations** - Manifest import/export for shipment batches
+
+## Next Steps - Phase 2: UI Components & Admin Dashboard
+
+### Admin Sections to Create
+
+1. **Services Management** (`app/admin/services/`)
+   - List, create, edit, delete services
+   - Configure service tiers
+   - Manage handling rules
+
+2. **Shipments Management** (`app/admin/shipments/`)
+   - View all shipments with filtering
+   - Update shipment status
+   - View GPS tracking
+   - Print labels
+   - Download reports
+
+3. **Rate Cards** (`app/admin/rate-cards/`)
+   - Create/edit pricing rules
+   - Set weight brackets
+   - Set distance brackets
+   - Add/remove surcharges
+   - Preview calculated rates
+
+4. **Google Ads Dashboard** (`app/admin/google-ads/`)
+   - Create campaigns
+   - View performance metrics
+   - Pause/resume campaigns
+   - Track ROI
+   - Analyze daily trends
+
+5. **Merchandise** (`app/admin/merchandise/`)
+   - Manage branded items inventory
+   - Set pricing and bulk discounts
+   - Handle orders
+
+### Customer Portal Updates
+
+1. **Shipment Tracking** (`app/account/shipments/`)
+   - List customer's shipments
+   - Real-time tracking map
+   - Status timeline
+   - Estimated delivery
+   - Feedback submission
+
+2. **Merchandise Store** (`app/shop/merchandise/`)
+   - Browse branded merchandise
+   - Customize items
+   - Place orders
+   - Track orders
+
+## Configuration Required
+
+Add to `.env`:
 ```
-Mobile:                    Desktop (hover):
-┌───────────────┐         ┌───────────────┐
-│ [Replace] [X] │ ← ✅    │ [Replace] [X] │ ← hover
-│               │         │               │
-│   [Image]     │         │   [Image]     │
-│          [✏]  │ ← ✅    │          [✏]  │ ← hover
-└───────────────┘         └───────────────┘
-Always visible            Shows on hover
-```
+# Google Ads
+GOOGLE_ADS_CLIENT_ID=
+GOOGLE_ADS_CLIENT_SECRET=
+GOOGLE_ADS_DEVELOPER_TOKEN=
+GOOGLE_ADS_CUSTOMER_ID=
 
----
-
-## What Was Built
-
-### 3 New Files Created
-
-1. **API Endpoint** (`app/api/admin/products/[id]/images/[imageIndex]/replace/route.ts`)
-   - Handles image URL replacement
-   - Validates admin authentication
-   - Updates only the URL property (nothing else)
-   - Logs all operations for audit trail
-
-2. **React Component** (`components/admin/replace-image-button.tsx`)
-   - Blue "Replace" button with upload icon
-   - File picker integration
-   - Upload progress indication
-   - Error handling and user feedback
-
-3. **Updated Edit Page** (`app/admin/products/[id]/edit/page.tsx`)
-   - Integrated ReplaceImageButton component
-   - Button appears on image hover (top-left corner)
-   - Refreshes product data after successful replacement
-
-### 2 Documentation Files
-
-4. **Feature Documentation** (`IMAGE_REPLACEMENT_FEATURE.md`)
-   - Complete technical documentation
-   - Architecture explanation
-   - Edge cases handled
-   - Future enhancements
-
-5. **Testing Guide** (`TEST_IMAGE_REPLACEMENT.md`)
-   - Comprehensive test scenarios
-   - Quick 5-minute test
-   - Full 20-minute test suite
-   - Production readiness checklist
-
----
-
-## How It Works
-
-### The Core Principle
-
-```typescript
-// Instead of this (which breaks everything):
-product.images.splice(index, 1)           // Delete
-product.images.push({ url: newUrl })      // Add at new position ❌
-
-// We do this (which preserves everything):
-product.images[index].url = newUrl        // Update in-place ✅
-```
-
-### What This Preserves
-
-✅ **Array position** (`imageIndex`) - stays the same  
-✅ **BranchStock records** - still valid  
-✅ **Cart items** - still reference correct variant  
-✅ **Orders** - historical references intact  
-✅ **Price, SKU, groupId** - all properties unchanged  
-✅ **Stock quantities** - completely unaffected  
-
-### What This Changes
-
-🔄 **Image URL only** - the visual photo is updated
-
----
-
-## User Flow
-
-### For Admins
-
-1. Navigate to **Admin → Products → Edit Product**
-2. **Hover** over the image thumbnail
-3. Click the **blue "Replace"** button (top-left corner)
-4. **Select** new image from computer
-5. Wait for upload (button shows "Replacing...")
-6. **Done!** New image appears automatically
-
-**Time to replace**: ~5-10 seconds (depending on image size)
-
----
-
-## Technical Details
-
-### API Endpoint
-
-**Route**: `PUT /api/admin/products/[id]/images/[imageIndex]/replace`
-
-**Request**:
-```json
-{
-  "newImageUrl": "https://cloudinary.com/new-image.jpg"
-}
-```
-
-**Response**:
-```json
-{
-  "success": true,
-  "message": "Image replaced successfully.",
-  "imageIndex": 2,
-  "oldUrl": "...",
-  "newUrl": "...",
-  "productName": "Product Name"
-}
-```
-
-**Security**:
-- ✅ Requires admin authentication (via NextAuth session)
-- ✅ Validates all inputs (URL format, image index bounds)
-- ✅ Logs all operations with timestamp and admin email
-
-### Component Props
-
-```typescript
-<ReplaceImageButton
-  productId={string}              // Product ID
-  imageIndex={number}             // Which image to replace (0-based)
-  currentImageUrl={string}        // Current URL
-  onReplaceSuccess={function}     // Callback to refresh data
-  size="sm"                       // Button size
-  variant="default"               // Button style
-/>
-```
-
-### UI Integration
-
-**Location**: Top-left corner of each image thumbnail  
-**Visibility**: Hidden by default, shows on hover  
-**Color**: Blue (to distinguish from red delete button)  
-**Icon**: Upload icon  
-**State**: Shows "Replacing..." during upload  
-
----
-
-## What's Protected
-
-### Database Integrity
-
-No schema changes required. Works with existing structure:
-```typescript
-Product {
-  images: [
-    { url: string, price?: number, sku?: string, groupId?: string }
-  ]
-}
-
-BranchStock {
-  productId: ObjectId,
-  imageIndex: number,  // ✅ Still valid after replacement
-  quantity: number
-}
-
-CartItem {
-  productId: string,
-  imageIndex: number,  // ✅ Still valid after replacement
-  quantity: number
-}
-```
-
-### Edge Cases Handled
-
-1. **Cart with old image** → Shows new image on next load ✅
-2. **Concurrent replacements** → Both succeed without conflict ✅
-3. **Image during checkout** → Checkout completes successfully ✅
-4. **Invalid file types** → Rejected with clear error message ✅
-5. **Files too large** → Blocked before upload (saves bandwidth) ✅
-6. **Network errors** → Graceful error handling with retry option ✅
-7. **Old images in cloud** → Kept for historical reference ✅
-
----
-
-## Testing
-
-### Quick Test (5 minutes)
-
-1. Edit any product with images
-2. Hover over an image
-3. Click "Replace" button (blue, top-left)
-4. Select new image
-5. Verify new image appears
-6. Check stock is unchanged
-
-✅ **If these steps work, the feature is working correctly.**
-
-### Comprehensive Test
-
-See `TEST_IMAGE_REPLACEMENT.md` for full test suite including:
-- Stock integrity verification
-- Cart preservation tests
-- Error handling tests
-- Security validation
-- Performance benchmarks
-
----
-
-## Files Modified/Created
-
-### Created (3 files)
-```
-app/api/admin/products/[id]/images/[imageIndex]/replace/route.ts    (NEW)
-components/admin/replace-image-button.tsx                           (NEW)
-IMAGE_REPLACEMENT_FEATURE.md                                        (NEW)
-TEST_IMAGE_REPLACEMENT.md                                           (NEW)
-IMPLEMENTATION_SUMMARY.md                                           (NEW)
+# Company Info
+COMPANY_NAME=Javic Freight Services
+COMPANY_PHONE=
+COMPANY_EMAIL=
+COMPANY_WEBSITE=
 ```
 
-### Modified (1 file)
+## Database Indexes
+
+All new models have optimized indexes for:
+- Fast lookups by primary identifier
+- Status-based filtering
+- Date range queries
+- Geographic filtering (county, area)
+- User association
+- Sync status tracking
+
+## Performance Considerations
+
+1. **Shipment queries** - Indexed by status, userId, date for fast filtering
+2. **Rate calculations** - Cached in shipment record to avoid recalculation
+3. **Daily metrics** - Stored separately for efficient time-series queries
+4. **GPS tracking** - Separate collection (array) for real-time updates
+5. **Service history** - Lightweight entries for audit trail
+
+## Security Considerations
+
+1. **Google Ads Integration** - Requires OAuth2 authentication
+2. **Admin Access** - Rate cards and campaigns require super_admin role
+3. **Customer Data** - Shipment details only visible to shipment creator or admin
+4. **Payment Data** - Rates calculated server-side to prevent manipulation
+5. **Audit Logging** - Service history tracks all status changes
+
+## Testing Checklist
+
+- [ ] Rate calculation accuracy for all weight/distance combinations
+- [ ] Shipment creation flow end-to-end
+- [ ] Google Ads campaign creation
+- [ ] Metrics tracking and ROI calculation
+- [ ] Database indexes perform well
+- [ ] API error handling for edge cases
+- [ ] Permission checks enforce admin-only access
+- [ ] Pagination works for large shipment lists
+
+## File Structure Created
+
 ```
-app/admin/products/[id]/edit/page.tsx                               (UPDATED)
-  - Imported ReplaceImageButton component
-  - Added Replace button to image thumbnail UI
+models/
+├── Service.ts          (NEW)
+├── Shipment.ts         (NEW)
+├── RateCard.ts         (NEW)
+├── Merchandise.ts      (NEW)
+├── GoogleAdsCampaign.ts (NEW)
+
+lib/
+├── rate-calculator.ts  (NEW)
+├── google-ads-service.ts (NEW)
+
+app/api/
+├── shipments/
+│   ├── quote/route.ts  (NEW)
+│   └── create/route.ts (NEW)
+├── services/
+│   └── route.ts        (NEW)
+└── admin/google-ads/
+    ├── campaigns/route.ts        (NEW)
+    ├── campaigns/[id]/route.ts   (NEW)
+    ├── campaigns/[id]/pause/route.ts (NEW)
+    └── campaigns/[id]/resume/route.ts (NEW)
+
+.kiro/
+└── steering/
+    └── freight-rebrand.md (CREATED)
 ```
 
-**Total impact**: 4 files changed, ~600 lines of new code
-
----
-
-## Deployment Steps
-
-### 1. Pre-Deployment Checklist
-
-- [ ] Code compiles without errors (`npm run build`)
-- [ ] TypeScript types are correct
-- [ ] No console errors in development
-- [ ] Upload API endpoint working (`/api/upload`)
-- [ ] Cloud storage credentials valid (Cloudinary/S3)
-- [ ] Admin authentication working
-
-### 2. Testing on Staging
-
-- [ ] Deploy to staging environment
-- [ ] Run quick 5-minute test
-- [ ] Test with real product data
-- [ ] Verify stock unchanged after replacement
-- [ ] Test with actual image files
-
-### 3. Production Deployment
-
-```bash
-# 1. Build production bundle
-npm run build
-
-# 2. Test production build locally
-npm run start
-
-# 3. Deploy to production
-# (Use your deployment process: Vercel, AWS, etc.)
-
-# 4. Verify deployment
-# - Check site loads
-# - Test replace on one product
-# - Monitor logs for errors
-```
-
-### 4. Post-Deployment Monitoring
-
-**First 24 hours**:
-- Watch error logs
-- Monitor upload success rate
-- Track API response times
-- Check for customer reports
-
-**First week**:
-- Review admin feedback
-- Check if any errors recurring
-- Monitor cloud storage usage
-- Validate stock integrity
-
----
-
-## Comparison: Before vs After
-
-### Before (The Problem)
-
-**To replace an image**:
-1. Take screenshot of all properties (price, SKU, stock)
-2. Delete old image
-3. Upload new image
-4. Re-enter all properties manually
-5. Find all BranchStock records
-6. Update each with new `imageIndex`
-7. Hope no one had it in their cart
-8. Pray orders still work
-9. **Time**: 15-30 minutes per image
-10. **Risk**: High (data corruption possible)
-
-### After (The Solution)
-
-**To replace an image**:
-1. Click "Replace" button
-2. Select new image
-3. Done
-4. **Time**: 10 seconds
-5. **Risk**: Zero (only URL changes)
-
-**Result**: **90x faster**, zero risk, zero manual work
-
----
-
-## Cost/Benefit Analysis
-
-### Development Cost
-- **Time**: 1 day (8 hours)
-- **Complexity**: Low
-- **Risk**: Low
-- **Team**: 1 developer
-
-### Business Value
-- **Time saved per replacement**: 15 minutes → 10 seconds (90x faster)
-- **Error reduction**: Manual errors eliminated
-- **Admin satisfaction**: High (major pain point solved)
-- **Customer impact**: None (transparent to customers)
-- **Maintenance**: Minimal (simple, focused feature)
-
-### ROI Calculation
-
-If admins replace **5 images per week**:
-- **Time saved**: 5 × 15 min = 75 min/week = 65 hours/year
-- **At $50/hour**: $3,250/year saved
-- **Development cost**: 8 hours × $50 = $400
-- **ROI**: 8x in first year
-
-Plus:
-- Eliminated risk of data corruption
-- Improved admin experience
-- Fewer support tickets
-
-**Verdict**: Excellent ROI ✅
-
----
-
-## Future Enhancements (Optional)
-
-These could be added later if needed:
-
-### Phase 2: Image History
-- Track all replacements
-- Show replacement history
-- Allow rollback to previous version
-- **Effort**: 2-3 days
-
-### Phase 3: Bulk Replace
-- Replace multiple images at once
-- Useful for photography updates
-- **Effort**: 1-2 days
-
-### Phase 4: Advanced Features
-- Image comparison preview
-- Drag-and-drop replacement
-- Auto-cleanup of old images
-- **Effort**: 1 week
-
-**Current recommendation**: Wait and see if these are needed. Current feature solves 95% of use cases.
-
----
-
-## When to Consider Full variantId Migration
-
-The current solution works great for **image replacement**.
-
-Consider the full variantId migration (3-week project) if you need:
-
-1. **Image reordering** - Drag-drop to change image order
-2. **Advanced variant features** - Size-specific images, etc.
-3. **API stability** - External integrations need stable IDs
-4. **Architecture cleanup** - Want to eliminate imageIndex system
-
-**For now**: This simple solution is perfect. Re-evaluate in 3-6 months based on actual usage.
-
----
-
-## Support
-
-### Documentation
-- Technical: `IMAGE_REPLACEMENT_FEATURE.md`
-- Testing: `TEST_IMAGE_REPLACEMENT.md`
-- This summary: `IMPLEMENTATION_SUMMARY.md`
-
-### Code Comments
-All code is well-commented with:
-- Purpose of each function
-- Parameter descriptions
-- Edge cases handled
-- Example usage
-
-### Troubleshooting
-See `IMAGE_REPLACEMENT_FEATURE.md` → "Support & Troubleshooting" section
-
----
-
-## Success Metrics
-
-Track these to measure impact:
-
-**Usage**:
-- Number of replacements per week
-- Average time per replacement
-- Success rate (target: >95%)
-
-**Performance**:
-- Average upload time
-- API response time
-- Error rate
-
-**Business**:
-- Admin satisfaction score
-- Time saved per week
-- Support tickets reduced
-
----
-
-## Sign-Off
-
-**Feature**: Image Replacement  
-**Status**: ✅ Implementation Complete  
-**Code Review**: Pending  
-**Testing**: Pending  
-**Production**: Not deployed  
-
-**Deployed by**: _______________  
-**Date**: _______________  
-**Verified by**: _______________
-
----
-
-## Next Steps
-
-1. **Review** this implementation
-2. **Test** using `TEST_IMAGE_REPLACEMENT.md`
-3. **Deploy** to staging
-4. **Validate** on staging
-5. **Deploy** to production
-6. **Monitor** for 24-48 hours
-7. **Gather** admin feedback
-8. **Iterate** if needed
-
----
-
-## Questions?
-
-**For technical questions**: Review `IMAGE_REPLACEMENT_FEATURE.md`  
-**For testing questions**: Review `TEST_IMAGE_REPLACEMENT.md`  
-**For business questions**: Contact product owner  
-
----
-
-**Implementation Date**: January 2024  
-**Version**: 1.1.0 (Mobile Update)  
-**Status**: Ready for Testing ✅
-
-## Changelog
-
-### v1.1.0 (Mobile Support)
-- ✅ Fixed hover-only buttons for mobile/touch devices
-- ✅ Added semi-transparent overlay for button visibility
-- ✅ Buttons always visible on mobile (< 640px)
-- ✅ Preserved hover behavior on desktop (≥ 640px)
-- ✅ Improved touch target accessibility
-- ✅ No breaking changes, pure enhancement
-
-### v1.0.0 (Initial Release)
-- ✅ Image replacement API endpoint
-- ✅ Replace button component
-- ✅ Admin UI integration
-- ✅ Complete documentation
+## Total Files Created: 11
+
+- 5 Model files
+- 2 Service/utility files
+- 7 API route files
+- 2 Documentation files
+
+## Ready For
+
+✅ Basic rate quoting
+✅ Shipment creation and tracking
+✅ Google Ads campaign management
+✅ Admin dashboard backend
+✅ Merchandise system foundation
+
+## Not Yet Implemented
+
+❌ UI Components (TBD - Phase 2)
+❌ Admin dashboard views
+❌ Customer portal views
+❌ Real-time tracking map
+❌ Actual Google Ads API integration
+❌ Driver app
+❌ Payment processing
+❌ SMS/Email notifications
+❌ Receipt generation

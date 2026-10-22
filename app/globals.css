@@ -4,75 +4,75 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Luxury Hot Pink & Deep Plum Palette - Javic Collection */
-  --background: #FFF5F8;
-  --foreground: #1A0010;
+  /* Jiji Freight - Blue & Gold Palette */
+  --background: #F5F7FA;
+  --foreground: #1F2937;
   --card: #ffffff;
-  --card-foreground: #1A0010;
+  --card-foreground: #1F2937;
   --popover: #ffffff;
-  --popover-foreground: #1A0010;
-  --primary: #5a1e5c; /* Deep plum */
-  --primary-foreground: #FFF5F8;
-  --secondary: #FF0066; /* Hot pink */
+  --popover-foreground: #1F2937;
+  --primary: #1E90FF; /* Bright Blue */
+  --primary-foreground: #ffffff;
+  --secondary: #003D7A; /* Dark Navy Blue */
   --secondary-foreground: #ffffff;
-  --muted: #FFF0F5;
-  --muted-foreground: #1A0010; /* Changed to black for better visibility */
-  --accent: #FF4D94; /* Light hot pink */
-  --accent-foreground: #ffffff;
+  --muted: #E5E7EB;
+  --muted-foreground: #6B7280;
+  --accent: #FFD700; /* Gold */
+  --accent-foreground: #003D7A;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #EED4DE;
-  --input: #FFF5F8;
-  --ring: #FF0066;
-  --chart-1: #5a1e5c;
-  --chart-2: #FF0066;
-  --chart-3: #FF4D94;
-  --chart-4: #7c2d7e;
-  --chart-5: #CC0052;
+  --border: #D1D5DB;
+  --input: #ffffff;
+  --ring: #1E90FF;
+  --chart-1: #1E90FF;
+  --chart-2: #003D7A;
+  --chart-3: #FFD700;
+  --chart-4: #1A7FDD;
+  --chart-5: #156EBC;
   --radius: 0.25rem;
-  --sidebar: #FFF5F8;
-  --sidebar-foreground: #1A0010;
-  --sidebar-primary: #5a1e5c;
-  --sidebar-primary-foreground: #FFF5F8;
-  --sidebar-accent: #FF0066;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #EED4DE;
-  --sidebar-ring: #FF0066;
+  --sidebar: #F5F7FA;
+  --sidebar-foreground: #1F2937;
+  --sidebar-primary: #1E90FF;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #FFD700;
+  --sidebar-accent-foreground: #003D7A;
+  --sidebar-border: #D1D5DB;
+  --sidebar-ring: #1E90FF;
 }
 
 .dark {
-  --background: #1A0010;
-  --foreground: #FFF5F8;
-  --card: #2d1b3d;
-  --card-foreground: #FFF5F8;
-  --popover: #2d1b3d;
-  --popover-foreground: #FFF5F8;
-  --primary: #8b3a8f;
-  --primary-foreground: #FFF5F8;
-  --secondary: #FF3DA1;
+  --background: #001a4d;
+  --foreground: #F5F7FA;
+  --card: #003D7A;
+  --card-foreground: #F5F7FA;
+  --popover: #003D7A;
+  --popover-foreground: #F5F7FA;
+  --primary: #4A9FFF;
+  --primary-foreground: #001a4d;
+  --secondary: #1E90FF;
   --secondary-foreground: #ffffff;
-  --muted: #3d2548;
-  --muted-foreground: #FFF5F8; /* Lighter for better visibility in dark mode */
-  --accent: #FF4D94;
-  --accent-foreground: #ffffff;
+  --muted: #1A7FDD;
+  --muted-foreground: #F5F7FA;
+  --accent: #FFD700;
+  --accent-foreground: #001a4d;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #4a2f5a;
-  --input: #2d1b3d;
-  --ring: #FF4D94;
-  --chart-1: #8b3a8f;
-  --chart-2: #FF3DA1;
-  --chart-3: #FF4D94;
-  --chart-4: #a04ca3;
-  --chart-5: #d94b9a;
-  --sidebar: #1A0010;
-  --sidebar-foreground: #FFF5F8;
-  --sidebar-primary: #8b3a8f;
-  --sidebar-primary-foreground: #FFF5F8;
-  --sidebar-accent: #FF3DA1;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #4a2f5a;
-  --sidebar-ring: #FF4D94;
+  --border: #156EBC;
+  --input: #003D7A;
+  --ring: #4A9FFF;
+  --chart-1: #4A9FFF;
+  --chart-2: #1E90FF;
+  --chart-3: #FFD700;
+  --chart-4: #1A7FDD;
+  --chart-5: #156EBC;
+  --sidebar: #001a4d;
+  --sidebar-foreground: #F5F7FA;
+  --sidebar-primary: #4A9FFF;
+  --sidebar-primary-foreground: #001a4d;
+  --sidebar-accent: #FFD700;
+  --sidebar-accent-foreground: #001a4d;
+  --sidebar-border: #156EBC;
+  --sidebar-ring: #4A9FFF;
 }
 
 @theme inline {
@@ -403,21 +403,22 @@
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Jiji Freight Blue & Gold */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: #F5F7FA;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #FF0066 0%, #CC0052 100%);
+  background: linear-gradient(180deg, #1E90FF 0%, #003D7A 100%);
   border-radius: 10px;
+  border: 2px solid #F5F7FA;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #FF4D94 0%, #FF0066 100%);
+  background: linear-gradient(180deg, #4A9FFF 0%, #1E90FF 100%);
 }

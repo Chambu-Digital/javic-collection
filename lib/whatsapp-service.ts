@@ -14,21 +14,21 @@ export const generateOrderMessage = (
   address: string
 ): string => {
   const itemsList = items
-    .map((item) => `${item.name} (Qty: ${item.quantity}) - KSH ${item.price.toFixed(2)}`)
+    .map((item) => `${item.name} (Qty: ${item.quantity}) - KES ${item.price.toFixed(2)}`)
     .join('\n')
 
-  return `Hello JAVIC COLLECTION!
+  return `Hello Jiji Freight!
 
-I would like to place an order:
+I would like to place a shipping order:
 
 Customer Details:
 Name: ${firstName} ${lastName}
-Address: ${address}
+Delivery Address: ${address}
 
-Order Items:
+Shipment Items:
 ${itemsList}
 
-Total: KSH ${total.toFixed(2)}
+Total: KES ${total.toFixed(2)}
 
 Please confirm my order and provide payment details.
 
@@ -39,7 +39,7 @@ export const generateInquiryMessage = (
   name: string,
   inquiry: string
 ): string => {
-  return `Hello JAVIC COLLECTION!
+  return `Hello JIJI FREIGHT!
 
 I have an inquiry:
 
@@ -55,7 +55,7 @@ export const generateSupportMessage = (
   orderNumber: string,
   issue: string
 ): string => {
-  return `Hello JAVIC COLLECTION!
+  return `Hello JIJI FREIGHT!
 
 I need help with my order:
 
@@ -69,7 +69,7 @@ Thank you!`
 
 export const sendWhatsAppMessage = (
   message: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
+  businessPhone: string = '254726497674'
 ) => {
   const encodedMessage = encodeURIComponent(message)
   const whatsappLink = `https://wa.me/${businessPhone}?text=${encodedMessage}`
@@ -93,7 +93,7 @@ export const sendWhatsAppOrder = async (
   }>,
   shippingAddress?: { county: string; area: string },
   customerEmail?: string,
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984',
+  businessPhone: string = '254726497674',
   userId?: string
 ) => {
   // Generate the WhatsApp message
@@ -131,7 +131,7 @@ export const sendWhatsAppOrder = async (
     })
     .join('\n\n')
 
-  const message = `Hello JAVIC COLLECTION!
+  const message = `Hello JIJI FREIGHT!
 
 I would like to place an order:
 
@@ -201,7 +201,7 @@ Order Reference: ${data.order.orderNumber}`
 }
 
 export const openWhatsAppChat = (
-  businessPhone: string = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '254706512984'
+  businessPhone: string = '254726497674'
 ) => {
   const whatsappLink = `https://wa.me/${businessPhone}`
   window.open(whatsappLink, '_blank')
@@ -209,12 +209,12 @@ export const openWhatsAppChat = (
 
 // Business profile information for WhatsApp
 export const BUSINESS_PROFILE = {
-  name: 'JAVIC COLLECTION',
-  description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, exceptional service.',
-  address: 'Biashara Street, Mombasa',
-  phone: '+254 706 512 984',
-  email: 'sales@javic.co.ke',
-  website: 'https://javiccollection.co.ke',
-  businessHours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-5PM',
+  name: 'Jiji Freight',
+  description: 'Professional freight and logistics services across East Africa. Reliable shipping, competitive rates, and excellent service.',
+  address: 'Armana Shopping Complex, 3rd Floor, Room T2, Eastleigh, Nairobi',
+  phone: '+254 726-497674',
+  email: 'info@jijieastafrica.co.ke',
+  website: 'https://jijifreight.co.ke',
+  businessHours: 'Business Hours Available',
   logo: '/javic-logo1.png'
 }

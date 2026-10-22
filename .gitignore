@@ -23,7 +23,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files
-.env*.local
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
 
 # Vercel
 .vercel
@@ -31,3 +35,29 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Documentation files
+*.md
+!README.md
+docs/
+DOCUMENTATION/
+NOTES.md
+CHANGELOG.md
+*.docx
+*.pdf
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Local development
+.env.local.backup
+*.log

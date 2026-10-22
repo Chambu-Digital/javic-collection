@@ -2,16 +2,33 @@
 
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, ArrowLeft, Tag } from 'lucide-react'
-import Breadcrumb from '@/components/breadcrumb'
+import { Calendar, ArrowLeft, Tag, User, ArrowRight, Share2 } from 'lucide-react'
+import JijiModernNav from '@/components/jiji-modern-nav'
+import JijiBreadcrumb from '@/components/jiji-breadcrumb'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
+import { blogContent as jijiFreightBlogPosts } from '@/app/page-content'
+import { Button } from '@/components/ui/button'
 
 export default function BlogPostPage() {
   const params = useParams()
   const slug = params.slug as string
 
-  // Blog post data matching the main blog page
+  // Jiji Freight blog posts (new MVP content)
+  const jijiPosts: Record<string, any> = {}
+  jijiFreightBlogPosts.forEach(post => {
+    jijiPosts[post.id.toString()] = {
+      title: post.title,
+      category: post.category,
+      date: new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      author: post.author,
+      excerpt: post.excerpt,
+      content: post.content,
+      isJijiPost: true
+    }
+  })
+
+  // Blog post data matching the main blog page (old Javic Collection content)
   const blogPosts: Record<string, any> = {
     'strappy-bikini-collection': {
       title: "Bold & Vibrant: Strappy Bikini Sets",
@@ -170,7 +187,7 @@ export default function BlogPostPage() {
     }
   }
 
-  const post = blogPosts[slug]
+  const post = jijiPosts[slug] || blogPosts[slug]
 
   if (!post) {
     return (
@@ -202,7 +219,146 @@ export default function BlogPostPage() {
     { label: post.title, href: `/blog/${slug}` }
   ]
 
-  return (
+  // For Jiji Freight posts, use the new modern design
+  if (post.isJijiPost) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <JijiModernNav />
+        <JijiBreadcrumb customItems={[
+          { label: 'Blog', href: '/blog' },
+          { label: post.title }
+        ]} />
+
+        <main className="flex-1">
+          {/* Back Button */}
+          <div className="bg-[#F5F7FA] border-b border-gray-200">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 py-4">
+              <Link href="/blog" className="flex items-center text-[#1E90FF] hover:text-[#003D7A] font-semibold">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Blog
+              </Link>
+            </div>
+          </div>
+
+          {/* Hero Section */}
+          <section className="py-12 md:py-16 bg-white border-b border-gray-200">
+            <div className="max-w-4xl mx-auto px-4 md:px-8">
+              <div className="space-y-4 mb-8">
+                <div className="inline-block px-3 py-1 rounded-full bg-[#FFD700] bg-opacity-20 text-[#003D7A] font-bold text-sm">
+                  {post.category}
+                </div>
+
+                <h1 className="text-5xl md:text-6xl font-bold text-[#003D7A]">
+                  {post.title}
+                </h1>
+
+                <p className="text-xl text-gray-700">{post.excerpt}</p>
+              </div>
+
+              {/* Meta Information */}
+              <div className="flex flex-wrap items-center gap-6 text-gray-600 pt-6 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span>{post.author}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{post.date}</span>
+                </div>
+                <button className="flex items-center gap-2 ml-auto text-[#1E90FF] hover:text-[#003D7A] font-semibold">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Featured Image */}
+          <section className="py-0">
+            <div className="max-w-4xl mx-auto px-4 md:px-8">
+              <div className="h-96 bg-gradient-to-br from-[#1E90FF] to-[#003D7A] rounded-lg flex items-center justify-center text-8xl mb-12 mt-12">
+                {slug === '1' ? '📦' : slug === '2' ? '🛰️' : slug === '3' ? '📊' : '⚡'}
+              </div>
+            </div>
+          </section>
+
+          {/* Article Content */}
+          <section className="py-12 md:py-16 bg-white">
+            <div className="max-w-4xl mx-auto px-4 md:px-8">
+              <article className="prose prose-lg max-w-none">
+                {post.content.split('\n').map((paragraph: string, idx: number) => {
+                  if (paragraph.trim().startsWith('##')) {
+                    return (
+                      <h2 key={idx} className="text-3xl font-bold text-[#003D7A] mt-12 mb-6">
+                        {paragraph.replace('## ', '')}
+                      </h2>
+                    )
+                  } else if (paragraph.trim().startsWith('-')) {
+                    return null
+                  } else if (paragraph.trim() === '') {
+                    return null
+                  }
+                  return paragraph.trim() && !paragraph.trim().startsWith('##') ? (
+                    <p key={idx} className="text-gray-700 leading-relaxed mb-6">
+                      {paragraph.trim()}
+                    </p>
+                  ) : null
+                })}
+
+                {/* Bullet Points */}
+                <div className="my-12 space-y-8">
+                  {post.content.split('\n').map((line: string, idx: number) => {
+                    if (line.trim().startsWith('-')) {
+                      const items = post.content
+                        .split('\n')
+                        .filter((l: string) => l.trim().startsWith('-'))
+                        .map((l: string) => l.replace('- ', ''))
+
+                      return idx === post.content.split('\n').findIndex((l: string) => l.trim().startsWith('-')) ? (
+                        <ul key={idx} className="space-y-3">
+                          {items.map((item: string, i: number) => (
+                            <li key={i} className="flex gap-3 text-gray-700">
+                              <span className="text-[#1E90FF] font-bold flex-shrink-0">•</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null
+                    }
+                    return null
+                  })}
+                </div>
+              </article>
+
+              {/* CTA Box */}
+              <div className="mt-16 p-8 bg-gradient-to-r from-[#003D7A] to-[#1E90FF] rounded-lg text-white space-y-4">
+                <h3 className="text-2xl font-bold">Ready to Ship with Jiji Freight?</h3>
+                <p className="text-gray-200">
+                  Apply the insights from this article to your shipments. Get a quote today!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link href="/quote">
+                    <Button className="bg-[#FFD700] hover:bg-[#FFC700] text-[#003D7A] font-bold">
+                      Get a Quote
+                    </Button>
+                  </Link>
+                  <Link href="/contact">
+                    <Button className="border-2 border-white text-white hover:bg-white hover:text-[#003D7A]">
+                      Contact Us
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+    )
+  }
+
+  // For old blog posts, use the original design
     <>
       <style>{blogPostStyles}</style>
       <div className="post-root">

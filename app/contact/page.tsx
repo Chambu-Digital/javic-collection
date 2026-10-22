@@ -1,405 +1,285 @@
 'use client'
 
-import Header from '@/components/header'
+import JijiModernNav from '@/components/jiji-modern-nav'
+import JijiBreadcrumb from '@/components/jiji-breadcrumb'
 import Footer from '@/components/footer'
-import Breadcrumb from '@/components/breadcrumb'
-import ShopMap from '@/components/shop-map'
-import Link from 'next/link'
-import { Phone, MessageCircle, Mail, MapPin, Clock, Instagram, Music } from 'lucide-react'
-
-const breadcrumbItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Contact', href: '/contact' },
-]
+import BackToTop from '@/components/back-to-top'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  })
+
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      // In production, submit to API
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setSubmitted(true)
+
+      // Reset form
+      setTimeout(() => {
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
+        setSubmitted(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <>
-      <style>{styles}</style>
-      <div className="ct-root">
-        <Header />
+    <div className="flex flex-col min-h-screen">
+      <JijiModernNav />
+      <JijiBreadcrumb customItems={[{ label: 'Contact' }]} />
 
-        <main className="ct-main">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-[#003D7A] to-[#1E90FF] py-12 md:py-16 text-white">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 text-center space-y-3">
+            <h1 className="text-4xl md:text-5xl font-bold">Contact Us</h1>
+            <p className="text-lg text-gray-200 max-w-2xl mx-auto">
+              Have a question? We're here to help. Reach out to our team anytime.
+            </p>
+          </div>
+        </section>
 
-          {/* Breadcrumb */}
-          <div className="ct-breadcrumb-bar">
-            <div className="ct-container">
-              <Breadcrumb items={breadcrumbItems} />
+        {/* Contact Info Cards */}
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="bg-gradient-to-br from-[#1E90FF] to-[#003D7A] rounded-lg p-6 text-white text-center space-y-3">
+                <Phone className="w-8 h-8 mx-auto" />
+                <h3 className="font-bold">Phone</h3>
+                <p className="text-sm text-gray-200">+254 726-497674</p>
+                <p className="text-xs text-gray-300">Darow</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#1E90FF] to-[#003D7A] rounded-lg p-6 text-white text-center space-y-3">
+                <Mail className="w-8 h-8 mx-auto" />
+                <h3 className="font-bold">Email</h3>
+                <p className="text-sm text-gray-200">info@jijieastafrica.co.ke</p>
+                <p className="text-xs text-gray-300">Response within 24h</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#1E90FF] to-[#003D7A] rounded-lg p-6 text-white text-center space-y-3">
+                <MapPin className="w-8 h-8 mx-auto" />
+                <h3 className="font-bold">Main Office</h3>
+                <p className="text-sm text-gray-200">Eastleigh, Nairobi</p>
+                <p className="text-xs text-gray-300">Kenya</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#1E90FF] to-[#003D7A] rounded-lg p-6 text-white text-center space-y-3">
+                <Clock className="w-8 h-8 mx-auto" />
+                <h3 className="font-bold">Hours</h3>
+                <p className="text-sm text-gray-200">Business Hours</p>
+                <p className="text-xs text-gray-300">or by appointment</p>
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* ── HERO ── */}
-          <section className="ct-hero">
-            <div className="ct-hero-orb left"  aria-hidden="true" />
-            <div className="ct-hero-orb right" aria-hidden="true" />
-            <div className="ct-hero-inner">
-              <div className="ct-eyebrow">
-                <span className="ct-eyebrow-line" />
-                <span className="ct-eyebrow-text">Get In Touch</span>
-                <span className="ct-eyebrow-line" />
-              </div>
-              <h1 className="ct-hero-title">
-                Contact <em>Javic Collection</em>
-              </h1>
-              <div className="ct-divider">
-                <span className="ct-div-line" />
-                <span className="ct-div-gem">◆</span>
-                <span className="ct-div-line" />
-              </div>
-              <p className="ct-hero-sub">
-                Visit us in store, call, or chat on WhatsApp — we're here to help.
-              </p>
-            </div>
-          </section>
+        {/* Contact Form & Map */}
+        <section className="py-16 md:py-24 bg-[#F5F7FA]">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="grid lg:grid-cols-2 gap-12">
+              {/* Form */}
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <h2 className="text-3xl font-bold text-[#003D7A] mb-8">Send us a Message</h2>
 
-          {/* ── CONTACT DETAILS + MAP ── */}
-          <section className="ct-section">
-            <div className="ct-container ct-grid">
-
-              {/* Left — details */}
-              <div className="ct-details">
-                <div className="ct-section-label">Reach Us</div>
-                <h2 className="ct-section-title">We'd Love to Hear From You</h2>
-
-                <div className="ct-contact-list">
-
-                  {/* Phone */}
-                  <a href="tel:+254706512984" className="ct-contact-item">
-                    <div className="ct-icon-ring">
-                      <Phone size={18} />
-                    </div>
+                {submitted && (
+                  <div className="mb-6 p-6 bg-[#27AE60] bg-opacity-10 border-2 border-[#27AE60] rounded-lg flex items-start gap-4">
+                    <CheckCircle2 className="w-6 h-6 text-[#27AE60] flex-shrink-0 mt-1" />
                     <div>
-                      <p className="ct-contact-label">Call Us</p>
-                      <p className="ct-contact-value">+254 706 512 984</p>
-                      <p className="ct-contact-sub">+254 723 277 306</p>
+                      <h3 className="font-bold text-[#27AE60] mb-1">Message Sent!</h3>
+                      <p className="text-gray-700">We'll get back to you shortly.</p>
                     </div>
-                  </a>
+                  </div>
+                )}
 
-                  {/* WhatsApp */}
-                  <a
-                    href="https://wa.me/254706512984"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ct-contact-item whatsapp"
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Input
+                      type="text"
+                      name="name"
+                      placeholder="Your Name *"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="border-2 border-gray-300"
+                    />
+                    <Input
+                      type="email"
+                      name="email"
+                      placeholder="Your Email *"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="border-2 border-gray-300"
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone Number"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="border-2 border-gray-300"
+                    />
+                    <select
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      className="p-3 border-2 border-gray-300 rounded-lg focus:border-[#1E90FF] focus:outline-none"
+                    >
+                      <option value="">Select Subject</option>
+                      <option value="general">General Inquiry</option>
+                      <option value="quote">Quote Request</option>
+                      <option value="support">Customer Support</option>
+                      <option value="partnership">Partnership</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <textarea
+                    name="message"
+                    placeholder="Your Message *"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={6}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#1E90FF] focus:outline-none"
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-[#1E90FF] hover:bg-[#1A7FDD] text-white font-bold py-6 rounded-lg flex items-center justify-center gap-2"
                   >
-                    <div className="ct-icon-ring green">
-                      <MessageCircle size={18} />
-                    </div>
+                    <Send className="w-5 h-5" />
+                    {loading ? 'Sending...' : 'Send Message'}
+                  </Button>
+                </form>
+              </div>
+
+              {/* Info & Map */}
+              <div className="space-y-8">
+                {/* Offices */}
+                <div className="bg-white rounded-lg p-8 shadow-lg">
+                  <h3 className="text-2xl font-bold text-[#003D7A] mb-6">Our Offices</h3>
+
+            <div className="space-y-6">
                     <div>
-                      <p className="ct-contact-label">WhatsApp</p>
-                      <p className="ct-contact-value">+254 706 512 984</p>
-                      <p className="ct-contact-sub">+254 723 277 306</p>
+                      <h4 className="font-bold text-[#003D7A] mb-2">🇰🇪 Main Office</h4>
+                      <p className="text-gray-700 text-sm">
+                        Jiji East Africa Limited<br />
+                        Armana Shopping Complex<br />
+                        3rd Floor, Room T2<br />
+                        Captain Mungai St, Eastleigh<br />
+                        Nairobi, Kenya<br />
+                        <br />
+                        <strong>P.O. Box:</strong> 787-00610, Nairobi<br />
+                        <br />
+                        <strong>Phone Contacts:</strong><br />
+                        Darow: +254 726-497674<br />
+                        Abdinoor: +254 722-682976<br />
+                        Dekow: +254 726-803000<br />
+                        <br />
+                        <strong>Email:</strong> info@jijieastafrica.co.ke
+                      </p>
                     </div>
-                  </a>
 
-                  {/* Location */}
-                  <div className="ct-contact-item static">
-                    <div className="ct-icon-ring">
-                      <MapPin size={18} />
+                    <div className="border-t border-gray-200 pt-6">
+                      <h4 className="font-bold text-[#003D7A] mb-2">📍 Service Coverage</h4>
+                      <p className="text-gray-700 text-sm">
+                        We operate across:<br />
+                        • Kenya<br />
+                        • Uganda<br />
+                        • Tanzania<br />
+                        • Rwanda<br />
+                        • Burundi
+                      </p>
                     </div>
-                    <div>
-                      <p className="ct-contact-label">Our Store</p>
-                      <p className="ct-contact-value">Biashara Street, Mombasa</p>
-                      <p className="ct-contact-sub">Shop at Marikiti, Mombasa</p>
-                    </div>
-                  </div>
-
-                  {/* Hours */}
-                  <div className="ct-contact-item static">
-                    <div className="ct-icon-ring">
-                      <Clock size={18} />
-                    </div>
-                    <div>
-                      <p className="ct-contact-label">Business Hours</p>
-                      <p className="ct-contact-value">Mon – Sat: 8 AM – 5 PM</p>
-                      <p className="ct-contact-sub">Sunday: Closed</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Social links */}
-                <div className="ct-socials">
-                  <p className="ct-socials-label">Follow Us</p>
-                  <div className="ct-socials-row">
-                    <a
-                      href="https://www.instagram.com/javic_collection"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ct-social-link"
-                    >
-                      <Instagram size={16} />
-                      <span>@javic_collection</span>
-                    </a>
-                    <a
-                      href="https://www.tiktok.com/@javic_collection"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ct-social-link"
-                    >
-                      <Music size={16} />
-                      <span>@javic_collection</span>
-                    </a>
                   </div>
                 </div>
-              </div>
 
-              {/* Right — map */}
-              <div className="ct-map-wrap">
-                <ShopMap height={480} showDirectionsButton />
-                <p className="ct-map-caption">
-                  <MapPin size={13} />
-                  Biashara Street, Marikiti — Mombasa, Kenya
-                </p>
-              </div>
+                {/* Quick Links */}
+                <div className="bg-gradient-to-br from-[#003D7A] to-[#1E90FF] rounded-lg p-8 text-white">
+                  <h3 className="text-2xl font-bold mb-6">Quick Links</h3>
 
-            </div>
-          </section>
-
-          {/* ── CTA ── */}
-          <section className="ct-cta-section">
-            <div className="ct-container ct-cta-inner">
-              <div>
-                <h2 className="ct-cta-title">Ready to Shop?</h2>
-                <p className="ct-cta-sub">Visit us in store or browse our full collection online.</p>
-              </div>
-              <div className="ct-cta-btns">
-                <Link href="/products">
-                  <button className="ct-btn primary">
-                    <span className="ct-btn-inner">
-                      <span>Shop Now</span>
-                      <span className="ct-btn-arrow">→</span>
-                    </span>
-                    <span className="ct-btn-shimmer" />
-                  </button>
-                </Link>
-                <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer">
-                  <button className="ct-btn ghost">
-                    <span className="ct-btn-inner">Chat on WhatsApp</span>
-                  </button>
-                </a>
+                  <div className="space-y-3">
+                    <a href="/services" className="block p-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-lg font-semibold transition-all">
+                      → View All Services
+                    </a>
+                    <a href="/quote" className="block p-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-lg font-semibold transition-all">
+                      → Get a Quote
+                    </a>
+                    <a href="/tracking" className="block p-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-lg font-semibold transition-all">
+                      → Track Your Shipment
+                    </a>
+                    <a href="/blog" className="block p-3 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-lg font-semibold transition-all">
+                      → Read Our Blog
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-        </main>
+        {/* FAQ Mini Section */}
+        <section className="py-16 md:py-24 bg-white">
+          <div className="max-w-4xl mx-auto px-4 md:px-8">
+            <h2 className="text-3xl font-bold text-[#003D7A] text-center mb-12">Quick Answers</h2>
 
-        <Footer />
-      </div>
-    </>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h3 className="font-bold text-[#003D7A]">What's your response time?</h3>
+                <p className="text-gray-700">We respond to all inquiries within 24 hours. For urgent matters, call us directly.</p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-[#003D7A]">Do you provide support 24/7?</h3>
+                <p className="text-gray-700">Yes! Emergency support is available 24/7 for all customers. Call our hotline anytime.</p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-[#003D7A]">How do I track my shipment?</h3>
+                <p className="text-gray-700">Use your tracking number on our website, app, or via SMS. Real-time GPS updates available.</p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-[#003D7A]">Can I get a quote online?</h3>
+                <p className="text-gray-700">Absolutely! Use our quote calculator for instant pricing or contact our team for custom quotes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+      <BackToTop />
+    </div>
   )
 }
-
-const styles = `
-  :root {
-    --ct-pink:    #FF0080;
-    --ct-magenta: #CC0066;
-    --ct-deep:    #990044;
-    --ct-gold:    #E8C87A;
-    --ct-gold-lt: #F5DFA0;
-  }
-
-  .ct-root { display: flex; flex-direction: column; min-height: 100vh; background: #fff; }
-  .ct-main { flex: 1; }
-  .ct-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-
-  .ct-breadcrumb-bar {
-    background: #fdf5f9;
-    border-bottom: 1px solid rgba(232,200,122,0.18);
-    padding: 12px 0;
-  }
-
-  /* ── HERO ── */
-  .ct-hero {
-    position: relative;
-    background: linear-gradient(160deg, #1a0010 0%, #2d0020 50%, #1a0010 100%);
-    padding: 72px 24px 64px;
-    text-align: center;
-    overflow: hidden;
-  }
-  .ct-hero-orb {
-    position: absolute; width: 380px; height: 380px;
-    border-radius: 50%; pointer-events: none; opacity: 0.12;
-  }
-  .ct-hero-orb.left  { top: -100px; left: -80px;   background: radial-gradient(circle, var(--ct-pink),    transparent 70%); }
-  .ct-hero-orb.right { bottom: -80px; right: -80px; background: radial-gradient(circle, var(--ct-magenta), transparent 70%); }
-  .ct-hero-inner { position: relative; z-index: 1; }
-
-  .ct-eyebrow {
-    display: inline-flex; align-items: center; gap: 10px; margin-bottom: 14px;
-  }
-  .ct-eyebrow-line { display: block; width: 28px; height: 1px; background: var(--ct-gold); opacity: 0.7; }
-  .ct-eyebrow-text {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 12px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--ct-gold);
-  }
-
-  .ct-hero-title {
-    font-family: 'Cormorant Garamond', serif; font-weight: 700;
-    font-size: clamp(2.4rem, 5vw, 4rem); color: white;
-    margin: 0 0 16px; line-height: 1.05;
-  }
-  .ct-hero-title em { font-style: italic; color: var(--ct-gold-lt); }
-
-  .ct-divider { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
-  .ct-div-line { display: block; width: 56px; height: 1px; background: linear-gradient(90deg, transparent, var(--ct-gold)); }
-  .ct-div-line:last-child { background: linear-gradient(270deg, transparent, var(--ct-gold)); }
-  .ct-div-gem { font-size: 9px; color: var(--ct-gold); }
-
-  .ct-hero-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.75);
-    max-width: 480px; margin: 0 auto;
-  }
-
-  /* ── SECTION ── */
-  .ct-section { padding: 64px 0; background: white; }
-
-  .ct-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 48px;
-    align-items: start;
-  }
-  @media (min-width: 768px) {
-    .ct-grid { grid-template-columns: 1fr 1.4fr; gap: 56px; }
-  }
-
-  .ct-section-label {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 12px; letter-spacing: 0.38em; text-transform: uppercase;
-    color: var(--ct-magenta); margin-bottom: 10px;
-  }
-  .ct-section-title {
-    font-family: 'Cormorant Garamond', serif; font-weight: 700;
-    font-size: clamp(1.8rem, 3.5vw, 2.4rem); color: #1a0010;
-    margin: 0 0 28px; line-height: 1.1;
-  }
-
-  /* Contact list */
-  .ct-contact-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; }
-
-  .ct-contact-item {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(232,200,122,0.15);
-    text-decoration: none;
-    transition: opacity 0.2s;
-  }
-  .ct-contact-item:last-child { border-bottom: none; }
-  a.ct-contact-item:hover { opacity: 0.8; }
-  .ct-contact-item.static { cursor: default; }
-
-  .ct-icon-ring {
-    width: 40px; height: 40px; border-radius: 50%; shrink: 0;
-    background: linear-gradient(135deg, var(--ct-magenta), var(--ct-pink));
-    display: flex; align-items: center; justify-content: center;
-    color: white; flex-shrink: 0;
-    box-shadow: 0 4px 14px rgba(255,0,128,0.28);
-  }
-  .ct-icon-ring.green {
-    background: linear-gradient(135deg, #25D366, #128C7E);
-    box-shadow: 0 4px 14px rgba(37,211,102,0.28);
-  }
-
-  .ct-contact-label {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--ct-gold); margin: 0 0 3px;
-  }
-  .ct-contact-value {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 15px; color: #1a0010; margin: 0;
-  }
-  .ct-contact-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; color: #888; margin: 2px 0 0;
-  }
-
-  /* Socials */
-  .ct-socials { margin-top: 8px; }
-  .ct-socials-label {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--ct-gold); margin-bottom: 10px;
-  }
-  .ct-socials-row { display: flex; flex-wrap: wrap; gap: 10px; }
-  .ct-social-link {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 7px 14px; border: 1px solid rgba(204,0,102,0.25);
-    border-radius: 999px; text-decoration: none;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 12px; letter-spacing: 0.06em; color: var(--ct-magenta);
-    transition: all 0.2s;
-  }
-  .ct-social-link:hover {
-    background: var(--ct-magenta); color: white;
-    border-color: var(--ct-magenta);
-  }
-
-  /* Map */
-  .ct-map-wrap { display: flex; flex-direction: column; gap: 8px; }
-  .ct-map-caption {
-    display: flex; align-items: center; gap: 5px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 300;
-    font-size: 12px; letter-spacing: 0.08em; color: #999;
-  }
-
-  /* ── CTA ── */
-  .ct-cta-section {
-    background: linear-gradient(135deg, #1a0010 0%, #2d0020 50%, #1a0010 100%);
-    padding: 56px 24px;
-    border-top: 1px solid rgba(232,200,122,0.15);
-  }
-  .ct-cta-inner {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 28px; text-align: center;
-  }
-  @media (min-width: 640px) {
-    .ct-cta-inner { flex-direction: row; justify-content: space-between; text-align: left; }
-  }
-  .ct-cta-title {
-    font-family: 'Cormorant Garamond', serif; font-weight: 700;
-    font-size: clamp(1.8rem, 3.5vw, 2.4rem); color: white;
-    margin: 0 0 6px; line-height: 1.1;
-  }
-  .ct-cta-sub {
-    font-family: 'Josefin Sans', sans-serif; font-weight: 400;
-    font-size: 15px; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); margin: 0;
-  }
-  .ct-cta-btns { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-
-  .ct-btn { position: relative; overflow: hidden; background: none; border: none; padding: 0; cursor: pointer; }
-  .ct-btn-inner {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 13px 32px; border-radius: 2px;
-    font-family: 'Josefin Sans', sans-serif; font-weight: 500;
-    font-size: 13px; letter-spacing: 0.28em; text-transform: uppercase;
-    transition: all 0.3s ease; position: relative; z-index: 1;
-  }
-  .ct-btn.primary .ct-btn-inner {
-    background: linear-gradient(135deg, var(--ct-magenta), var(--ct-pink));
-    border: 1px solid rgba(232,200,122,0.3); color: white;
-  }
-  .ct-btn.primary:hover .ct-btn-inner {
-    border-color: var(--ct-gold);
-    box-shadow: 0 0 28px rgba(255,0,128,0.4), 0 6px 20px rgba(0,0,0,0.2);
-    transform: translateY(-2px);
-  }
-  .ct-btn-arrow { color: var(--ct-gold-lt); font-size: 16px; transition: transform 0.3s; }
-  .ct-btn.primary:hover .ct-btn-arrow { transform: translateX(4px); }
-  .ct-btn-shimmer {
-    position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-    transform: skewX(-20deg); transition: left 0.55s ease;
-  }
-  .ct-btn.primary:hover .ct-btn-shimmer { left: 150%; }
-  .ct-btn.ghost .ct-btn-inner {
-    border: 1px solid rgba(232,200,122,0.35); border-radius: 2px;
-    color: rgba(255,255,255,0.75); transition: all 0.3s ease;
-  }
-  .ct-btn.ghost:hover .ct-btn-inner {
-    border-color: rgba(232,200,122,0.7); color: white;
-    background: rgba(255,255,255,0.05);
-  }
-`

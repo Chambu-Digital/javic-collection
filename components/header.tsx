@@ -122,7 +122,7 @@ export default function Header() {
               <div className="javic-logo-ring">
                 <img
                   src="/javic-logo1.png"
-                  alt="Javic Collection"
+                  alt="Jiji Freight"
                   className="javic-logo-img"
                   onError={(e) => {
                     const t = e.target as HTMLImageElement
@@ -131,15 +131,15 @@ export default function Header() {
                 />
               </div>
               <div className="javic-logo-text">
-                <span className="javic-logo-name">JAVIC</span>
-                <span className="javic-logo-sub">COLLECTION</span>
+                <span className="javic-logo-name">JIJI</span>
+                <span className="javic-logo-sub">FREIGHT</span>
               </div>
             </Link>
 
             {/* Desktop Nav */}
             <nav className="javic-nav">
-              <Link href="/" className="javic-nav-link">Home</Link>
-              <Link href="/products" className="javic-nav-link">Products</Link>
+              <Link href="/" className="javic-nav-link">HOME</Link>
+              <Link href="/products" className="javic-nav-link">SERVICES</Link>
 
               <div
                 className="javic-nav-dropdown"
@@ -147,7 +147,7 @@ export default function Header() {
                 onMouseLeave={() => setShowCategories(false)}
               >
                 <button className="javic-nav-link javic-nav-btn-cat">
-                  Categories
+                  SERVICE TYPES
                   <ChevronDown size={14} className={`javic-chevron ${showCategories ? 'open' : ''}`} />
                 </button>
                 {showCategories && (
@@ -178,7 +178,7 @@ export default function Header() {
                 <Search size={15} className="javic-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search innerwear, sleepwear…"
+                  placeholder="Search services…"
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
@@ -280,7 +280,7 @@ export default function Header() {
                 <Search size={15} className="javic-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search innerwear, sleepwear…"
+                  placeholder="Search services…"
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
@@ -345,13 +345,13 @@ export default function Header() {
 
                 <div className="javic-mobile-divider"><span>✦</span></div>
 
-                <Link href="/" onClick={closeMobileMenu} className="javic-mobile-link">Home</Link>
-                <Link href="/products" onClick={closeMobileMenu} className="javic-mobile-link">Products</Link>
-                <Link href="/blog" onClick={closeMobileMenu} className="javic-mobile-link">Blog</Link>
+                <Link href="/" onClick={closeMobileMenu} className="javic-mobile-link">HOME</Link>
+                <Link href="/products" onClick={closeMobileMenu} className="javic-mobile-link">SERVICES</Link>
+                <Link href="/blog" onClick={closeMobileMenu} className="javic-mobile-link">BLOG</Link>
 
                 {categories.length > 0 && (
                   <>
-                    <div className="javic-mobile-divider"><span>Categories</span></div>
+                    <div className="javic-mobile-divider"><span>Service Types</span></div>
                     {categories.map((category) => (
                       <Link
                         key={category._id}
@@ -392,13 +392,16 @@ const headerStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Josefin+Sans:wght@200;300;400&display=swap');
 
   :root {
-    --jh-pink: #FF0080;
-    --jh-magenta: #CC0066;
-    --jh-deep: #990044;
-    --jh-gold: #E8C87A;
-    --jh-gold-light: #F5DFA0;
+    --jh-pink: #FFD700;
+    --jh-magenta: #1E90FF;
+    --jh-deep: #003D7A;
+    --jh-gold: #FFD700;
+    --jh-gold-light: #FFD700;
     --jh-white: #FFFFFF;
     --jh-bg: rgba(255, 255, 255, 0.97);
+    --primary-blue: #1E90FF;
+    --dark-blue: #003D7A;
+    --accent-gold: #FFD700;
   }
 
   /* ── HEADER SHELL ── */
@@ -516,7 +519,7 @@ const headerStyles = `
     font-weight: 700;
     font-size: 26px;
     letter-spacing: 0.18em;
-    background: linear-gradient(135deg, var(--jh-magenta), var(--jh-pink));
+    background: linear-gradient(135deg, #1E90FF, #003D7A);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

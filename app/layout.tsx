@@ -32,8 +32,8 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'JAVIC COLLECTION - Premium Lingerie, Sleepwear & Innerwear | +254 706 512 984',
-  description: 'Kenya\'s premier fashion destination for luxury lingerie, sleepwear, innerwear, and sportswear. Premium fabrics, elegant designs, perfect fits. Experience comfort and style. Call +254 706 512 984 or +254 723 277 306.',
+  title: 'JIJI FREIGHT - Professional Freight Services Across East Africa | +254 706 512 984',
+  description: 'Professional freight services across East Africa. Reliable shipping, competitive rates, and excellent service. JIJI FREIGHT - Your trusted partner for freight solutions. Call +254 706 512 984 or +254 723 277 306.',
   generator: 'v0.app',
   verification: {
     google: 'KO8RUPFOnU-K9AlHfBWRRcuYQG6jIrs9yihNFWfJ-yY',

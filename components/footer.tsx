@@ -24,7 +24,7 @@ export default function Footer() {
               <div className="jf-logo-ring">
                 <img
                   src="/javic-logo1.png"
-                  alt="Javic Collection"
+                  alt="Jiji Freight"
                   className="jf-logo-img"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/javiclogo.png'
@@ -32,13 +32,13 @@ export default function Footer() {
                 />
               </div>
               <div className="jf-logo-text">
-                <span className="jf-logo-name">JAVIC</span>
-                <span className="jf-logo-sub">COLLECTION</span>
+                <span className="jf-logo-name">JIJI</span>
+                <span className="jf-logo-sub">FREIGHT</span>
               </div>
             </Link>
 
             <p className="jf-brand-desc">
-              Kenya's trusted clothing store for sexy innerwear, baby clothing, sleepwear & more. Wholesale & retail prices. We do delivery.
+              Jiji East Africa Limited provides professional freight and logistics services across East Africa. Reliable shipping, competitive rates, and excellent service for all your freight needs.
             </p>
 
             <div className="jf-hours-card">
@@ -51,13 +51,13 @@ export default function Footer() {
 
             {/* Social Links */}
             <div className="jf-socials">
-              <a href="https://www.instagram.com/javic_collection" target="_blank" rel="noopener noreferrer" className="jf-social-link">
+              <a href="https://www.instagram.com/jiji_freight" target="_blank" rel="noopener noreferrer" className="jf-social-link">
                 <Instagram size={16} />
-                <span>@Javic_collection</span>
+                <span>@Jiji_Freight</span>
               </a>
-              <a href="https://www.tiktok.com/@javic_collection" target="_blank" rel="noopener noreferrer" className="jf-social-link">
+              <a href="https://www.tiktok.com/@jiji_freight" target="_blank" rel="noopener noreferrer" className="jf-social-link">
                 <Music size={16} />
-                <span>@Javic_Collection</span>
+                <span>@Jiji_Freight</span>
               </a>
             </div>
           </div>
@@ -69,36 +69,47 @@ export default function Footer() {
             </div>
 
             <div className="jf-contact-list">
-              <a href="tel:+254706512984" className="jf-contact-item">
+              <a href="tel:+254726497674" className="jf-contact-item">
                 <div className="jf-contact-icon-ring">
                   <Phone size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">Call Us</p>
-                  <p className="jf-contact-value">+254 706 512 984</p>
-                  <p className="jf-contact-sub">+254 723 277 306</p>
+                  <p className="jf-contact-value">+254 726-497674</p>
+                  <p className="jf-contact-sub">Darow</p>
                 </div>
               </a>
 
-              <a href="https://wa.me/254706512984" target="_blank" rel="noopener noreferrer" className="jf-contact-item whatsapp">
+              <a href="https://wa.me/254726497674" target="_blank" rel="noopener noreferrer" className="jf-contact-item whatsapp">
                 <div className="jf-contact-icon-ring green">
                   <MessageCircle size={16} />
                 </div>
                 <div>
                   <p className="jf-contact-label">WhatsApp</p>
-                  <p className="jf-contact-value">+254 706 512 984</p>
-                  <p className="jf-contact-sub">+254 723 277 306</p>
+                  <p className="jf-contact-value">+254 726-497674</p>
+                  <p className="jf-contact-sub">or +254 722-682976</p>
                 </div>
               </a>
+
+              <div className="jf-contact-item static">
+                <div className="jf-contact-icon-ring">
+                  <Mail size={16} />
+                </div>
+                <div>
+                  <p className="jf-contact-label">Email</p>
+                  <p className="jf-contact-value">info@jijieastafrica.co.ke</p>
+                  <p className="jf-contact-sub">P.O. Box 787-00610, Nairobi</p>
+                </div>
+              </div>
 
               <div className="jf-contact-item static">
                 <div className="jf-contact-icon-ring">
                   <MapPin size={16} />
                 </div>
                 <div>
-                  <p className="jf-contact-label">Our Store</p>
-                  <p className="jf-contact-value">Biashara Street, Mombasa</p>
-                  <p className="jf-contact-sub">Shop at Marikiti, Mombasa</p>
+                  <p className="jf-contact-label">Main Office</p>
+                  <p className="jf-contact-value">Armana Shopping Complex</p>
+                  <p className="jf-contact-sub">3rd Floor, Room T2, Eastleigh, Nairobi</p>
                 </div>
               </div>
             </div>
@@ -112,12 +123,12 @@ export default function Footer() {
 
             <nav className="jf-links">
               {[
-                { href: '/products',   label: 'Products' },
-                { href: '/categories', label: 'Categories' },
+                { href: '/services',   label: 'Services' },
+                { href: '/quote',      label: 'Get Quote' },
+                { href: '/tracking',   label: 'Track Shipment' },
                 { href: '/about',      label: 'About Us' },
                 { href: '/contact',    label: 'Contact' },
-                // { href: '/blog',       label: 'Blog' },
-                { href: '/account',    label: 'My Account' },
+                { href: '/blog',       label: 'Blog' },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="jf-link">
                   <span className="jf-link-dot"></span>
@@ -134,11 +145,11 @@ export default function Footer() {
         <div className="jf-bottom">
           <div className="jf-bottom-inner">
             <p className="jf-copy">
-              &copy; 2026 <strong>JAVIC COLLECTION</strong>. All rights reserved.
+              &copy; 2026 <strong>JIJI FREIGHT</strong>. All rights reserved.
             </p>
             <div className="jf-tagline-row">
               <span className="jf-tagline-gem">✦</span>
-              <span className="jf-tagline">Quality · Elegance · Comfort</span>
+              <span className="jf-tagline">Reliability · Excellence · Service</span>
               <span className="jf-tagline-gem">✦</span>
             </div>
           </div>
@@ -153,18 +164,18 @@ const footerStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Josefin+Sans:wght@200;300;400&display=swap');
 
   :root {
-    --jf-pink:    #FF0080;
-    --jf-magenta: #CC0066;
-    --jf-deep:    #990044;
-    --jf-darker:  #1a0010;
-    --jf-gold:    #E8C87A;
-    --jf-gold-lt: #F5DFA0;
+    --jf-pink:    #FFD700;
+    --jf-magenta: #1E90FF;
+    --jf-deep:    #003D7A;
+    --jf-darker:  #001a4d;
+    --jf-gold:    #FFD700;
+    --jf-gold-lt: #FFD700;
   }
 
   /* ── FOOTER SHELL ── */
   .jf-footer {
     position: relative;
-    background: linear-gradient(160deg, #1a0010 0%, #661f4bff 45%, #832b61ff 100%);
+    background: linear-gradient(160deg, #001a4d 0%, #003d7a 45%, #1E90FF 100%);
     overflow: hidden;
   }
 
@@ -435,9 +446,9 @@ const footerStyles = `
 
   /* ── LINKS ── */
   .jf-links {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .jf-link {
     display: flex;

@@ -1,42 +1,42 @@
 {
-  "name": "Javic Collection POS",
-  "short_name": "Javic POS",
-  "description": "Point of Sale system for Javic Collection",
-  "start_url": "/pos",
-  "scope": "/pos/",
+  "name": "Jiji Freight - Logistics Platform",
+  "short_name": "Jiji Freight",
+  "description": "East African freight and logistics solutions by Jiji East Africa Limited",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#990044",
+  "background_color": "#F5F7FA",
+  "theme_color": "#003D7A",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/javic-logo1.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/javic-logo1.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "shopping"],
+  "categories": ["logistics", "shipping"],
   "shortcuts": [
     {
-      "name": "Make Sale",
-      "short_name": "Sale",
-      "description": "Start a new sale",
-      "url": "/pos/make-sale",
-      "icons": [{ "src": "/javic-logo1.png", "sizes": "192x192" }]
+      "name": "Get Quote",
+      "short_name": "Quote",
+      "description": "Get a shipping quote instantly",
+      "url": "/quote",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Reports",
-      "short_name": "Reports",
-      "description": "View sales reports",
-      "url": "/pos/reports",
-      "icons": [{ "src": "/javic-logo1.png", "sizes": "192x192" }]
+      "name": "Track Shipment",
+      "short_name": "Track",
+      "description": "Track your shipment in real-time",
+      "url": "/tracking",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

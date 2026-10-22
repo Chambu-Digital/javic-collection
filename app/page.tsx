@@ -1,44 +1,34 @@
 'use client'
 
-// TO REVERT: Set SHOW_COMING_SOON to false
-const SHOW_COMING_SOON = false
-
-import ComingSoonPage from '@/components/coming-soon-page'
-import HeroSlider from '@/components/hero-slider'
-import CategoryGrid from '@/components/category-grid'
-import FlashDealsSection from '@/components/flash-deals'
-import AllProductsSection from '@/components/all-products-section'
-import BlogSection from '@/components/blog-section'
-import ReviewStatsSection from '@/components/review-stats-section'
-import Header from '@/components/header'
+import JijiModernNav from '@/components/jiji-modern-nav'
 import Footer from '@/components/footer'
 import BackToTop from '@/components/back-to-top'
+import JijiHomeHero from '@/components/jiji-home-hero'
+import JijiServicesSection from '@/components/jiji-services-section'
+import JijiWhyChooseUs from '@/components/jiji-why-choose-us'
+import JijiCoverageSection from '@/components/jiji-coverage-section'
+import JijiCta from '@/components/jiji-cta'
 
 export default function Home() {
-  if (SHOW_COMING_SOON) {
-    return <ComingSoonPage />
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Header />
+      <JijiModernNav />
       
       <main className="flex-1">
-        {/* Hero Section */}
-        <HeroSlider />
+        {/* Hero Section - Freight Focus */}
+        <JijiHomeHero />
         
-        {/* Main Content Sections */}
-        <div className="space-y-16 md:space-y-20 py-12 md:py-16">
-          <CategoryGrid />
-          <FlashDealsSection />
-          <AllProductsSection />
-        </div>
+        {/* Coverage Map */}
+        <JijiCoverageSection />
         
-        {/* Blog & Reviews Section with subtle background */}
-        <div className="space-y-16 md:space-y-20 py-16 md:py-20 bg-muted/30">
-          <BlogSection />
-          <ReviewStatsSection />
-        </div>
+        {/* Services Section */}
+        <JijiServicesSection />
+        
+        {/* Why Choose Us */}
+        <JijiWhyChooseUs />
+        
+        {/* Final CTA */}
+        <JijiCta />
       </main>
       
       <Footer />

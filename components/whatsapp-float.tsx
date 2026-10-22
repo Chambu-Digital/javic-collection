@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const WHATSAPP_NUMBER = "254706512984"
-const WHATSAPP_NUMBER_ALT = "254723277306";
+const WHATSAPP_NUMBER = "254726497674"
+const WHATSAPP_NUMBER_ALT = "254722682976";
 
 const QUICK_REPLIES = [
-  { label: "Innerwear",    text: "Hi! I'd like to browse your innerwear collection 👙" },
-  { label: "Baby Clothing",text: "Hi! I'm looking for baby clothing 👶" },
-  { label: "Sleepwear",    text: "Hi! Tell me about your sleepwear options 🌙" },
-  { label: "Delivery",     text: "Hi! What are your delivery options? 🚚" },
+  { label: "Express Delivery",    text: "Hi! I need express delivery services 📦" },
+  { label: "Standard Shipping",text: "Hi! I'm interested in standard shipping 🚚" },
+  { label: "Fragile Cargo",    text: "Hi! I have fragile items to ship 🔒" },
+  { label: "Get Quote",     text: "Hi! Can I get a quote for my shipment? 💬" },
 ];
 
 type ChatState = "idle" | "typing" | "greeted" | "redirecting";
@@ -94,7 +94,7 @@ export default function WhatsAppFloat() {
           }}>
             {/* Header */}
             <div style={{
-              background: "linear-gradient(135deg, #990044, #FF0080)",
+              background: "linear-gradient(135deg, #003D7A, #1E90FF)",
               padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px",
             }}>
               <div style={{
@@ -105,7 +105,7 @@ export default function WhatsAppFloat() {
                   onError={(e) => { (e.target as HTMLImageElement).src = "/javiclogo.png" }} />
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ color: "#fff", fontSize: "15px", fontWeight: 600, margin: 0, letterSpacing: "0.05em" }}>JAVIC COLLECTION</p>
+                <p style={{ color: "#fff", fontSize: "15px", fontWeight: 600, margin: 0, letterSpacing: "0.05em" }}>JIJI FREIGHT</p>
                 <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "12px", margin: 0 }}>
                   {chatState === "redirecting" ? "Opening WhatsApp..." : "Typically replies instantly"}
                 </p>
@@ -113,11 +113,11 @@ export default function WhatsAppFloat() {
               <button onClick={() => setIsOpen(false)} style={{
                 background: "none", border: "none", cursor: "pointer",
                 color: "rgba(255,255,255,0.8)", fontSize: "18px", padding: "4px", lineHeight: 1,
-              }}>✕</button>
+              }} aria-label="Close chat">✕</button>
             </div>
 
             {/* Chat body */}
-            <div style={{ background: "#f9f0f4", padding: "16px 12px 12px", minHeight: "160px" }}>
+            <div style={{ background: "#F5F7FA", padding: "16px 12px 12px", minHeight: "160px" }}>
 
               {/* Typing indicator */}
               {chatState === "typing" && (
@@ -142,9 +142,9 @@ export default function WhatsAppFloat() {
                     padding: "10px 12px", maxWidth: "85%", display: "inline-block",
                     boxShadow: "0 1px 2px rgba(0,0,0,0.12)", marginBottom: "10px",
                   }}>
-                    <p style={{ fontSize: "11px", fontWeight: 700, color: "#CC0066", margin: "0 0 4px", letterSpacing: "0.08em" }}>JAVIC COLLECTION</p>
+                <p style={{ fontSize: "11px", fontWeight: 700, color: "#1E90FF", margin: "0 0 4px", letterSpacing: "0.08em" }}>JIJI FREIGHT</p>
                     <p style={{ fontSize: "14px", color: "#303030", margin: 0, lineHeight: 1.5 }}>
-                      Hello! Welcome to Javic Collection 👗<br />
+                      Hello! Welcome to Jiji Freight 🚚<br />
                       How may I help you today?
                     </p>
                     <p style={{ fontSize: "11px", color: "#aaa", textAlign: "right", margin: "4px 0 0" }}>{timeStr}</p>
@@ -155,8 +155,8 @@ export default function WhatsAppFloat() {
                     <div className="wa-fade-up" style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                       {QUICK_REPLIES.map(qr => (
                         <button key={qr.label} className="wa-qr" onClick={() => openWhatsApp(qr.text)} style={{
-                          background: "#fff", border: "1px solid #FF0080",
-                          color: "#990044", borderRadius: "16px",
+                          background: "#fff", border: "1px solid #1E90FF",
+                          color: "#003D7A", borderRadius: "16px",
                           padding: "6px 12px", fontSize: "12px",
                           cursor: "pointer", transition: "all 0.15s",
                         }}>
@@ -186,7 +186,7 @@ export default function WhatsAppFloat() {
 
             {/* Input row */}
             <div style={{
-              background: "#f0e6ec", padding: "8px 10px",
+              background: "#E5F0FF", padding: "8px 10px",
               display: "flex", alignItems: "center", gap: "8px",
             }}>
               <input
@@ -208,9 +208,9 @@ export default function WhatsAppFloat() {
                   color: "#303030", transition: "background 0.2s",
                 }}
               />
-              <button onClick={handleSend} disabled={chatState !== "greeted"} style={{
+              <button onClick={handleSend} disabled={chatState !== "greeted"} aria-label="Send message" style={{
                 width: "38px", height: "38px", borderRadius: "50%",
-                background: chatState === "greeted" ? "linear-gradient(135deg, #CC0066, #FF0080)" : "#ccc",
+                background: chatState === "greeted" ? "linear-gradient(135deg, #003D7A, #1E90FF)" : "#ccc",
                 border: "none", cursor: chatState === "greeted" ? "pointer" : "default",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0, transition: "background 0.2s",
@@ -228,13 +228,13 @@ export default function WhatsAppFloat() {
           <button
             className="wa-fab"
             onClick={() => setIsOpen(prev => !prev)}
-            aria-label="Chat with Javic Collection on WhatsApp"
+            aria-label="Chat with Jiji Freight on WhatsApp"
             style={{
               width: "60px", height: "60px", borderRadius: "50%",
-              background: "linear-gradient(135deg, #CC0066, #FF0080)",
+              background: "linear-gradient(135deg, #003D7A, #1E90FF)",
               border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 4px 16px rgba(255,0,128,0.45)",
+              boxShadow: "0 4px 16px rgba(30,144,255,0.45)",
               transition: "transform 0.2s, box-shadow 0.2s",
             }}
           >
@@ -249,7 +249,7 @@ export default function WhatsAppFloat() {
             <div className="wa-pulse" style={{
               position: "absolute", top: "-4px", right: "-4px",
               width: "18px", height: "18px", borderRadius: "50%",
-              background: "#E8C87A", color: "#1a0010",
+              background: "#FFD700", color: "#003D7A",
               fontSize: "11px", fontWeight: 700,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>1</div>
