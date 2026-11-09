@@ -72,7 +72,7 @@ export default function NewProductPage() {
   useEffect(() => { 
     fetchCategories()
     fetchBranches()
-    fetchVendors()
+    // Vendors will be fetched when branch is selected
   }, [])
 
   const fetchCategories = async () => {
@@ -101,7 +101,14 @@ export default function NewProductPage() {
 
   const fetchVendors = async () => {
     try {
-      const res = await fetch('/api/admin/vendors')
+      // Only fetch vendors if branch is selected
+      if (!formData.branchId) {
+        setVendors([])
+        return
+      }
+
+      // Fetch vendors assigned to the selected branch
+      const res = await fetch(`/api/admin/vendors?activeOnly=true&branchId=${formData.branchId}`)
       if (res.ok) {
         const data = await res.json()
         const activeVendors = (data.vendors || []).filter((v: any) => v.isActive)
@@ -111,10 +118,26 @@ export default function NewProductPage() {
         const houseVendor = activeVendors.find((v: any) => v.isHouseStock)
         if (houseVendor) {
           setFormData(prev => ({ ...prev, vendorId: houseVendor._id }))
+        } else if (activeVendors.length > 0) {
+          // Auto-select first vendor if no house stock
+          setFormData(prev => ({ ...prev, vendorId: activeVendors[0]._id }))
+        } else {
+          // Clear vendor selection if no vendors available
+          setFormData(prev => ({ ...prev, vendorId: '' }))
         }
       }
     } catch { /* silent */ }
   }
+
+  // Re-fetch vendors when branch changes
+  useEffect(() => {
+    if (formData.branchId) {
+      fetchVendors()
+    } else {
+      setVendors([])
+      setFormData(prev => ({ ...prev, vendorId: '' }))
+    }
+  }, [formData.branchId])
 
   const handleCategoryChange = (categoryId: string) => {
     const cat = categories.find(c => c._id === categoryId)

@@ -45,9 +45,9 @@ export interface IPaymentAllocation {
 
 export interface IShippingAddress {
   name: string
-  phone: string
-  county: string
-  area: string
+  phone?: string
+  county?: string
+  area?: string
 }
 
 export interface IOrder {
@@ -107,6 +107,7 @@ export interface IOrder {
 
   createdAt?: Date
   updatedAt?: Date
+  posSeenAt?: Date | null
 }
 
 const OrderItemSchema = new mongoose.Schema({
@@ -164,9 +165,9 @@ const PaymentAllocationSchema = new mongoose.Schema({
 
 const ShippingAddressSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  phone: { type: String, required: true, trim: true },
-  county: { type: String, required: true, trim: true },
-  area: { type: String, required: true, trim: true }
+  phone: { type: String, trim: true },
+  county: { type: String, trim: true },
+  area: { type: String, trim: true }
 })
 
 const OrderSchema = new mongoose.Schema<IOrder>({
@@ -204,7 +205,6 @@ const OrderSchema = new mongoose.Schema<IOrder>({
   },
 
   channel: { type: String, enum: ['online', 'pos'], default: 'online' },
-  outletId: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
   outletName: String,
   cashierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   cashierName: String,
@@ -235,7 +235,10 @@ const OrderSchema = new mongoose.Schema<IOrder>({
   deliveredAt: Date,
 
   customerNotes: String,
-  adminNotes: String
+  adminNotes: String,
+
+  // POS notification tracking
+  posSeenAt: { type: Date, default: null }
 }, { timestamps: true })
 
 OrderSchema.pre('save', async function (next) {

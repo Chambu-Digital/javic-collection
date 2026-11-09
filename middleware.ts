@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
     }
 
     // Already carries the /pos prefix (client-side nav after first load)
-    if (pathname.startsWith('/pos') || pathname === '/pos-login') {
+    if (pathname.startsWith('/pos')) {
       return NextResponse.next()
     }
 
@@ -45,10 +45,10 @@ export function middleware(request: NextRequest) {
 
   // ─────────────────────────────────────────────────────────────────────────
   // BLOCK /pos ON MAIN DOMAIN IN PRODUCTION
-  // javic.co.ke/pos or /pos-login → 404
+  // javic.co.ke/pos → 404
   // localhost keeps working for local dev
   // ─────────────────────────────────────────────────────────────────────────
-  if (!onLocalhost && (pathname.startsWith('/pos') || pathname === '/pos-login')) {
+  if (!onLocalhost && pathname.startsWith('/pos')) {
     const url = request.nextUrl.clone()
     url.pathname = '/not-found'
     return NextResponse.rewrite(url, { status: 404 })
@@ -57,11 +57,10 @@ export function middleware(request: NextRequest) {
   // ─────────────────────────────────────────────────────────────────────────
   // POS AUTH GUARD  (localhost only — subdomain handled above)
   //
-  // /pos-login, /api/pos/*, /_next, static assets → always pass through
-  // /pos/*  without pos-token cookie → redirect to /pos-login
+  // /api/*, /_next, static assets → always pass through
+  // /pos/* without auth-token → allow (layout shows login form)
   // ─────────────────────────────────────────────────────────────────────────
   if (
-    pathname === '/pos-login'              ||
     pathname.startsWith('/api/')           ||
     pathname.startsWith('/_next')          ||
     pathname === '/manifest.json'          ||
@@ -71,12 +70,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/pos')) {
-    const posToken = request.cookies.get('pos-token')?.value
-    if (!posToken) {
-      const loginUrl = request.nextUrl.clone()
-      loginUrl.pathname = '/pos-login'
-      loginUrl.searchParams.set('from', pathname)
-      return NextResponse.redirect(loginUrl)
+    const authToken = request.cookies.get('auth-token')?.value
+    if (!authToken) {
+      // No redirect - let the layout handle showing the login form
+      return NextResponse.next()
     }
   }
 

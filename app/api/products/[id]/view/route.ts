@@ -53,12 +53,12 @@ try {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
     
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const { sessionId, userId } = body
     
@@ -107,12 +107,12 @@ export async function POST(
 // GET endpoint to retrieve view statistics
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
     
-    const { id } = params
+    const { id } = await params
     const { searchParams } = new URL(request.url)
     const period = parseInt(searchParams.get('period') || '30') // days
     

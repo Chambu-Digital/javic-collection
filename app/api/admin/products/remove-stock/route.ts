@@ -4,7 +4,7 @@ import Product from '@/models/Product'
 import Branch from '@/models/Branch'
 import { requireAuth } from '@/lib/auth'
 import { updateBranchStock, syncProductStockQuantity } from '@/lib/branch-inventory'
-import { createLedgerEntry } from '@/lib/pos/ledger-service'
+import { recordStockMovement } from '@/lib/inventory-ledger'
 import mongoose from 'mongoose'
 
 interface RemoveStockRequest {
@@ -51,18 +51,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Branch restriction for POS users
-    // If user has an assigned branch and is not a manager/administrator, they can only adjust their branch
-    if (user.assignedBranchId && user.posRole && 
-        user.posRole !== 'manager' && user.posRole !== 'administrator' && 
-        user.role !== 'super_admin') {
-      if (user.assignedBranchId.toString() !== branchId) {
-        return NextResponse.json(
-          { error: 'You can only adjust stock for your assigned branch' },
-          { status: 403 }
-        )
-      }
-    }
+    // Branch restriction for admin users
+    // You can add branch-based restrictions here if needed
 
     await session.withTransaction(async () => {
       // Verify product exists
@@ -82,6 +72,13 @@ export async function POST(request: NextRequest) {
       const vendor = await Vendor.findById(vendorId).session(session)
       if (!vendor) {
         throw new Error('Vendor not found')
+      }
+
+      // NEW: Verify vendor is assigned to this branch
+      const BranchVendor = (await import('@/models/BranchVendor')).default
+      const isAssigned = await BranchVendor.isVendorAssignedToBranch(branchId, vendorId, true)
+      if (!isAssigned) {
+        throw new Error(`Vendor ${vendor.name} (${vendor.vendorCode}) is not assigned to branch ${branch.name}.`)
       }
 
       // Verify image index is valid
@@ -135,30 +132,34 @@ export async function POST(request: NextRequest) {
       // Sync product stockQuantity with branch totals
       await syncProductStockQuantity(productId, session)
 
-      // Create ledger entry for audit trail
-      await createLedgerEntry({
-        eventType: 'inventory_removed',
-        source: 'admin',
-        channel: 'admin',
-        userId: new mongoose.Types.ObjectId(user.id),
-        userName: `${user.firstName} ${user.lastName}`,
-        branchId: new mongoose.Types.ObjectId(branchId),
-        branchCode: branch.branchCode,
-        branchStockId: branchStock.stockIdentifier,
-        productId: new mongoose.Types.ObjectId(productId),
-        productName: product.name,
-        variantImageUrl: image.url,
-        size: selectedSize,
+      // Record the inventory movement
+      await recordStockMovement(
+        'inventory_removed',
+        'admin',
         quantity,
-        totalMinor: 0,
-        notes: notes || `Removed ${quantity} units from ${branch.name} (${vendor.name})`,
-        metadata: {
-          vendorId: vendorId,
-          vendorCode: vendor.vendorCode,
-          vendorName: vendor.name
-        },
-        session
-      })
+        branchStock.quantity,
+        result.newQuantity,
+        {
+          branchId,
+          branchCode: branch.branchCode,
+          branchStockId: branchStock.stockIdentifier,
+          userId: user.id,
+          userName: `${user.firstName} ${user.lastName}`,
+          productId,
+          productName: product.name,
+          variantImageUrl: image?.url,
+          size: selectedSize,
+          referenceNumber: `MANUAL-REMOVE-${Date.now()}`,
+          notes,
+          metadata: {
+            vendorId,
+            vendorName: vendor.name,
+            vendorCode: vendor.vendorCode,
+            source: 'manual_remove_stock',
+          },
+          session,
+        }
+      )
 
       console.log(`✅ Stock removed: ${quantity} units of ${product.name} from ${branch.name} (Vendor: ${vendor.name})`)
     })

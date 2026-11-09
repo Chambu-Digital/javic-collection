@@ -30,8 +30,17 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     fetchProduct()
-    fetchVendors()
   }, [resolvedParams.id])
+
+  // Re-fetch vendors when branch changes
+  useEffect(() => {
+    if (selectedBranch) {
+      fetchVendors()
+    } else {
+      setVendors([])
+      setSelectedVendor('')
+    }
+  }, [selectedBranch])
 
   const fetchProduct = async () => {
     try {
@@ -53,7 +62,15 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
   const fetchVendors = async () => {
     setLoadingVendors(true)
     try {
-      const res = await fetch('/api/admin/vendors?activeOnly=true')
+      // Only fetch vendors if branch is selected
+      if (!selectedBranch) {
+        setVendors([])
+        setLoadingVendors(false)
+        return
+      }
+
+      // Fetch vendors assigned to the selected branch
+      const res = await fetch(`/api/admin/vendors?activeOnly=true&branchId=${selectedBranch}`)
       if (res.ok) {
         const data = await res.json()
         setVendors(data.vendors || [])
@@ -62,6 +79,11 @@ export default function ProductStockPage({ params }: { params: Promise<{ id: str
         const houseVendor = data.vendors.find((v: any) => v.isHouseStock)
         if (houseVendor) {
           setSelectedVendor(houseVendor._id)
+        } else if (data.vendors.length > 0) {
+          // Auto-select first vendor if no house stock
+          setSelectedVendor(data.vendors[0]._id)
+        } else {
+          setSelectedVendor('')
         }
       }
     } catch (error) {

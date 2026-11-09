@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 // PATCH — update role, permissions, or active status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAdmin(request)
@@ -15,7 +15,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Only super_admin can update staff' }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 })
     }
@@ -35,7 +35,7 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const allowed = ['role', 'permissions', 'isActive']
+    const allowed = ['role', 'permissions', 'isActive', 'canAccessPOS']
     const updates: Record<string, any> = {}
     for (const key of allowed) {
       if (body[key] !== undefined) updates[key] = body[key]
@@ -56,7 +56,7 @@ export async function PATCH(
 // DELETE — remove a staff member
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAdmin(request)
@@ -64,7 +64,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only super_admin can delete staff' }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 })
     }

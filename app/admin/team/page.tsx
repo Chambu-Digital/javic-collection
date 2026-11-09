@@ -45,6 +45,7 @@ import {
   Star,
   Save,
   ArrowLeft,
+  Store,
 } from 'lucide-react'
 import { useUserStore } from '@/lib/user-store'
 import { PERMISSIONS, PERMISSION_GROUPS, Permission } from '@/lib/permissions'
@@ -61,6 +62,7 @@ interface StaffMember {
   permissions?: Permission[]
   isActive: boolean
   isApproved: boolean
+  canAccessPOS?: boolean
   approvedBy?: { firstName: string; lastName: string; email: string }
   createdAt: string
 }
@@ -73,6 +75,7 @@ interface CreateForm {
   phone: string
   role: 'admin' | 'super_admin'
   permissions: Set<Permission>
+  canAccessPOS: boolean
 }
 
 const emptyForm = (): CreateForm => ({
@@ -83,6 +86,7 @@ const emptyForm = (): CreateForm => ({
   phone: '',
   role: 'admin',
   permissions: new Set(),
+  canAccessPOS: false,
 })
 
 // ── Icon map for permission groups ────────────────────────────────────────────
@@ -253,7 +257,7 @@ export default function TeamPage() {
       const res = await fetch('/api/admin/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, permissions: Array.from(form.permissions) }),
+        body: JSON.stringify({ ...form, permissions: Array.from(form.permissions), canAccessPOS: form.canAccessPOS }),
       })
       const data = await res.json()
       if (res.ok) {
@@ -303,6 +307,23 @@ export default function TeamPage() {
       })
       if (res.ok) {
         setMessage({ type: 'success', text: `${member.firstName} ${member.isActive ? 'deactivated' : 'activated'}` })
+        fetchStaff()
+      }
+    } catch { setMessage({ type: 'error', text: 'Network error' }) }
+  }
+
+  const togglePOS = async (member: StaffMember) => {
+    try {
+      const res = await fetch(`/api/admin/staff/${member._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canAccessPOS: !member.canAccessPOS }),
+      })
+      if (res.ok) {
+        setMessage({ 
+          type: 'success', 
+          text: `POS access ${member.canAccessPOS ? 'revoked from' : 'granted to'} ${member.firstName} ${member.lastName}` 
+        })
         fetchStaff()
       }
     } catch { setMessage({ type: 'error', text: 'Network error' }) }
@@ -498,6 +519,16 @@ export default function TeamPage() {
                         >
                           {member.isActive ? 'Active' : 'Inactive'}
                         </Badge>
+                        <Badge
+                          variant="outline"
+                          className={member.canAccessPOS ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-gray-100 text-gray-600'}
+                        >
+                          {member.canAccessPOS ? (
+                            <><Store className="h-3 w-3 mr-1 inline" />POS Enabled</>
+                          ) : (
+                            'No POS Access'
+                          )}
+                        </Badge>
                       </div>
 
                       <div className="flex gap-2">
@@ -507,6 +538,16 @@ export default function TeamPage() {
 
                         {member._id !== user?.id && (
                           <>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => togglePOS(member)}
+                              className={member.canAccessPOS ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-50' : ''}
+                            >
+                              <Store className="h-4 w-4 mr-1" />
+                              {member.canAccessPOS ? 'Revoke POS' : 'Grant POS'}
+                            </Button>
+
                             <Button variant="outline" size="sm" onClick={() => toggleActive(member)}>
                               {member.isActive
                                 ? <><UserX className="h-4 w-4 mr-1" />Deactivate</>
@@ -639,6 +680,23 @@ export default function TeamPage() {
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* POS Access Switch */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-0.5">
+                <Label className="text-base font-medium flex items-center gap-2">
+                  <Store className="h-4 w-4 text-emerald-600" />
+                  POS Access
+                </Label>
+                <p className="text-sm text-gray-500">
+                  Allow this staff member to access the Point of Sale system
+                </p>
+              </div>
+              <Switch
+                checked={form.canAccessPOS}
+                onCheckedChange={checked => setForm({ ...form, canAccessPOS: checked })}
+              />
             </div>
 
             {/* Permissions */}

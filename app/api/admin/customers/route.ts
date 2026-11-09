@@ -6,8 +6,8 @@ import { z } from 'zod'
 
 const createUserSchema = z.object({
   firstName: z.string().min(1, 'First name is required').trim(),
-  lastName: z.string().min(1, 'Last name is required').trim(),
-  email: z.string().email('Invalid email address').toLowerCase().trim(),
+  lastName: z.string().trim().default('-'),
+  email: z.string().toLowerCase().trim().optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phone: z.string().optional(),
   role: z.enum(['customer', 'admin', 'super_admin']).default('customer'),
@@ -37,7 +37,12 @@ export async function POST(request: NextRequest) {
 
     await connectDB()
 
-    const existing = await User.findOne({ email: validated.email })
+    // Generate placeholder email for POS walk-in customers if not provided
+    const email = validated.email?.trim() 
+      ? validated.email 
+      : `pos-${Date.now()}@javic.local`
+
+    const existing = await User.findOne({ email })
     if (existing) {
       return NextResponse.json(
         { error: 'A user with this email already exists' },
@@ -47,6 +52,7 @@ export async function POST(request: NextRequest) {
 
     const user = new User({
       ...validated,
+      email,
       isEmailVerified: true,   // admin-created accounts are pre-verified
       isApproved: true,
       isActive: true,

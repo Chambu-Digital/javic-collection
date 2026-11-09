@@ -27,9 +27,6 @@ export interface IUser {
   isActive: boolean
   role: 'customer' | 'admin' | 'super_admin'
   permissions?: string[] // New granular permissions system
-  posRole?: 'cashier' | 'senior_cashier' | 'supervisor' | 'manager' | 'administrator'
-  posOutletId?: mongoose.Types.ObjectId // Legacy: kept for backwards compatibility
-  assignedBranchId?: mongoose.Types.ObjectId // User's assigned branch for POS operations
   // Google OAuth fields
   googleId?: string
   profileImage?: string
@@ -72,6 +69,7 @@ export interface IUser {
   isApproved: boolean
   approvedBy?: mongoose.Types.ObjectId
   approvedAt?: Date
+  canAccessPOS: boolean
   createdAt?: Date
   updatedAt?: Date
 }
@@ -165,18 +163,6 @@ const UserSchema = new mongoose.Schema<IUser>({
     type: String,
     trim: true
   }],
-  posRole: {
-    type: String,
-    enum: ['cashier', 'senior_cashier', 'supervisor', 'manager', 'administrator'],
-  },
-  posOutletId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PosOutlet',
-  },
-  assignedBranchId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Branch',
-  },
   // Google OAuth fields
   googleId: {
     type: String,
@@ -235,6 +221,10 @@ const UserSchema = new mongoose.Schema<IUser>({
   },
   approvedAt: {
     type: Date
+  },
+  canAccessPOS: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

@@ -58,32 +58,12 @@ export async function PATCH(
     }
     
     // Update allowed fields
-    const allowedUpdates = ['isActive', 'permissions', 'posRole', 'assignedBranchId']
+    const allowedUpdates = ['isActive', 'permissions']
     const updates: any = {}
     
     for (const field of allowedUpdates) {
       if (body[field] !== undefined) {
         updates[field] = body[field]
-      }
-    }
-    
-    // Validate branch ID if provided
-    if (updates.assignedBranchId) {
-      if (!mongoose.Types.ObjectId.isValid(updates.assignedBranchId)) {
-        return NextResponse.json(
-          { error: 'Invalid branch ID' },
-          { status: 400 }
-        )
-      }
-      
-      // Verify branch exists
-      const Branch = (await import('@/models/Branch')).default
-      const branch = await Branch.findById(updates.assignedBranchId)
-      if (!branch) {
-        return NextResponse.json(
-          { error: 'Branch not found' },
-          { status: 404 }
-        )
       }
     }
     

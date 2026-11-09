@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Vendor from '@/models/Vendor'
+import BranchVendor from '@/models/BranchVendor'
 import { requireAdmin } from '@/lib/auth'
 
 // GET /api/admin/vendors/[id] - Get vendor by ID
@@ -138,6 +139,9 @@ export async function DELETE(
 
     // The pre-delete hook in the model will check for inventory and sales history
     await vendor.deleteOne()
+
+    // Also delete all branch-vendor assignments
+    await BranchVendor.deleteMany({ vendorId: id })
 
     return NextResponse.json({
       success: true,

@@ -12,7 +12,6 @@ export interface ICreditRepayment {
   newBalanceMinor: number
   paymentMethods: ('cash' | 'mpesa')[]
   cashierId: mongoose.Types.ObjectId
-  outletId: mongoose.Types.ObjectId
   notes?: string
   deviceId?: string
   wasOffline: boolean
@@ -37,7 +36,6 @@ const CreditRepaymentSchema = new mongoose.Schema<ICreditRepayment>(
     newBalanceMinor: { type: Number, required: true },
     paymentMethods: [{ type: String, enum: ['cash', 'mpesa'] }],
     cashierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    outletId: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet', required: true },
     notes: String,
     deviceId: String,
     wasOffline: { type: Boolean, default: false },

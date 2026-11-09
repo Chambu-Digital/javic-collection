@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { Permission } from '@/lib/permissions'
 
 interface Address {
   _id?: string
@@ -21,9 +22,10 @@ export interface User {
   role: 'customer' | 'admin' | 'super_admin'
   isEmailVerified: boolean
   addresses?: Address[]
-  permissions?: string[]
+  permissions?: Permission[]
   profileImage?: string
   provider?: 'local' | 'google'
+  canAccessPOS?: boolean
 }
 
 interface UserState {
@@ -154,8 +156,6 @@ export const useUserStore = create<UserState>()(
       },
       
       checkAuth: async () => {
-        if (get().isLoaded) return
-        
         set({ isLoading: true })
         
         try {

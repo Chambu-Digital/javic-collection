@@ -12,7 +12,6 @@ export interface ICreditTransaction {
   status: 'active' | 'partially_paid' | 'settled' | 'overdue' | 'written_off' | 'reversed'
   dueDate?: Date
   cashierId: mongoose.Types.ObjectId
-  outletId: mongoose.Types.ObjectId
   notes?: string
   deviceId?: string
   wasOffline: boolean
@@ -43,7 +42,6 @@ const CreditTransactionSchema = new mongoose.Schema<ICreditTransaction>(
     },
     dueDate: Date,
     cashierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    outletId: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet', required: true },
     notes: String,
     deviceId: String,
     wasOffline: { type: Boolean, default: false },

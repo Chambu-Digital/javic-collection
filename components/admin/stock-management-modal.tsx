@@ -51,11 +51,9 @@ interface StockManagementModalProps {
   onClose: () => void
   productId: string
   userBranchId?: string // Auto-select this branch if provided
-  userPosRole?: string // User's POS role for permission checking
   restrictToBranch?: boolean // If true, user cannot change branch
-  isPosContext?: boolean // If true, hide branch selection UI (POS manages branch)
-  branchName?: string // Display name for POS context
-  branchCode?: string // Display code for POS context
+  branchName?: string // Display name for context
+  branchCode?: string // Display code for context
 }
 
 export default function StockManagementModal({
@@ -63,9 +61,7 @@ export default function StockManagementModal({
   onClose,
   productId,
   userBranchId,
-  userPosRole,
   restrictToBranch = false,
-  isPosContext = false,
   branchName,
   branchCode,
 }: StockManagementModalProps) {
@@ -108,8 +104,9 @@ export default function StockManagementModal({
       await Promise.all([
         fetchProduct(),
         fetchBranchStock(),
-        fetchVendors(),
       ])
+      // Fetch vendors separately after we might have branch context
+      await fetchVendors()
     } catch (error) {
       console.error('Error fetching data:', error)
       toast.error('Failed to load stock data')
@@ -117,6 +114,16 @@ export default function StockManagementModal({
       setLoading(false)
     }
   }
+
+  // Re-fetch vendors when branch changes
+  useEffect(() => {
+    if (selectedBranch) {
+      fetchVendors()
+    } else {
+      setVendors([])
+      setSelectedVendor('')
+    }
+  }, [selectedBranch])
 
   const fetchProduct = async () => {
     try {
@@ -146,7 +153,15 @@ export default function StockManagementModal({
   const fetchVendors = async () => {
     setLoadingVendors(true)
     try {
-      const res = await fetch('/api/admin/vendors?activeOnly=true')
+      // Only fetch vendors if branch is selected
+      if (!selectedBranch) {
+        setVendors([])
+        setLoadingVendors(false)
+        return
+      }
+
+      // Fetch vendors assigned to the selected branch
+      const res = await fetch(`/api/admin/vendors?activeOnly=true&branchId=${selectedBranch}`)
       if (res.ok) {
         const data = await res.json()
         setVendors(data.vendors || [])
@@ -155,6 +170,11 @@ export default function StockManagementModal({
         const houseVendor = data.vendors.find((v: any) => v.isHouseStock)
         if (houseVendor) {
           setSelectedVendor(houseVendor._id)
+        } else if (data.vendors.length > 0) {
+          // Auto-select first vendor if no house stock
+          setSelectedVendor(data.vendors[0]._id)
+        } else {
+          setSelectedVendor('')
         }
       }
     } catch (error) {
@@ -490,11 +510,17 @@ export default function StockManagementModal({
                     value={selectedVendor}
                     onChange={(e) => setSelectedVendor(e.target.value)}
                     required
-                    disabled={loadingVendors || vendors.length === 0}
+                    disabled={!selectedBranch || loadingVendors || vendors.length === 0}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white disabled:bg-gray-50"
                   >
                     <option value="">
-                      {loadingVendors ? 'Loading...' : vendors.length === 0 ? 'No vendors' : 'Select vendor...'}
+                      {!selectedBranch 
+                        ? 'Select branch first' 
+                        : loadingVendors 
+                        ? 'Loading...' 
+                        : vendors.length === 0 
+                        ? 'No vendors assigned to branch' 
+                        : 'Select vendor...'}
                     </option>
                     {vendors.map((vendor) => (
                       <option key={vendor._id} value={vendor._id}>
@@ -502,6 +528,11 @@ export default function StockManagementModal({
                       </option>
                     ))}
                   </select>
+                  {selectedBranch && vendors.length === 0 && !loadingVendors && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      No vendors assigned to this branch. <a href={`/admin/branches/${selectedBranch}`} target="_blank" className="underline">Assign vendors</a>
+                    </p>
+                  )}
                 </div>
               </div>
 

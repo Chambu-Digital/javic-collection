@@ -21,6 +21,9 @@ export interface IProduct {
 
   price: number
   oldPrice?: number
+  buyingPrice?: number
+  barcode?: string             // Product barcode (EAN/UPC) for scanning & import
+  lowStockThreshold?: number  // Per-product low-stock alert level (default 10)
   wholesalePrice?: number
   wholesaleThreshold?: number
 
@@ -65,6 +68,13 @@ const ProductSchema = new mongoose.Schema<IProduct>({
 
   price: { type: Number, required: true, min: 0 },
   oldPrice: { type: Number, min: 0 },
+  buyingPrice: { type: Number, min: 0, default: 0 },
+  barcode: {
+    type: String,
+    trim: true,
+    index: { unique: true, sparse: true }, // unique, but allows multiple blank values
+  },
+  lowStockThreshold: { type: Number, min: 0, default: 10 },
   wholesalePrice: { type: Number, min: 0 },
   wholesaleThreshold: {
     type: Number, min: 0,

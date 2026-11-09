@@ -17,11 +17,25 @@ export interface CartItem {
   groupId?: string      // for grouping logic (same variant, different angle)
   branchId?: string     // branch this product belongs to
   addedAt: string
+  // POS-specific fields (only populated when mode === 'pos')
+  branchCode?: string
+  vendorId?: string
+  vendorCode?: string
+  branchStockId?: string
 }
 
 interface CartStore {
   items: CartItem[]
   isLoaded: boolean
+  mode: 'online' | 'pos'  // NEW: determines behavior
+  
+  // POS-specific state (only used when mode === 'pos')
+  cashierId?: string
+  deviceId?: string
+  channel?: 'online' | 'pos'
+  customerId?: string
+  customerName?: string
+  notes?: string
   
   // Actions
   addItem: (item: Omit<CartItem, 'addedAt'>, maxStock?: number) => void
@@ -30,6 +44,11 @@ interface CartStore {
   clearCart: () => void
   setLoaded: () => void
   validateCartStock: () => Promise<number>
+  
+  // Mode management
+  setMode: (mode: 'online' | 'pos') => void
+  setPosContext: (context: { cashierId?: string; deviceId?: string; customerId?: string; customerName?: string }) => void
+  setNotes: (notes: string) => void
   
   // Computed values
   getTotalItems: () => number
@@ -50,6 +69,8 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isLoaded: false,
+      mode: 'online',
+      channel: 'online',
 
       addItem: (newItem, maxStock?) => {
         const items = get().items
@@ -133,11 +154,41 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        set({ items: [] })
+        const mode = get().mode
+        set({ 
+          items: [],
+          customerId: undefined,
+          customerName: undefined,
+          notes: undefined,
+          // Keep mode, cashierId, deviceId across cart clears
+        })
       },
 
       setLoaded: () => {
         set({ isLoaded: true })
+      },
+
+      setMode: (mode: 'online' | 'pos') => {
+        set({ 
+          mode,
+          channel: mode,
+          items: [] // Clear cart when switching modes
+        })
+      },
+
+      setPosContext: (context) => {
+        if (get().mode === 'pos') {
+          set({
+            cashierId: context.cashierId,
+            deviceId: context.deviceId,
+            customerId: context.customerId,
+            customerName: context.customerName
+          })
+        }
+      },
+
+      setNotes: (notes: string) => {
+        set({ notes })
       },
 
       validateCartStock: async () => {

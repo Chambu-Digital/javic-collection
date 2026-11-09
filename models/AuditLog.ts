@@ -35,7 +35,6 @@ export interface IAuditLog {
   reason?: string
   approvedBy?: mongoose.Types.ObjectId
   approvedByName?: string
-  outletId?: mongoose.Types.ObjectId
   outletName?: string
   deviceId?: string
   ipAddress?: string
@@ -100,10 +99,6 @@ const AuditLogSchema = new mongoose.Schema<IAuditLog>({
     ref: 'User'
   },
   approvedByName: String,
-  outletId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PosOutlet'
-  },
   outletName: String,
   deviceId: String,
   ipAddress: String,

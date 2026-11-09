@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 import User, { IUser } from '@/models/User'
 import connectDB from '@/lib/mongodb'
-
+import mongoose from 'mongoose'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 const JWT_EXPIRES_IN = '7d'
@@ -16,6 +16,7 @@ export interface AuthUser {
   role: 'customer' | 'admin' | 'super_admin'
   profileImage?: string
   provider?: 'local' | 'google'
+  canAccessPOS?: boolean
   addresses?: Array<{
     _id?: string
     type: 'shipping' | 'billing'
@@ -25,28 +26,33 @@ export interface AuthUser {
     area: string
     isDefault: boolean
   }>
+  permissions?: string[]
 }
 
 export function generateToken(user: IUser): string {
+  const payload: any = {
+    id: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    permissions: user.permissions || []
+  }
+
   return jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role
-    },
+    payload,
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   )
 }
 
-export function verifyToken(token: string): (AuthUser & { userId: string }) | null {
+export function verifyToken(token: string, skipDbCheck = false): (AuthUser & { userId: string }) | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any
     return {
       ...decoded,
-      userId: decoded.id
+      userId: decoded.id,
+      permissions: decoded.permissions || []
     }
   } catch (error) {
     return null
@@ -93,7 +99,9 @@ export async function getCurrentUser(request: NextRequest): Promise<AuthUser | n
       role: user.role,
       profileImage: user.profileImage,
       provider: user.provider,
-      addresses: user.addresses || []
+      canAccessPOS: user.canAccessPOS || false,
+      addresses: user.addresses || [],
+      permissions: user.permissions || []
     }
   } catch (error) {
     console.error('Error getting current user:', error)
@@ -117,3 +125,11 @@ export async function requireAdmin(request: NextRequest): Promise<AuthUser> {
   return user
 }
 
+// Check if user has specific permission
+export function hasPermission(user: AuthUser, permission: string): boolean {
+  // Super admin has all permissions
+  if (user.role === 'super_admin') return true
+  
+  // Check explicit permissions array
+  return user.permissions?.includes(permission) || false
+}

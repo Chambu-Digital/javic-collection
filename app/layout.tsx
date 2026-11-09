@@ -3,6 +3,7 @@ import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/ui/custom-toast'
 import GoogleOAuthProvider from '@/components/providers/google-oauth-provider'
+import { QueryProvider } from '@/components/providers/query-provider'
 import WhatsAppFloatWrapper from '@/components/whatsapp-float-wrapper'
 import DirectionsFloatWrapper from '@/components/directions-float-wrapper'
 import CampaignRenderer from '@/components/campaign-renderer'
@@ -49,15 +50,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${cormorant.variable} ${dmSans.variable} font-sans antialiased leading-relaxed`}>
-        <GoogleOAuthProvider>
-          <ToastProvider>
-            {children}
-            <CampaignRenderer />
-            <WhatsAppFloatWrapper />
-            <DirectionsFloatWrapper />
-            <Analytics />
-          </ToastProvider>
-        </GoogleOAuthProvider>
+        <QueryProvider>
+          <GoogleOAuthProvider>
+            <ToastProvider>
+              {children}
+              <CampaignRenderer />
+              <WhatsAppFloatWrapper />
+              <DirectionsFloatWrapper />
+              <Analytics />
+            </ToastProvider>
+          </GoogleOAuthProvider>
+        </QueryProvider>
       </body>
     </html>
   )

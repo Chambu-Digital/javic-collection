@@ -21,7 +21,6 @@ export interface ISyncQueue {
   retryCount: number
   lastRetryAt?: Date
   deviceId?: string
-  outletId?: mongoose.Types.ObjectId
   outletName?: string
   userId?: mongoose.Types.ObjectId
   createdAt: Date
@@ -62,10 +61,6 @@ const SyncQueueSchema = new mongoose.Schema<ISyncQueue>({
   },
   lastRetryAt: Date,
   deviceId: String,
-  outletId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PosOutlet'
-  },
   outletName: String,
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -97,7 +92,6 @@ SyncQueueSchema.pre('save', function(next) {
 SyncQueueSchema.index({ status: 1, createdAt: 1 })
 SyncQueueSchema.index({ deviceId: 1, status: 1 })
 SyncQueueSchema.index({ localId: 1, recordType: 1 })
-SyncQueueSchema.index({ outletId: 1 })
 
 const SyncQueue = mongoose.models.SyncQueue || mongoose.model<ISyncQueue>('SyncQueue', SyncQueueSchema)
 

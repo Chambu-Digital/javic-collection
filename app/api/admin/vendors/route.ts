@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Vendor from '@/models/Vendor'
+import BranchVendor from '@/models/BranchVendor'
 import { requireAdmin } from '@/lib/auth'
 
-// GET /api/admin/vendors - List all vendors
+// GET /api/admin/vendors - List all vendors (optionally filtered by branch)
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
@@ -11,7 +12,20 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const activeOnly = searchParams.get('activeOnly') === 'true'
+    const branchId = searchParams.get('branchId')
 
+    // If branchId is provided, return only vendors assigned to that branch
+    if (branchId) {
+      const vendors = await BranchVendor.getVendorsForBranch(branchId, activeOnly)
+      
+      return NextResponse.json({
+        vendors,
+        total: vendors.length,
+        branchFiltered: true
+      })
+    }
+
+    // Otherwise, return all vendors (backward compatibility)
     const query = activeOnly ? { isActive: true } : {}
     const vendors = await Vendor.find(query)
       .sort({ isHouseStock: -1, name: 1 })
@@ -19,7 +33,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       vendors,
-      total: vendors.length
+      total: vendors.length,
+      branchFiltered: false
     })
   } catch (error: any) {
     console.error('Error fetching vendors:', error)

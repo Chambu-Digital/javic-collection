@@ -40,7 +40,6 @@ export interface ILedgerEntry {
   eventType: LedgerEventType
   source: 'website' | 'pos' | 'admin' | 'system'
   channel?: 'online' | 'pos' | 'admin'
-  outletId?: mongoose.Types.ObjectId
   outletName?: string
   branchId?: mongoose.Types.ObjectId
   branchCode?: string
@@ -87,7 +86,6 @@ const LedgerEntrySchema = new mongoose.Schema<ILedgerEntry>(
       required: true,
     },
     channel:      { type: String, enum: ['online', 'pos', 'admin'] },
-    outletId:     { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
     outletName:   String,
     branchId:     { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
     branchCode:   String,

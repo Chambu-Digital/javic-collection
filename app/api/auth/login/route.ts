@@ -55,7 +55,8 @@ export async function POST(request: NextRequest) {
       email: user.email,
       phone: user.phone,
       role: user.role,
-      isEmailVerified: user.isEmailVerified
+      isEmailVerified: user.isEmailVerified,
+      canAccessPOS: user.canAccessPOS || false
     }
     
     return NextResponse.json({

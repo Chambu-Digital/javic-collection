@@ -102,13 +102,14 @@ export async function getCompleteProductStock(
   imageIndex?: number,
   selectedSize?: string
 ): Promise<ProductBranchStock> {
-  const [totalStock, branchStocks] = await Promise.all([
+  const [totalStock, branchStocks, product] = await Promise.all([
     getTotalProductStock(productId, imageIndex, selectedSize),
-    getProductBranchStocks(productId, imageIndex, selectedSize)
+    getProductBranchStocks(productId, imageIndex, selectedSize),
+    Product.findById(productObjectId).select('lowStockThreshold').lean(),
   ])
 
-  // Identify low-stock branches (using threshold of 10 as default)
-  const lowStockThreshold = 10
+  // Identify low-stock branches using the per-product threshold (fallback 10)
+  const lowStockThreshold = (product as any)?.lowStockThreshold ?? 10
   const lowStockBranches = branchStocks
     .filter(bs => bs.quantity > 0 && bs.quantity <= lowStockThreshold)
     .map(bs => bs.branchName)
@@ -403,18 +404,24 @@ export async function syncProductStockQuantity(
 export async function getLowStockProductsByBranch(
   branchId?: mongoose.Types.ObjectId | string,
   threshold: number = 10
-): Promise<Array<{ productId: string; productName: string; branchCode: string; quantity: number }>> {
-  const query: any = { quantity: { $lte: threshold, $gt: 0 } }
+): Promise<Array<{ productId: string; productName: string; branchCode: string; branchName: string; quantity: number }>> {
+  // Query all positive stock rows, then apply each product's own low-stock
+  // threshold (falling back to the passed `threshold` for products that
+  // don't yet have the field set).
+  const query: any = { quantity: { $gt: 0 } }
   if (branchId) query.branchId = branchId
 
-  const lowStocks = await BranchStock.find(query)
-    .populate('productId', 'name')
+  const stocks = await BranchStock.find(query)
+    .populate('productId', 'name lowStockThreshold')
     .populate('branchId', 'branchCode name')
     .lean()
 
-  // Filter out any stocks where productId or branchId failed to populate (product/branch was deleted)
-  return lowStocks
+  return stocks
     .filter((stock: any) => stock.productId && stock.branchId)
+    .filter((stock: any) => {
+      const productThreshold = stock.productId?.lowStockThreshold ?? threshold
+      return stock.quantity <= productThreshold
+    })
     .map((stock: any) => ({
       productId: stock.productId._id.toString(),
       productName: stock.productId.name,

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { 
   Plus, Search, Edit, Building2, CheckCircle, XCircle, 
-  Loader2, Home 
+  Loader2, Home, AlertCircle
 } from 'lucide-react'
 
 interface Vendor {
@@ -139,6 +139,25 @@ export default function VendorsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+        {/* Deprecation Notice */}
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-amber-900 mb-1">Vendor Management Has Moved</h3>
+            <p className="text-sm text-amber-800 mb-3">
+              Vendors are now managed within branches. Each vendor is assigned to specific branches where they can supply inventory.
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => router.push('/admin/branches')}
+              className="border-amber-300 hover:bg-amber-100"
+            >
+              Go to Branches
+            </Button>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

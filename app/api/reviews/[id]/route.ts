@@ -6,12 +6,13 @@ import { requireAuth } from '@/lib/auth'
 // GET /api/reviews/[id] - Get a specific review
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
     
-    const review = await Review.findById(params.id)
+    const { id } = await params
+    const review = await Review.findById(id)
       .populate('productId', 'name slug images')
       .populate('userId', 'firstName lastName')
       .populate('moderatedBy', 'firstName lastName')
@@ -33,7 +34,7 @@ export async function GET(
 // PUT /api/reviews/[id] - Update a review (for user edits or admin moderation)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
@@ -41,7 +42,8 @@ export async function PUT(
     const authUser = await requireAuth(request)
 
     const body = await request.json()
-    const review = await Review.findById(params.id)
+    const { id } = await params
+    const review = await Review.findById(id)
 
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 })
@@ -102,14 +104,15 @@ export async function PUT(
 // DELETE /api/reviews/[id] - Delete a review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
     
     const authUser = await requireAuth(request)
 
-    const review = await Review.findById(params.id)
+    const { id } = await params
+    const review = await Review.findById(id)
 
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 })
@@ -124,7 +127,7 @@ export async function DELETE(
     }
 
     const productId = review.productId
-    await Review.findByIdAndDelete(params.id)
+    await Review.findByIdAndDelete(id)
 
     // Update product rating after deletion
     await updateProductRating(productId)

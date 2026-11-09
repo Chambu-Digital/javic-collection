@@ -13,7 +13,6 @@ export interface ICustomerCreditAccount {
   origin: 'website' | 'pos' | 'admin'
   notes?: string
   createdBy?: mongoose.Types.ObjectId
-  createdAtOutlet?: mongoose.Types.ObjectId
   createdAt?: Date
   updatedAt?: Date
 }
@@ -44,7 +43,6 @@ const CustomerCreditAccountSchema = new mongoose.Schema<ICustomerCreditAccount>(
     },
     notes: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    createdAtOutlet: { type: mongoose.Schema.Types.ObjectId, ref: 'PosOutlet' },
   },
   { timestamps: true }
 )

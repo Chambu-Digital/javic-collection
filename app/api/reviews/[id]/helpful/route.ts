@@ -5,7 +5,7 @@ import Review from '@/models/Review'
 // POST /api/reviews/[id]/helpful - Mark review as helpful
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
@@ -13,7 +13,8 @@ export async function POST(
     const body = await request.json()
     const { helpful } = body // true for helpful, false for not helpful
 
-    const review = await Review.findById(params.id)
+    const { id } = await params
+    const review = await Review.findById(id)
 
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 })

@@ -12,6 +12,7 @@ const createStaffSchema = z.object({
   phone: z.string().optional(),
   role: z.enum(['admin', 'super_admin']),
   permissions: z.array(z.string()).optional().default([]),
+  canAccessPOS: z.boolean().optional().default(false),
 })
 
 // GET — list all staff (admin + super_admin)
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       phone: validated.phone,
       role: validated.role,
       permissions: validated.permissions,
+      canAccessPOS: validated.canAccessPOS,
       isEmailVerified: true,
       isApproved: true,
       isActive: true,

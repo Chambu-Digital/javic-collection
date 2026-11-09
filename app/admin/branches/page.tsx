@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -44,6 +45,7 @@ interface BranchFormData {
 }
 
 export default function BranchesPage() {
+  const router = useRouter()
   const { user } = useUserStore()
   const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
@@ -496,7 +498,11 @@ export default function BranchesPage() {
           </Card>
         ) : (
           branches.map((branch) => (
-            <Card key={branch._id} className={!branch.isActive ? 'opacity-60' : ''}>
+            <Card 
+              key={branch._id} 
+              className={`${!branch.isActive ? 'opacity-60' : ''} cursor-pointer hover:shadow-md transition-shadow`}
+              onClick={() => router.push(`/admin/branches/${branch._id}`)}
+            >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -540,11 +546,14 @@ export default function BranchesPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => toggleActive(branch._id, branch.isActive, branch.isMainBranch)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleActive(branch._id, branch.isActive, branch.isMainBranch)
+                      }}
                       disabled={branch.isMainBranch && branch.isActive}
                     >
                       {branch.isActive ? 'Deactivate' : 'Activate'}
@@ -552,7 +561,10 @@ export default function BranchesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEdit(branch)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEdit(branch)
+                      }}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
@@ -560,7 +572,10 @@ export default function BranchesPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(branch._id, branch.name)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete(branch._id, branch.name)
+                        }}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />

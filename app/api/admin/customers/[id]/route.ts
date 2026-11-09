@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAuth(request)
@@ -15,7 +15,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     await connectDB()
 
@@ -63,7 +63,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -76,7 +76,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     
     await connectDB()
@@ -155,7 +155,7 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -168,7 +168,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     
     await connectDB()
     

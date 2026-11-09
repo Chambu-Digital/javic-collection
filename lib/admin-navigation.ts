@@ -147,13 +147,6 @@ export const NAVIGATION_CONFIG: NavigationItem[] = [
     notificationKey: null,
   },
   {
-    name: 'Vendors',
-    href: '/admin/vendors',
-    icon: Store,
-    permissions: [PERMISSIONS.SETTINGS_VIEW],
-    notificationKey: null,
-  },
-  {
     name: 'Settings',
     href: '/admin/settings',
     icon: Settings,

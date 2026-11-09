@@ -4,7 +4,7 @@ import Product from '@/models/Product'
 import Branch from '@/models/Branch'
 import { requireAuth } from '@/lib/auth'
 import { addBranchStock, syncProductStockQuantity } from '@/lib/branch-inventory'
-import { createLedgerEntry } from '@/lib/pos/ledger-service'
+import { recordStockMovement } from '@/lib/inventory-ledger'
 import mongoose from 'mongoose'
 
 interface AddStockRequest {
@@ -51,18 +51,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Branch restriction for POS users
-    // If user has an assigned branch and is not a manager/administrator, they can only adjust their branch
-    if (user.assignedBranchId && user.posRole && 
-        user.posRole !== 'manager' && user.posRole !== 'administrator' && 
-        user.role !== 'super_admin') {
-      if (user.assignedBranchId.toString() !== branchId) {
-        return NextResponse.json(
-          { error: 'You can only adjust stock for your assigned branch' },
-          { status: 403 }
-        )
-      }
-    }
+    // Branch restriction for admin users
+    // You can add branch-based restrictions here if needed
 
     await session.withTransaction(async () => {
       // Verify product exists
@@ -90,6 +80,13 @@ export async function POST(request: NextRequest) {
         throw new Error('Cannot add stock for inactive vendor')
       }
 
+      // NEW: Verify vendor is assigned to this branch
+      const BranchVendor = (await import('@/models/BranchVendor')).default
+      const isAssigned = await BranchVendor.isVendorAssignedToBranch(branchId, vendorId, true)
+      if (!isAssigned) {
+        throw new Error(`Vendor ${vendor.name} (${vendor.vendorCode}) is not assigned to branch ${branch.name}. Please assign the vendor to this branch first.`)
+      }
+
       // Verify image index is valid
       if (!product.images || imageIndex >= product.images.length) {
         throw new Error('Invalid image index')
@@ -106,6 +103,14 @@ export async function POST(request: NextRequest) {
         throw new Error('Invalid size selected')
       }
 
+      // Capture previous quantity for the movement record
+      const BranchStockModel = (await import('@/models/BranchStock')).default
+      const prevQuery: any = { branchId, productId, vendorId, imageIndex }
+      if (selectedSize) prevQuery.selectedSize = selectedSize
+      else prevQuery.selectedSize = { $exists: false }
+      const existingStock = await BranchStockModel.findOne(prevQuery).session(session)
+      const previousQty = existingStock ? existingStock.quantity : 0
+
       // Add stock to branch with vendor
       const result = await addBranchStock(
         branchId,
@@ -120,30 +125,34 @@ export async function POST(request: NextRequest) {
       // Sync product stockQuantity with branch totals
       await syncProductStockQuantity(productId, session)
 
-      // Create ledger entry for audit trail
-      await createLedgerEntry({
-        eventType: 'inventory_added',
-        source: 'admin',
-        channel: 'admin',
-        userId: new mongoose.Types.ObjectId(user.id),
-        userName: `${user.firstName} ${user.lastName}`,
-        branchId: new mongoose.Types.ObjectId(branchId),
-        branchCode: branch.branchCode,
-        branchStockId: result.stockIdentifier,
-        productId: new mongoose.Types.ObjectId(productId),
-        productName: product.name,
-        variantImageUrl: image.url,
-        size: selectedSize,
+      // Record the inventory movement
+      await recordStockMovement(
+        'inventory_added',
+        'admin',
         quantity,
-        totalMinor: 0,
-        notes: notes || `Added ${quantity} units to ${branch.name} (${vendor.name})`,
-        metadata: {
-          vendorId: vendorId,
-          vendorCode: vendor.vendorCode,
-          vendorName: vendor.name
-        },
-        session
-      })
+        previousQty,
+        result.newQuantity,
+        {
+          branchId,
+          branchCode: branch.branchCode,
+          branchStockId: result.stockIdentifier,
+          userId: user.id,
+          userName: `${user.firstName} ${user.lastName}`,
+          productId,
+          productName: product.name,
+          variantImageUrl: image?.url,
+          size: selectedSize,
+          referenceNumber: `MANUAL-ADD-${Date.now()}`,
+          notes,
+          metadata: {
+            vendorId,
+            vendorName: vendor.name,
+            vendorCode: vendor.vendorCode,
+            source: 'manual_add_stock',
+          },
+          session,
+        }
+      )
 
       console.log(`✅ Stock added: ${quantity} units of ${product.name} to ${branch.name} (Vendor: ${vendor.name})`)
     })

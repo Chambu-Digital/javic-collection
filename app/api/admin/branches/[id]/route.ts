@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth'
 // GET /api/admin/branches/[id] - Get single branch
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -22,7 +22,8 @@ export async function GET(
 
     await connectDB()
 
-    const branch = await Branch.findById(params.id)
+    const { id } = await params
+    const branch = await Branch.findById(id)
     
     if (!branch) {
       return NextResponse.json(
@@ -31,7 +32,7 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ branch })
+    return NextResponse.json(branch)
   } catch (error: any) {
     console.error('Error fetching branch:', error)
     return NextResponse.json(
@@ -44,7 +45,7 @@ export async function GET(
 // PUT /api/admin/branches/[id] - Update branch
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -61,7 +62,8 @@ export async function PUT(
     const body = await request.json()
     const { name, branchCode, location, address, isActive, isMainBranch } = body
 
-    const branch = await Branch.findById(params.id)
+    const { id } = await params
+    const branch = await Branch.findById(id)
     
     if (!branch) {
       return NextResponse.json(
@@ -74,7 +76,7 @@ export async function PUT(
     if (branchCode && branchCode.toUpperCase() !== branch.branchCode) {
       const existing = await Branch.findOne({ 
         branchCode: branchCode.toUpperCase(),
-        _id: { $ne: params.id }
+        _id: { $ne: id }
       })
       
       if (existing) {
@@ -89,7 +91,7 @@ export async function PUT(
     if (isMainBranch && !branch.isMainBranch) {
       const existingMain = await Branch.findOne({ 
         isMainBranch: true,
-        _id: { $ne: params.id }
+        _id: { $ne: id }
       })
       
       if (existingMain) {
@@ -134,7 +136,7 @@ export async function PUT(
 // DELETE /api/admin/branches/[id] - Delete/Deactivate branch
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(request)
@@ -148,7 +150,8 @@ export async function DELETE(
 
     await connectDB()
 
-    const branch = await Branch.findById(params.id)
+    const { id } = await params
+    const branch = await Branch.findById(id)
     
     if (!branch) {
       return NextResponse.json(
@@ -166,8 +169,8 @@ export async function DELETE(
     }
 
     // Check for historical records
-    const hasStock = await BranchStock.findOne({ branchId: params.id })
-    const hasOrders = await Order.findOne({ 'items.branchId': params.id })
+    const hasStock = await BranchStock.findOne({ branchId: id })
+    const hasOrders = await Order.findOne({ 'items.branchId': id })
 
     if (hasStock || hasOrders) {
       // Deactivate instead of delete
